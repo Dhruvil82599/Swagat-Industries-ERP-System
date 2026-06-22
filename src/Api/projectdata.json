@@ -1,0 +1,42 @@
+{
+  "customers": [
+    {
+      "cusomer_id": 1,
+      "name": "Dhruvil Umaretiya",
+      "mobile": "1234567890",
+      "locations": "Ahmedabad",
+      "id": "YjNXOJgziZc"
+    },
+    {
+      "cusomer_id": 1,
+      "name": "Dhruvil Umaretiya",
+      "mobile": "1234567890",
+      "locations": "Ahmedabad",
+      "id": "LzXO0DjGEt0"
+    },
+    {
+      "cusomer_id": 1,
+      "name": "Dhruvil Umaretiya",
+      "mobile": "1234567890",
+      "locations": "Ahmedabad",
+      "id": "yxk8MIdVn3c"
+    }
+  ],
+  "shutters": [
+    {
+      "shutter_id": 1,
+      "shutterNo": "SH001",
+      "location": "Ahmedabad",
+      "status": "Active",
+      "id": "JhBEf6eWsds"
+    },
+    {
+      "shutter_id": 2,
+      "shutterNo": "SH002",
+      "location": "Ahmedabad",
+      "status": "Active",
+      "id": "FuZqqCmlX1Q"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

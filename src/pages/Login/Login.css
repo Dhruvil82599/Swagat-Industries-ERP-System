@@ -1,0 +1,225 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.background {
+    min-height: 100vh;
+    width: 100%;
+    background: linear-gradient(
+            rgba(0, 0, 0, 0.45),
+            rgba(0, 0, 0, 0.45)
+        ),
+        url("/src/assets/Swagat Landing Page.jpg");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 40px;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 420px;
+
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    border-radius: 20px;
+
+    padding: 40px 35px;
+
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.logo img {
+    display: block;
+    width: 180px;
+    margin: 0 auto 20px;
+}
+
+.login-container h2 {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 25px;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.login-container input {
+    width: 100%;
+    height: 50px;
+
+    margin-bottom: 18px;
+    padding: 0 15px;
+
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+
+    background: rgba(255, 255, 255, 0.12);
+    color: rgb(0, 0, 0);
+    font-size: 15px;
+
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.login-container input::placeholder {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.login-container input:focus {
+    border-color: #ffcc00;
+    box-shadow: 0 0 12px rgba(255, 204, 0, 0.4);
+}
+
+.login-container button {
+    width: 100%;
+    height: 50px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: linear-gradient(
+        135deg,
+        #ffb703,
+        #fb8500
+    );
+
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.login-container button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(251, 133, 0, 0.4);
+}
+
+.login-container button:active {
+    transform: translateY(0);
+}
+
+/* Tablet */
+
+@media (max-width: 992px) {
+    .background {
+        justify-content: center;
+        padding: 30px;
+    }
+
+    .login-container {
+        max-width: 450px;
+    }
+}
+
+/* Mobile */
+
+@media (max-width: 576px) {
+    .background {
+        padding: 20px;
+    }
+
+    .login-container {
+        padding: 30px 25px;
+        border-radius: 16px;
+    }
+
+    .logo img {
+        width: 150px;
+    }
+
+    .login-container h2 {
+        font-size: 24px;
+    }
+}
+
+.background {
+    animation: fadeIn 1s ease;
+}
+
+.login-container {
+    animation: slideUp 0.8s ease;
+}
+
+.logo img {
+    animation: zoomIn 1s ease;
+}
+
+.title {
+    animation: fadeSlide 0.8s ease;
+}
+
+.input-1 {
+    animation: fadeSlide 0.8s ease 0.3s forwards;
+    opacity: 0;
+}
+
+.input-2 {
+    animation: fadeSlide 0.8s ease 0.5s forwards;
+    opacity: 0;
+}
+
+.login-btn {
+    animation: fadeSlide 0.8s ease 0.7s forwards;
+    opacity: 0;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(60px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeSlide {
+    from {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

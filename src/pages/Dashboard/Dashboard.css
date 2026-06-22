@@ -1,0 +1,126 @@
+.dashboard {
+  padding: 25px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+}
+
+/* Card */
+
+.stat-card {
+  position: relative;
+  overflow: hidden;
+
+  padding: 25px;
+
+  border-radius: 18px;
+
+  display: flex;
+  align-items: center;
+  gap: 18px;
+
+  color: white;
+
+  cursor: pointer;
+
+  transition: all 0.3s ease;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card:hover {
+  transform: translateY(-8px) scale(1.02);
+}
+
+/* Icon */
+
+.icon-box {
+  width: 70px;
+  height: 70px;
+
+  border-radius: 15px;
+
+  background: rgba(255, 255, 255, 0.2);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 30px;
+
+  backdrop-filter: blur(5px);
+}
+
+.card-content h2 {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 700;
+}
+
+.card-content p {
+  margin-top: 6px;
+  font-size: 15px;
+  opacity: 0.95;
+}
+
+/* Decorative Circle */
+
+.stat-card::before {
+  content: "";
+
+  position: absolute;
+
+  width: 120px;
+  height: 120px;
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.15);
+
+  top: -40px;
+  right: -40px;
+}
+
+/* Different Colors */
+
+.employees {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.shutters {
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+}
+
+.paid {
+  background: linear-gradient(135deg, #11998e, #38ef7d);
+}
+
+.pending {
+  background: linear-gradient(135deg, #f7971e, #ffd200);
+}
+
+/* Responsive */
+
+@media (max-width: 1200px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stat-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-8px);
+}

@@ -1,0 +1,143 @@
+.sidebar {
+    width: 250px;
+    min-height: calc(100vh - 70px);
+    background: #1f2937;
+    color: white;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-title {
+    padding: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-title h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+}
+
+.sidebar-menu li {
+    margin: 5px 0;
+}
+
+.sidebar-menu a {
+    display: block;
+    padding: 14px 20px;
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.sidebar-menu a:hover {
+    background: #374151;
+    border-left: 4px solid #33b7bc;
+    padding-left: 16px;
+}
+
+.sidebar-menu a.active {
+    background: #374151;
+    border-left: 4px solid #33b7bc;
+    color: #33b7bc;
+}
+
+/* Parent Menu */
+
+.menu-parent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.menu-parent:hover {
+    background: #374151;
+    border-left: 4px solid #33b7bc;
+}
+
+/* Arrow Animation */
+
+.arrow {
+    transition: transform 0.3s ease;
+}
+
+.arrow.rotate {
+    transform: rotate(180deg);
+}
+
+/* Sub Menu Animation */
+
+.submenu {
+    list-style: none;
+    padding-left: 20px;
+    margin: 0;
+    background: #111827;
+
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+
+    transition:
+        max-height 0.4s ease,
+        opacity 0.3s ease;
+}
+
+.submenu.open {
+    max-height: 200px;
+    opacity: 1;
+}
+
+.submenu li {
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.submenu.open li {
+    transform: translateY(0);
+}
+
+.submenu li a {
+    display: block;
+    padding: 12px 20px;
+    color: #d1d5db;
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.submenu li a:hover {
+    color: #33b7bc;
+    padding-left: 25px;
+}
+
+.active-submenu {
+    color: #33b7bc !important;
+    font-weight: 600;
+    border-left: 3px solid #33b7bc;
+    background: rgba(51, 183, 188, 0.1);
+}
+
+/* Mobile */
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 220px;
+    }
+
+    .sidebar-menu a {
+        font-size: 15px;
+    }
+}
