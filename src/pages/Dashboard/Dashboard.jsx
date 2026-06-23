@@ -3,20 +3,19 @@ import { FaUsers, FaDoorOpen, FaCheckCircle, FaClock } from "react-icons/fa";
 import { useCustomer } from "../../components/Context API/CustomerContext";
 
 import "./Dashboard.css";
-import { useEffect, useState } from "react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { customerData } = useCustomer();
-
 
   const stats = [
     {
       title: "Total Customers",
       value: customerData.length,
       icon: <FaUsers />,
-      className: "employees",
+      className: "customers",
       path: "/admin/listcustomers",
+      description: "Active accounts registered in the system.",
     },
     {
       title: "Total Shutters",
@@ -24,6 +23,7 @@ const Dashboard = () => {
       icon: <FaDoorOpen />,
       className: "shutters",
       path: "/admin/shutters",
+      description: "Shutters ready for installation and service.",
     },
     {
       title: "Paid Quotations",
@@ -31,6 +31,7 @@ const Dashboard = () => {
       icon: <FaCheckCircle />,
       className: "paid",
       path: "/admin/paid-quotations",
+      description: "Confirmed customer orders and completed payments.",
     },
     {
       title: "Pending Quotations",
@@ -38,25 +39,47 @@ const Dashboard = () => {
       icon: <FaClock />,
       className: "pending",
       path: "/admin/pending-quotations",
+      description: "Quotes awaiting approval or customer response.",
     },
   ];
 
   return (
-    <div className="stats-grid">
-      {stats.map((item, index) => (
-        <div
-          key={index}
-          className={`stat-card ${item.className}`}
-          onClick={() => navigate(item.path)}
-        >
-          <div className="icon-box">{item.icon}</div>
-
-          <div className="card-content">
-            <h2>{item.value}</h2>
-            <p>{item.title}</p>
-          </div>
+    <div className="dashboard-page">
+      <section className="dashboard-hero">
+        <div>
+          <p className="eyebrow">Dashboard</p>
+          <h1>Performance overview</h1>
+          <p className="hero-copy">
+            Keep track of customers, shutters, and quotation status from one
+            polished workspace.
+          </p>
         </div>
-      ))}
+
+        <div className="hero-actions">
+          <button className="hero-btn" onClick={() => navigate("/admin/listcustomers")}>View Customers</button>
+          <button className="hero-btn secondary" onClick={() => navigate("/admin/shutters")}>Manage Shutters</button>
+        </div>
+      </section>
+
+      <section className="stats-grid">
+        {stats.map((item, index) => (
+          <article
+            key={index}
+            className={`stat-card ${item.className}`}
+            onClick={() => navigate(item.path)}
+          >
+            <div className="card-top">
+              <div className="icon-box">{item.icon}</div>
+              <span className="card-label">{item.title}</span>
+            </div>
+
+            <div className="card-content">
+              <h2>{item.value}</h2>
+              <p>{item.description}</p>
+            </div>
+          </article>
+        ))}
+      </section>
     </div>
   );
 };
