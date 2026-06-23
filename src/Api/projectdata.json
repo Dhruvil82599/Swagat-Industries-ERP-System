@@ -1,37 +1,38 @@
 {
   "customers": [
     {
-      "cusomer_id": 1,
       "name": "Dhruvil Umaretiya",
       "mobile": "1234567890",
       "locations": "Ahmedabad",
       "id": "YjNXOJgziZc"
     },
     {
-      "cusomer_id": 1,
-      "name": "Dhruvil Umaretiya",
-      "mobile": "1234567890",
-      "locations": "Ahmedabad",
+      "name": "Aarav Patel",
+      "mobile": "9876543210",
+      "locations": "Surat",
       "id": "LzXO0DjGEt0"
     },
     {
-      "cusomer_id": 1,
-      "name": "Dhruvil Umaretiya",
-      "mobile": "1234567890",
-      "locations": "Ahmedabad",
+      "name": "Priya Desai",
+      "mobile": "9988776655",
+      "locations": "Vadodara",
       "id": "yxk8MIdVn3c"
+    },
+    {
+      "name": "Sameer Shah",
+      "mobile": "9123456780",
+      "locations": "Rajkot",
+      "id": "Kj72mQpH9sW"
     }
   ],
   "shutters": [
     {
-      "shutter_id": 1,
       "shutterNo": "SH001",
       "location": "Ahmedabad",
       "status": "Active",
       "id": "JhBEf6eWsds"
     },
     {
-      "shutter_id": 2,
       "shutterNo": "SH002",
       "location": "Ahmedabad",
       "status": "Active",
