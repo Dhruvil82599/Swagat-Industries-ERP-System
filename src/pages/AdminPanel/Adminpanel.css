@@ -1,0 +1,50 @@
+﻿.admin-layout {
+    display: flex;
+    min-height: calc(100vh - 70px);
+    margin-top: 70px;
+    position: relative;
+}
+
+.admin-content {
+    flex: 1;
+    margin-left: 280px;
+    background: #ffffff;
+    padding: 24px;
+    overflow-y: auto;
+    transition: margin-left 0.3s ease;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .admin-content {
+        margin-left: 260px;
+    }
+}
+
+/* Large Phone / Small Tablet */
+@media (max-width: 768px) {
+    .admin-layout {
+        position: relative;
+        margin-top: 70px;
+    }
+
+    .admin-content {
+        margin-left: 0;
+        width: 100%;
+        min-height: calc(100vh - 70px);
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* When sidebar is open on mobile, prevent scrolling */
+    .admin-layout.sidebar-open {
+        overflow: hidden;
+    }
+}
+
+/* Small Phone */
+@media (max-width: 576px) {
+    .admin-content {
+        padding: 16px;
+    }
+}

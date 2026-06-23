@@ -1,24 +1,21 @@
-import Header from "../../components/header/Header";
+﻿import Header from "../../components/header/Header";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import { Outlet } from "react-router-dom";
+import { useContext } from "react";
+import { SidebarContext } from "../../components/Context API/SidebarContext";
+import "./Adminpanel.css";
 
 const AdminPanel = () => {
+  const { sidebarOpen } = useContext(SidebarContext);
+
   return (
     <>
       <Header />
 
-      <div style={{ display: "flex" }}>
+      <div className={`admin-layout ${sidebarOpen ? "sidebar-open" : ""}`}>
         <Sidebar />
 
-        {/* White Content Area */}
-        <div
-          style={{
-            flex: 1,
-            background: "#fff",
-            minHeight: "calc(100vh - 70px)",
-            padding: "20px",
-          }}
-        >
+        <div className="admin-content">
           <Outlet />
         </div>
       </div>

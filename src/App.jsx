@@ -25,11 +25,13 @@ import Customers from "./pages/Customers/Customers";
 import List_of_customer from "./pages/Customers/List_of_customer";
 import Reports from "./pages/Reports/Reports";
 import { CustomerProvider } from "./components/Context API/CustomerContext";
+import { SidebarProvider } from "./components/Context API/SidebarContext";
 
 function App() {
   return (
 
     <CustomerProvider>
+    <SidebarProvider>
 
     <Routes>
       <Route path="/" element={<Login />} />
@@ -41,6 +43,7 @@ function App() {
         <Route path="reports" element={<Reports />} />
       </Route>
     </Routes>
+    </SidebarProvider>
     </CustomerProvider>
   );
 }

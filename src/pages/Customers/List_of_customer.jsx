@@ -84,10 +84,10 @@ const List_of_customer = () => {
               {customerData.length > 0 ? (
                 customerData.map((customer) => (
                   <tr key={customer.id}>
-                    <td>{customer.name}</td>
+                    <td>{customer.customerName}</td>
                     <td>{customer.email}</td>
                     <td>{customer.mobile}</td>
-                    <td>{customer.locations}</td>
+                    <td>{customer.city}</td>
                     <td className="action-buttons">
                       <button
                         className="edit-btn"
