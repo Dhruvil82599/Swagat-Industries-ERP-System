@@ -33,7 +33,7 @@ const Customers = () => {
         alert("Customer Added Successfully");
 
         setFormData({
-          name: "",
+          customerName: "",
           mobile: "",
           email: "",
           city: "",
@@ -83,9 +83,9 @@ const Customers = () => {
                 <label>Customer Name</label>
                 <input
                   type="text"
-                  name="name"
+                  name="customerName"
                   placeholder="Enter customer name"
-                  value={formData.name}
+                  value={formData.customerName}
                   onChange={handleChange}
                   required
                 />

@@ -16,14 +16,6 @@
       "id": "LzXO0DjGEt0"
     },
     {
-      "customerName": "Priya Desai",
-      "mobile": "9988776655",
-      "city": "Vadodara",
-      "email": "priya@gmail.com",
-      "address": "456 Oak Avenue",
-      "id": "yxk8MIdVn3c"
-    },
-    {
       "customerName": "Sameer Shah",
       "mobile": "9123456780",
       "city": "Rajkot",
@@ -32,20 +24,29 @@
       "id": "Kj72mQpH9sW"
     },
     {
-      "customerName": "Darshan",
-      "mobile": "1235696325`",
-      "email": "darshandesai@gmail.com",
-      "city": "Saldi",
-      "address": "saldi",
-      "id": "f-HeJ2CgMMw"
-    },
-    {
-      "name": "Nimit Patel",
+      "customerName": "Nimit Patel",
       "mobile": "7990883941",
       "email": "nimit@gmail.com",
       "city": "Oliya",
       "address": "`Amreli",
       "id": "Cu9ymHPzg98"
+    },
+    {
+      "customerName": "aaaa",
+      "mobile": "4154454",
+      "email": "ssss@gmail.com",
+      "city": "dsdsd",
+      "address": "sds",
+      "id": "Tbh-menoAiY"
+    },
+    {
+      "name": "",
+      "mobile": "1586327539",
+      "email": "yash@gmail.com",
+      "city": "Ahmedabad",
+      "address": "ahmedabad",
+      "customerName": "Yash",
+      "id": "zSgEAVLaZpo"
     }
   ],
   "shutters": [

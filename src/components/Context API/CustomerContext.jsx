@@ -7,7 +7,7 @@ export const CustomerProvider = ({ children }) => {
 
   useEffect(() => {
     getCustomerData();
-  }, []);
+  });
 
   const getCustomerData = async () => {
     try {
