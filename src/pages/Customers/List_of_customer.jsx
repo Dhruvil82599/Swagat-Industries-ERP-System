@@ -1,10 +1,13 @@
+
 import "./List_of_customer.css";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const List_of_customer = () => {
   const navigate = useNavigate();
+
   const [customerData, setCustomerData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     GetCustomerData();
@@ -26,7 +29,7 @@ const List_of_customer = () => {
 
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this customer?",
+      "Are you sure you want to delete this customer?"
     );
 
     if (!confirmDelete) return;
@@ -35,11 +38,27 @@ const List_of_customer = () => {
       await fetch(`http://localhost:3000/customers/${id}`, {
         method: "DELETE",
       });
-      GetCustomerData();
+
+      // Remove deleted customer from state
+      setCustomerData((prev) =>
+        prev.filter((customer) => customer.id !== id)
+      );
     } catch (error) {
       console.log("Delete Error:", error);
     }
   };
+
+  // Search Filter
+  const filteredCustomers = customerData.filter((customer) => {
+    const search = searchTerm.toLowerCase();
+
+    return (
+      customer.customerName?.toLowerCase().includes(search) ||
+      customer.city?.toLowerCase().includes(search) ||
+      customer.email?.toLowerCase().includes(search) ||
+      customer.mobile?.toString().includes(search)
+    );
+  });
 
   return (
     <div className="customer-list-page">
@@ -48,13 +67,13 @@ const List_of_customer = () => {
           <p className="eyebrow">Customers</p>
           <h2>List of Customers</h2>
           <p className="subtext">
-            Manage your customer roster, edit client details, or remove outdated
-            entries with confidence.
+            Manage your customer roster, edit client details, or remove
+            outdated entries with confidence.
           </p>
         </div>
 
         <div className="summary-card">
-          <span>Total customers</span>
+          <span>Total Customers</span>
           <strong>{customerData.length}</strong>
         </div>
       </div>
@@ -62,10 +81,20 @@ const List_of_customer = () => {
       <div className="customer-list-container">
         <div className="table-toolbar">
           <div className="search-box">
-            <input type="search" placeholder="Search by name or city" />
+            <input
+              type="search"
+              placeholder="Search by Name, City, Email or Mobile"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
 
-          <button className="primary-btn" onClick={() => navigate("/admin/addcustomers")}>Add Customer</button>
+          <button
+            className="primary-btn"
+            onClick={() => navigate("/admin/addcustomers")}
+          >
+            Add Customer
+          </button>
         </div>
 
         <div className="table-wrap">
@@ -81,13 +110,14 @@ const List_of_customer = () => {
             </thead>
 
             <tbody>
-              {customerData.length > 0 ? (
-                customerData.map((customer) => (
+              {filteredCustomers.length > 0 ? (
+                filteredCustomers.map((customer) => (
                   <tr key={customer.id}>
                     <td>{customer.customerName}</td>
                     <td>{customer.email}</td>
                     <td>{customer.mobile}</td>
                     <td>{customer.city}</td>
+
                     <td className="action-buttons">
                       <button
                         className="edit-btn"
@@ -95,6 +125,7 @@ const List_of_customer = () => {
                       >
                         Edit
                       </button>
+
                       <button
                         className="delete-btn"
                         onClick={() => handleDelete(customer.id)}
