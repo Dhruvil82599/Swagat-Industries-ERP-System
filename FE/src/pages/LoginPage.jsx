@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { FiUser, FiLock, FiEye, FiEyeOff, FiAlertCircle, FiArrowRight } from "react-icons/fi";
+import {
+  FiUser,
+  FiLock,
+  FiEye,
+  FiEyeOff,
+  FiAlertCircle,
+  FiArrowRight,
+} from "react-icons/fi";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -60,13 +67,15 @@ export default function LoginPage() {
           width: 100vw;
           display: flex;
           align-items: center;
-          justify-content: center;
-          background: #F5F7FA;
-          background-image: 
-            radial-gradient(at 0% 0%, rgba(18, 59, 93, 0.05) 0px, transparent 50%),
-            radial-gradient(at 100% 100%, rgba(242, 140, 40, 0.05) 0px, transparent 50%);
+          justify-content: flex-start;
+          padding-left: 7%;
+          padding-right: 20px;
+          background-color: #F8FAFC;
+          background-image: url('/swagat-banner-bg.jpg');
+          background-size: cover;
+          background-position: center right;
+          background-repeat: no-repeat;
           font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          padding: 20px;
           box-sizing: border-box;
           animation: pageFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -78,11 +87,11 @@ export default function LoginPage() {
 
         .login-card {
           width: 100%;
-          max-width: 440px;
+          max-width: 420px;
           background: #FFFFFF;
-          border: 1px solid #E2E8F0;
-          border-radius: 12px;
-          box-shadow: 0 10px 30px -5px rgba(18, 59, 93, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+          border: 1px solid #CBD5E1;
+          border-radius: 14px;
+          box-shadow: 0 25px 50px -12px rgba(18, 59, 93, 0.25), 0 4px 16px rgba(0, 0, 0, 0.06);
           padding: 40px 36px;
           box-sizing: border-box;
           animation: cardSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -302,6 +311,13 @@ export default function LoginPage() {
           padding-top: 20px;
         }
 
+        @media (max-width: 900px) {
+          .login-container {
+            justify-content: center;
+            padding-left: 20px;
+          }
+        }
+
         @media (max-width: 480px) {
           .login-card {
             padding: 28px 22px;
@@ -397,11 +413,7 @@ export default function LoginPage() {
             )}
           </div>
 
-          <button
-            type="submit"
-            className="btn-submit"
-            disabled={isSubmitting}
-          >
+          <button type="submit" className="btn-submit" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <div className="spinner" />
@@ -417,9 +429,11 @@ export default function LoginPage() {
         </form>
 
         <div className="login-footer">
-          Swagat Industries ERP &copy; {new Date().getFullYear()} &bull; Secure Enterprise Login
+          Swagat Industries ERP &copy; {new Date().getFullYear()} &bull; Secure
+          Enterprise Login
         </div>
       </div>
     </div>
   );
 }
+

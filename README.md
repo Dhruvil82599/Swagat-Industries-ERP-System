@@ -4,8 +4,47 @@ A modern, full-stack Enterprise Resource Planning (ERP) and Quotation Management
 
 ---
 
-## 🌟 Features
+## 📸 Application Showcase & Screenshots
 
+### 🔐 Login & Authentication
+*Secure, animated login interface with Swagat Industries branding and JWT token authentication.*
+![Login Screen](./FE/public/screenshots/login.png)
+
+<br/>
+
+### 👥 Customer Management
+*Centralized customer relationship management with contact numbers, addresses, and GST profiles.*
+![Customer Management](./FE/public/screenshots/customers.png)
+
+<br/>
+
+### 🏢 Industry & Company Management
+*Link multiple industrial units and corporate clients directly under each customer.*
+![Industry Management](./FE/public/screenshots/industries.png)
+
+<br/>
+
+### 📍 Installation Sites & Locations
+*Track multi-location installation sites, city details, and site contact persons.*
+![Sites Management](./FE/public/screenshots/sites.png)
+
+<br/>
+
+### 🚪 Shutters Master Catalog
+*Configure shutter specs, height & width dimensions, fitting types (A/B), and drive mechanisms (Manual, Gear, Motorised).*
+![Shutters Master](./FE/public/screenshots/shutters.png)
+
+<br/>
+
+### 📜 Quotation Management & Financial Engine
+*Automated quotation generator with line-item sq.ft math, GI top covers, transportation fees, GST calculations, and payments tracking.*
+![Quotations Engine](./FE/public/screenshots/quotations.png)
+
+---
+
+## 🌟 Key Features
+
+- 🔐 **Authentication & Security**: Protected JWT backend endpoints and role-based frontend routing.
 - 👥 **Customer Management**: Maintain customer contact details, addresses, and GST profiles.
 - 🏢 **Industry & Site Hierarchy**: Link multiple industrial units and installation sites to each customer.
 - 🚪 **Shutter Master Catalog**: Track custom shutter specifications, dimensions (Height, Width, Sq.Ft conversions), fitting types (A-Type, B-Type), and drive types (Manual, Gear, Motorised).
@@ -39,19 +78,21 @@ A modern, full-stack Enterprise Resource Planning (ERP) and Quotation Management
 ```text
 Swagat-Industries-ERP-System/
 ├── FE/                     # Frontend Application (React + Vite)
-│   ├── public/             # Static Assets & Logos
+│   ├── public/             # Static Assets, Logos & Screenshots
+│   │   └── screenshots/    # Application Screenshots for Documentation
 │   ├── src/
 │   │   ├── components/     # UI Components, Layout, Navbar, Sidebar
 │   │   ├── context/        # React Context Providers (Toast, Auth)
-│   │   ├── pages/          # Customers, Industries, Sites, Shutters, Quotations
+│   │   ├── pages/          # Customers, Industries, Sites, Shutters, Quotations, Login
 │   │   ├── services/       # Axios / Fetch API Service Layer
 │   │   └── styles/         # Modern Theme CSS & Styling System
 │   ├── package.json
 │   └── vite.config.js
 │
 ├── BE/                     # Backend API Server (Node.js + Express + Prisma)
-│   ├── prisma/             # Prisma Schema & Migrations
-│   │   └── schema.prisma   # PostgreSQL Models
+│   ├── prisma/             # Prisma Schema, Migrations & Seeds
+│   │   ├── schema.prisma   # PostgreSQL Models
+│   │   └── seed.js         # Initial Admin Seeding Script
 │   ├── src/                # Express Controllers, Routes, Middlewares
 │   ├── .env.example        # Environment Variables Template
 │   └── package.json
@@ -90,12 +131,15 @@ Ensure you have the following installed on your machine:
    PORT=5000
    DATABASE_URL="postgresql://username:password@localhost:5432/swagat_erp?schema=public"
    JWT_SECRET="your_secret_key"
+   ADMIN_USERNAME="admin"
+   ADMIN_PASSWORD="adminpassword123"
    ```
 
-4. Run database migrations & generate Prisma Client:
+4. Run database migrations & seed initial admin user:
    ```bash
    npm run prisma:migrate
    npm run prisma:generate
+   npm run prisma:seed
    ```
 
 5. Start the backend development server:
@@ -130,6 +174,7 @@ Ensure you have the following installed on your machine:
 
 The database uses Prisma ORM connected to PostgreSQL with the following core entities:
 
+- `User`: Administrator accounts & password hashes (`bcryptjs`).
 - `Customer`: Primary customer records & GST details.
 - `Industry`: Industrial client companies associated with customers.
 - `Site`: Specific physical installation sites belonging to an industry.
@@ -147,6 +192,7 @@ The database uses Prisma ORM connected to PostgreSQL with the following core ent
 
 ### Backend (`BE/`)
 - `npm run dev` — Start Node backend in watch mode
+- `npm run prisma:seed` — Seed or update initial admin user
 - `npm run prisma:studio` — Open Prisma Studio GUI for database inspection
 - `npm run prisma:migrate` — Apply database schema migrations
 
