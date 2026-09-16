@@ -4,9 +4,28 @@
 
 const BASE_URL = "/api";
 
+function getAuthHeaders() {
+  const token = localStorage.getItem("swagat_erp_token");
+  const headers = { "Content-Type": "application/json" };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return headers;
+}
+
 async function handleResponse(response) {
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
+    if (response.status === 401) {
+      // Clear token on 401 Unauthorized if token was present
+      const currentToken = localStorage.getItem("swagat_erp_token");
+      if (currentToken) {
+        localStorage.removeItem("swagat_erp_token");
+        localStorage.removeItem("swagat_erp_user");
+        // Dispatch custom event so AuthContext can handle redirect without full refresh
+        window.dispatchEvent(new Event("swagat_auth_expired"));
+      }
+    }
     const errorMsg = data.message || "An error occurred during the request";
     const error = new Error(errorMsg);
     error.status = response.status;
@@ -16,29 +35,55 @@ async function handleResponse(response) {
   return data.data;
 }
 
+export const authAPI = {
+  login: (credentials) =>
+    fetch(`${BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(credentials),
+    }).then(handleResponse),
+
+  getMe: () =>
+    fetch(`${BASE_URL}/auth/me`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+
+  logout: () =>
+    fetch(`${BASE_URL}/auth/logout`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+};
+
 export const api = {
   // Customers
   getCustomers: (search = "") => {
     const query = search ? `?search=${encodeURIComponent(search)}` : "";
-    return fetch(`${BASE_URL}/customers${query}`).then(handleResponse);
+    return fetch(`${BASE_URL}/customers${query}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse);
   },
   getCustomerById: (id) =>
-    fetch(`${BASE_URL}/customers/${id}`).then(handleResponse),
+    fetch(`${BASE_URL}/customers/${id}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
   createCustomer: (data) =>
     fetch(`${BASE_URL}/customers`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     }).then(handleResponse),
   updateCustomer: (id, data) =>
     fetch(`${BASE_URL}/customers/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     }).then(handleResponse),
   deleteCustomer: (id) =>
     fetch(`${BASE_URL}/customers/${id}`, {
       method: "DELETE",
+      headers: getAuthHeaders(),
     }).then(handleResponse),
 
   // Industries
@@ -47,25 +92,30 @@ export const api = {
     if (customerId) params.append("customerId", customerId);
     if (search) params.append("search", search);
     const query = params.toString() ? `?${params.toString()}` : "";
-    return fetch(`${BASE_URL}/industries${query}`).then(handleResponse);
+    return fetch(`${BASE_URL}/industries${query}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse);
   },
   getIndustryById: (id) =>
-    fetch(`${BASE_URL}/industries/${id}`).then(handleResponse),
+    fetch(`${BASE_URL}/industries/${id}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
   createIndustry: (data) =>
     fetch(`${BASE_URL}/industries`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     }).then(handleResponse),
   updateIndustry: (id, data) =>
     fetch(`${BASE_URL}/industries/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     }).then(handleResponse),
   deleteIndustry: (id) =>
     fetch(`${BASE_URL}/industries/${id}`, {
       method: "DELETE",
+      headers: getAuthHeaders(),
     }).then(handleResponse),
 
   // Sites
@@ -74,24 +124,30 @@ export const api = {
     if (industryId) params.append("industryId", industryId);
     if (search) params.append("search", search);
     const query = params.toString() ? `?${params.toString()}` : "";
-    return fetch(`${BASE_URL}/sites${query}`).then(handleResponse);
+    return fetch(`${BASE_URL}/sites${query}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse);
   },
-  getSiteById: (id) => fetch(`${BASE_URL}/sites/${id}`).then(handleResponse),
+  getSiteById: (id) =>
+    fetch(`${BASE_URL}/sites/${id}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
   createSite: (data) =>
     fetch(`${BASE_URL}/sites`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     }).then(handleResponse),
   updateSite: (id, data) =>
     fetch(`${BASE_URL}/sites/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     }).then(handleResponse),
   deleteSite: (id) =>
     fetch(`${BASE_URL}/sites/${id}`, {
       method: "DELETE",
+      headers: getAuthHeaders(),
     }).then(handleResponse),
 
   // Shutters
@@ -100,25 +156,30 @@ export const api = {
     if (siteId) params.append("siteId", siteId);
     if (search) params.append("search", search);
     const query = params.toString() ? `?${params.toString()}` : "";
-    return fetch(`${BASE_URL}/shutters${query}`).then(handleResponse);
+    return fetch(`${BASE_URL}/shutters${query}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse);
   },
   getShutterById: (id) =>
-    fetch(`${BASE_URL}/shutters/${id}`).then(handleResponse),
+    fetch(`${BASE_URL}/shutters/${id}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
   createShutter: (data) =>
     fetch(`${BASE_URL}/shutters`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     }).then(handleResponse),
   updateShutter: (id, data) =>
     fetch(`${BASE_URL}/shutters/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     }).then(handleResponse),
   deleteShutter: (id) =>
     fetch(`${BASE_URL}/shutters/${id}`, {
       method: "DELETE",
+      headers: getAuthHeaders(),
     }).then(handleResponse),
 
   // Quotations
@@ -138,27 +199,32 @@ export const api = {
     if (startDate) params.append("startDate", startDate);
     if (endDate) params.append("endDate", endDate);
     const query = params.toString() ? `?${params.toString()}` : "";
-    return fetch(`${BASE_URL}/quotations${query}`).then(handleResponse);
+    return fetch(`${BASE_URL}/quotations${query}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse);
   },
   getQuotationById: (id) =>
-    fetch(`${BASE_URL}/quotations/${id}`).then(handleResponse),
+    fetch(`${BASE_URL}/quotations/${id}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
   createQuotation: (data) =>
     fetch(`${BASE_URL}/quotations`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     }).then(handleResponse),
   updateQuotation: (id, data) =>
     fetch(`${BASE_URL}/quotations/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: getAuthHeaders(),
       body: JSON.stringify(data),
     }).then(handleResponse),
   deleteQuotation: (id) =>
     fetch(`${BASE_URL}/quotations/${id}`, {
       method: "DELETE",
+      headers: getAuthHeaders(),
     }).then(handleResponse),
 
-  // Health
+  // Health Check (Public)
   checkHealth: () => fetch(`${BASE_URL}/health`).then(handleResponse),
 };
