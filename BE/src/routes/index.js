@@ -14,11 +14,13 @@ const quotationRoutes = require("./quotationRoutes");
 const paymentRoutes = require("./paymentRoutes");
 const companySettingsRoutes = require("./companySettingsRoutes");
 const quotationTermsRoutes = require("./quotationTermsRoutes");
+const dashboardRoutes = require("./dashboardRoutes");
 
 // Public authentication routes
 router.use("/auth", authRoutes);
 
 // Protected ERP application routes (require valid JWT token)
+router.use("/dashboard", authMiddleware, dashboardRoutes);
 router.use("/customers", authMiddleware, customerRoutes);
 router.use("/industries", authMiddleware, industryRoutes);
 router.use("/sites", authMiddleware, siteRoutes);

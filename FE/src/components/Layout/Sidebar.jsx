@@ -1,11 +1,13 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import {
+  FiGrid,
   FiUsers,
   FiBriefcase,
   FiMapPin,
   FiLayers,
   FiFileText,
+  FiCreditCard,
 } from "react-icons/fi";
 
 export default function Sidebar() {
@@ -39,7 +41,21 @@ export default function Sidebar() {
       </div>
 
       <nav className="sidebar-nav">
-        <div className="nav-section-title">Master Data Flow</div>
+        <div className="nav-section-title">Overview</div>
+
+        <NavLink
+          to="/dashboard"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? "active" : ""}`
+          }
+        >
+          <FiGrid className="link-icon" />
+          <span>Dashboard</span>
+        </NavLink>
+
+        <div className="nav-section-title" style={{ marginTop: "12px" }}>
+          Master Data Flow
+        </div>
 
         <NavLink
           to="/customers"
@@ -89,6 +105,16 @@ export default function Sidebar() {
         >
           <FiFileText className="link-icon" />
           <span>5. Quotations</span>
+        </NavLink>
+
+        <NavLink
+          to="/payments"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? "active" : ""}`
+          }
+        >
+          <FiCreditCard className="link-icon" />
+          <span>6. Payments</span>
         </NavLink>
       </nav>
 

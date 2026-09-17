@@ -225,6 +225,76 @@ export const api = {
       headers: getAuthHeaders(),
     }).then(handleResponse),
 
+  // Payments
+  getPayments: (quotationId = "") => {
+    const query = quotationId ? `?quotationId=${quotationId}` : "";
+    return fetch(`${BASE_URL}/payments${query}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse);
+  },
+  getPaymentById: (id) =>
+    fetch(`${BASE_URL}/payments/${id}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+  createPayment: (data) =>
+    fetch(`${BASE_URL}/payments`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+  updatePayment: (id, data) =>
+    fetch(`${BASE_URL}/payments/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+  deletePayment: (id) =>
+    fetch(`${BASE_URL}/payments/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+
+  // Company Settings
+  getCompanySettings: () =>
+    fetch(`${BASE_URL}/company-settings`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+  updateCompanySettings: (data) =>
+    fetch(`${BASE_URL}/company-settings`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+
+  // Quotation Terms
+  getQuotationTerms: () =>
+    fetch(`${BASE_URL}/quotation-terms`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+  createQuotationTerm: (data) =>
+    fetch(`${BASE_URL}/quotation-terms`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+  updateQuotationTerm: (id, data) =>
+    fetch(`${BASE_URL}/quotation-terms/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+  deleteQuotationTerm: (id) =>
+    fetch(`${BASE_URL}/quotation-terms/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+
+  // Dashboard
+  getDashboardStats: () =>
+    fetch(`${BASE_URL}/dashboard`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+
   // Health Check (Public)
   checkHealth: () => fetch(`${BASE_URL}/health`).then(handleResponse),
 };

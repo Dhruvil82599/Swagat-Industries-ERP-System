@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import AppLayout, { useToast } from "../components/Layout/AppLayout";
 import { api } from "../services/api";
 import ConfirmModal from "../components/UI/ConfirmModal";
+import QuotationPDFModal from "../components/UI/QuotationPDFModal";
+import QuotationTermsModal from "../components/UI/QuotationTermsModal";
 import {
   FiPlus,
   FiSearch,
@@ -17,9 +20,12 @@ import {
   FiFilter,
   FiRefreshCw,
   FiPrinter,
+  FiSliders,
+  FiCreditCard,
 } from "react-icons/fi";
 
 export default function QuotationsPage() {
+  const navigate = useNavigate();
   const [quotations, setQuotations] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [industries, setIndustries] = useState([]);
@@ -37,6 +43,9 @@ export default function QuotationsPage() {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedQuotation, setSelectedQuotation] = useState(null);
+  const [isPDFOpen, setIsPDFOpen] = useState(false);
+  const [pdfQuotationId, setPdfQuotationId] = useState(null);
+  const [isTermsConfigOpen, setIsTermsConfigOpen] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -318,6 +327,11 @@ export default function QuotationsPage() {
     } catch (err) {
       addToast(err.message, "error");
     }
+  };
+
+  const openPDFModal = (quot) => {
+    setPdfQuotationId(quot.id);
+    setIsPDFOpen(true);
   };
 
   const openDeleteModal = (quot) => {
@@ -869,9 +883,17 @@ export default function QuotationsPage() {
               Quotations Catalog ({quotations.length})
             </h2>
 
-            <button className="btn-accent-swagat" onClick={openAddModal}>
-              <FiPlus /> Create Quotation
-            </button>
+            <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+              <button
+                className="btn-outline-swagat"
+                onClick={() => setIsTermsConfigOpen(true)}
+              >
+                <FiSliders /> Configure PDF Terms
+              </button>
+              <button className="btn-accent-swagat" onClick={openAddModal}>
+                <FiPlus /> Create Quotation
+              </button>
+            </div>
           </div>
 
           {/* Search & Multi-parameter Filters */}
@@ -1020,14 +1042,21 @@ export default function QuotationsPage() {
                         📍 {q.site?.cityLocation || ""}
                       </div>
                     </td>
-                    <td
-                      style={{
-                        fontWeight: 700,
-                        color: "var(--success)",
-                        fontSize: "14px",
-                      }}
-                    >
-                      ₹{Number(q.finalTotal).toFixed(2)}
+                    <td>
+                      <div style={{ fontWeight: 700, color: "var(--success)", fontSize: "14px" }}>
+                        ₹{Number(q.finalTotal).toFixed(2)}
+                      </div>
+                      <div style={{ fontSize: "11px", marginTop: "3px" }}>
+                        {Number(q.pendingAmount || 0) <= 0 ? (
+                          <span style={{ color: "#059669", fontWeight: 700, backgroundColor: "#ECFDF5", padding: "1px 6px", borderRadius: "4px", border: "1px solid #A7F3D0" }}>
+                            Paid Full
+                          </span>
+                        ) : (
+                          <span style={{ color: "#D97706", fontWeight: 600 }}>
+                            Paid: ₹{Number(q.totalPaid || 0).toFixed(0)} | Pend: ₹{Number(q.pendingAmount || 0).toFixed(0)}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td>
                       <span
@@ -1050,6 +1079,14 @@ export default function QuotationsPage() {
                       <div style={{ display: "inline-flex", gap: "6px" }}>
                         <button
                           className="btn-icon-action"
+                          style={{ color: "#10B981", backgroundColor: "#ECFDF5", borderColor: "#A7F3D0" }}
+                          title="View & Record Payments"
+                          onClick={() => navigate(`/payments?quotationId=${q.id}`)}
+                        >
+                          <FiCreditCard />
+                        </button>
+                        <button
+                          className="btn-icon-action"
                           title="View Quotation"
                           onClick={() => openViewModal(q)}
                         >
@@ -1061,14 +1098,6 @@ export default function QuotationsPage() {
                           onClick={() => openEditModal(q)}
                         >
                           <FiEdit2 />
-                        </button>
-                        <button
-                          className="btn-icon-action"
-                          title="PDF Export (Available in PDF Phase)"
-                          disabled
-                          style={{ opacity: 0.4, cursor: "not-allowed" }}
-                        >
-                          <FiPrinter />
                         </button>
                         <button
                           className="btn-icon-action danger"
@@ -2893,6 +2922,13 @@ export default function QuotationsPage() {
 
             <div className="modal-footer-swagat">
               <button
+                type="button"
+                className="btn-accent-swagat"
+                onClick={() => openPDFModal(selectedQuotation)}
+              >
+                <FiPrinter /> Print / Save PDF
+              </button>
+              <button
                 className="btn-outline-swagat"
                 onClick={() => setIsViewOpen(false)}
               >
@@ -2911,6 +2947,24 @@ export default function QuotationsPage() {
           message={`Are you sure you want to delete Quotation #${selectedQuotation.quotationNo}?`}
           onConfirm={handleDeleteQuotation}
           onCancel={() => setIsDeleteOpen(false)}
+        />
+      )}
+
+      {/* QUOTATION PDF MODAL */}
+      {isPDFOpen && pdfQuotationId && (
+        <QuotationPDFModal
+          quotationId={pdfQuotationId}
+          onClose={() => {
+            setIsPDFOpen(false);
+            setPdfQuotationId(null);
+          }}
+        />
+      )}
+
+      {/* QUOTATION TERMS & SETTINGS CONFIGURATION MODAL */}
+      {isTermsConfigOpen && (
+        <QuotationTermsModal
+          onClose={() => setIsTermsConfigOpen(false)}
         />
       )}
 

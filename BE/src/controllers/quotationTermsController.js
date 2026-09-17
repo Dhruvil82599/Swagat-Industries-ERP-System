@@ -39,10 +39,28 @@ const DEFAULT_TERMS = [
     displayOrder: 6
   },
   {
+    termKey: 'other_terms',
+    termTitle: 'Other Terms',
+    termText: 'Work will proceed strictly as per approved site dimensions and quotation specifications.',
+    displayOrder: 7
+  },
+  {
+    termKey: 'order_cancellation',
+    termTitle: 'Order Cancellation',
+    termText: 'In case of order cancellation after production has commenced, advance amount will be non-refundable.',
+    displayOrder: 8
+  },
+  {
+    termKey: 'measurement_calculate',
+    termTitle: 'Measurement Calculate',
+    termText: 'All shutter square footage calculations are based on standard industry measurements including over-height & over-width allowances.',
+    displayOrder: 9
+  },
+  {
     termKey: 'disputes',
     termTitle: 'Disputes & Jurisdiction',
     termText: 'Subject to Rajkot jurisdiction only.',
-    displayOrder: 7
+    displayOrder: 10
   }
 ];
 
@@ -63,6 +81,18 @@ async function getQuotationTerms(req, res, next) {
       terms = await prisma.quotationTerm.findMany({
         orderBy: { displayOrder: 'asc' }
       });
+    } else {
+      // Check if any standard default terms are missing and seed them
+      const existingKeys = new Set(terms.map(t => t.termKey).filter(Boolean));
+      const missingTerms = DEFAULT_TERMS.filter(dt => dt.termKey && !existingKeys.has(dt.termKey));
+      if (missingTerms.length > 0) {
+        await prisma.quotationTerm.createMany({
+          data: missingTerms
+        });
+        terms = await prisma.quotationTerm.findMany({
+          orderBy: { displayOrder: 'asc' }
+        });
+      }
     }
 
     return successResponse(res, terms, 'Quotation terms retrieved successfully');

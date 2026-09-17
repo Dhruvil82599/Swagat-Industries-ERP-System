@@ -42,11 +42,11 @@ function validatePaymentData(data, isUpdate = false) {
     }
   }
 
-  // UPI transaction number required for UPI (and Google Pay if entered as UPI)
-  const currentMethod = method || (isUpdate ? data.existingMethod : null);
-  if (currentMethod === 'UPI') {
+  // UPI transaction number required for UPI and Google Pay
+  const currentMethod = method !== undefined ? method : (isUpdate ? data.existingMethod : null);
+  if (currentMethod === 'UPI' || currentMethod === 'Google Pay') {
     if (!transactionNo || String(transactionNo).trim() === '') {
-      errors.push({ field: 'transaction_no', message: 'Transaction number is required for UPI payments' });
+      errors.push({ field: 'transaction_no', message: `Transaction number is required for ${currentMethod} payments` });
     }
   }
 
@@ -273,6 +273,27 @@ async function updatePayment(req, res, next) {
     }
     if (req.body.payment_date !== undefined || req.body.paymentDate !== undefined) {
       updateData.paymentDate = new Date(req.body.payment_date || req.body.paymentDate);
+    }
+
+    if (updateData.paymentAmount !== undefined) {
+      const quotation = await prisma.quotation.findUnique({
+        where: { id: existing.quotationId },
+        include: { payments: true }
+      });
+      if (quotation) {
+        const otherPaid = quotation.payments
+          .filter((p) => p.id !== id)
+          .reduce((acc, p) => acc + Number(p.paymentAmount), 0);
+        const finalPayable = Number(quotation.finalTotal);
+        const allowedMax = finalPayable - otherPaid;
+        if (updateData.paymentAmount > allowedMax + 0.01) {
+          return errorResponse(
+            res,
+            `Updated payment amount (₹${updateData.paymentAmount}) exceeds the remaining pending balance (₹${Math.max(0, allowedMax).toFixed(2)})`,
+            400
+          );
+        }
+      }
     }
 
     const updated = await prisma.payment.update({

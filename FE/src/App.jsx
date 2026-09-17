@@ -9,11 +9,13 @@ import { ToastProvider } from "./context/ToastContext";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
 import CustomersPage from "./pages/CustomersPage";
 import IndustriesPage from "./pages/IndustriesPage";
 import SitesPage from "./pages/SitesPage";
 import ShuttersPage from "./pages/ShuttersPage";
 import QuotationsPage from "./pages/QuotationsPage";
+import PaymentsPage from "./pages/PaymentsPage";
 
 export default function App() {
   return (
@@ -29,7 +31,15 @@ export default function App() {
               path="/"
               element={
                 <ProtectedRoute>
-                  <Navigate to="/customers" replace />
+                  <Navigate to="/dashboard" replace />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
                 </ProtectedRoute>
               }
             />
@@ -73,9 +83,17 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/payments"
+              element={
+                <ProtectedRoute>
+                  <PaymentsPage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Catch-all fallback */}
-            <Route path="*" element={<Navigate to="/customers" replace />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </Router>
       </ToastProvider>
