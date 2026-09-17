@@ -690,20 +690,12 @@ Thank you for contacting Swagat Industries. We have generated your quotation. Pl
               <div className="totals-container">
                 <table className="totals-table">
                   <tbody>
-                    {/* Basic Shutter Amount */}
-                    <tr>
-                      <td style={{ fontWeight: 600 }}>Basic Shutter Amount:</td>
-                      <td style={{ textAlign: "right", fontWeight: 700 }}>
-                        ₹{shutterBasicTotal.toFixed(2)}
-                      </td>
-                    </tr>
-
-                    {/* GI Top Cover total - HIDE if ₹0 */}
-                    {giTopCoverTotal > 0 && (
+                    {/* Shutter Items Basic Base (shown when extra charges or discount exist) */}
+                    {(transportCharges > 0 || addlCharges.some((c) => Number(c.amount) > 0) || discountAmt > 0) && (
                       <tr>
-                        <td>GI Top Cover Total:</td>
-                        <td style={{ textAlign: "right" }}>
-                          ₹{giTopCoverTotal.toFixed(2)}
+                        <td style={{ fontWeight: 600 }}>Shutter Items Basic Total:</td>
+                        <td style={{ textAlign: "right", fontWeight: 700 }}>
+                          ₹{(shutterBasicTotal + giTopCoverTotal).toFixed(2)}
                         </td>
                       </tr>
                     )}
@@ -750,7 +742,7 @@ Thank you for contacting Swagat Industries. We have generated your quotation. Pl
                       </tr>
                     )}
 
-                    {/* Total Basic Base */}
+                    {/* Total Basic Amount */}
                     <tr style={{ backgroundColor: "#f1f5f9" }}>
                       <td style={{ fontWeight: 700 }}>Total Basic Amount:</td>
                       <td style={{ textAlign: "right", fontWeight: 700 }}>

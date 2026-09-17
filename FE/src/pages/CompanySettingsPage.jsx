@@ -161,6 +161,11 @@ export default function CompanySettingsPage() {
   };
 
   // Term Handlers
+  const handleCloseTermModal = () => {
+    setIsTermModalOpen(false);
+    setEditingTerm(null);
+  };
+
   const handleOpenAddTerm = () => {
     setEditingTerm(null);
     const nextOrder = terms.length > 0 ? Math.max(...terms.map((t) => t.displayOrder || 0)) + 1 : 1;
@@ -185,7 +190,7 @@ export default function CompanySettingsPage() {
   };
 
   const handleSaveTerm = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!termFormData.termTitle.trim()) {
       showToast("Term Title is required", "error");
       return;
@@ -195,29 +200,35 @@ export default function CompanySettingsPage() {
       return;
     }
 
+    const currentEditingTerm = editingTerm;
+    const currentFormData = { ...termFormData };
+
+    // Close modal immediately for snappy responsive UI
+    handleCloseTermModal();
+
     try {
       setTermSaving(true);
-      if (editingTerm) {
-        const updatedItem = await api.updateQuotationTerm(editingTerm.id, {
-          term_title: termFormData.termTitle,
-          term_text: termFormData.termText,
-          display_order: parseInt(termFormData.displayOrder, 10) || 1,
-          is_active: termFormData.isActive,
+      if (currentEditingTerm) {
+        const updatedItem = await api.updateQuotationTerm(currentEditingTerm.id, {
+          term_title: currentFormData.termTitle,
+          term_text: currentFormData.termText,
+          display_order: parseInt(currentFormData.displayOrder, 10) || 1,
+          is_active: currentFormData.isActive,
         });
         // Instant local state update
         if (updatedItem) {
           setTerms((prev) =>
-            prev.map((t) => (t.id === editingTerm.id ? updatedItem : t))
+            prev.map((t) => (t.id === currentEditingTerm.id ? updatedItem : t))
                 .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
           );
         }
         showToast("Quotation term updated successfully", "success");
       } else {
         const newItem = await api.createQuotationTerm({
-          term_title: termFormData.termTitle,
-          term_text: termFormData.termText,
-          display_order: parseInt(termFormData.displayOrder, 10) || 1,
-          is_active: termFormData.isActive,
+          term_title: currentFormData.termTitle,
+          term_text: currentFormData.termText,
+          display_order: parseInt(currentFormData.displayOrder, 10) || 1,
+          is_active: currentFormData.isActive,
         });
         if (newItem) {
           setTerms((prev) =>
@@ -226,10 +237,10 @@ export default function CompanySettingsPage() {
         }
         showToast("Quotation term added successfully", "success");
       }
-      setIsTermModalOpen(false);
-      await loadQuotationTerms(false);
+      loadQuotationTerms(false);
     } catch (err) {
       showToast(err.message || "Failed to save quotation term", "error");
+      loadQuotationTerms(false);
     } finally {
       setTermSaving(false);
     }
@@ -651,7 +662,7 @@ export default function CompanySettingsPage() {
           <div className="modal-content-swagat" style={{ maxWidth: "550px", width: "90%" }}>
             <div className="modal-header-swagat">
               <h3>{editingTerm ? "Edit Quotation Term" : "Add New Quotation Term"}</h3>
-              <button className="modal-close-btn" onClick={() => setIsTermModalOpen(false)}>
+              <button className="modal-close-btn" onClick={handleCloseTermModal}>
                 <FiX />
               </button>
             </div>
@@ -711,7 +722,7 @@ export default function CompanySettingsPage() {
                 <button
                   type="button"
                   className="btn-outline-swagat"
-                  onClick={() => setIsTermModalOpen(false)}
+                  onClick={handleCloseTermModal}
                 >
                   Cancel
                 </button>
