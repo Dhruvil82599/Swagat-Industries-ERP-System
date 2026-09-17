@@ -8,6 +8,7 @@ import {
   FiLayers,
   FiFileText,
   FiCreditCard,
+  FiSettings,
 } from "react-icons/fi";
 
 export default function Sidebar() {

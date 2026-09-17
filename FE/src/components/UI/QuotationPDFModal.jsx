@@ -34,26 +34,31 @@ export default function QuotationPDFModal({ quotationId, onClose }) {
         ]);
 
         setQuotation(quotData);
-        setCompanySettings(
-          settingsData || {
-            companyName: "Swagat Industries",
-            address:
-              "Plot No 22, Survey No 45, Rajkot-Gondal Highway, Rajkot, Gujarat",
-            cityStatePincode: "Rajkot, Gujarat - 360004",
-            mobile: "+91 98765 43210",
-            altMobile: "+91 91234 56789",
-            email: "info@swagatindustries.com",
-            website: "www.swagatindustries.com",
-            gstNo: "24ABCDE1234F1Z5",
-          },
-        );
-        // Filter active terms ordered by displayOrder
-        const activeTerms = Array.isArray(termsData)
-          ? termsData
-              .filter((t) => t.isActive !== false)
-              .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
-          : [];
-        setTerms(activeTerms);
+
+        // Prioritize snapshot company details saved on the quotation for historical consistency
+        const finalCompanySettings = quotData?.companyDetails || settingsData || {
+          companyName: "Swagat Industries",
+          address:
+            "Plot No 22, Survey No 45, Rajkot-Gondal Highway, Rajkot, Gujarat",
+          cityStatePincode: "Rajkot, Gujarat - 360004",
+          mobile: "+91 98765 43210",
+          altMobile: "+91 91234 56789",
+          email: "info@swagatindustries.com",
+          website: "www.swagatindustries.com",
+          gstNo: "24ABCDE1234F1Z5",
+        };
+        setCompanySettings(finalCompanySettings);
+
+        // Prioritize snapshot terms saved on the quotation for historical consistency
+        let finalTerms = [];
+        if (Array.isArray(quotData?.quotationTerms) && quotData.quotationTerms.length > 0) {
+          finalTerms = quotData.quotationTerms.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+        } else if (Array.isArray(termsData)) {
+          finalTerms = termsData
+            .filter((t) => t.isActive !== false)
+            .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+        }
+        setTerms(finalTerms);
       } catch (err) {
         setError(err.message || "Failed to load quotation data for PDF");
       } finally {

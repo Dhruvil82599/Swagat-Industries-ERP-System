@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
-import { FiCheckCircle, FiAlertCircle, FiUser, FiLogOut } from "react-icons/fi";
+import { FiCheckCircle, FiAlertCircle, FiUser, FiLogOut, FiSettings } from "react-icons/fi";
 
 export default function Navbar({ title = "Master Data" }) {
+  const navigate = useNavigate();
   const [dbStatus, setDbStatus] = useState({ connected: false, loading: true });
   const { user, logout } = useAuth();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -91,6 +93,38 @@ export default function Navbar({ title = "Master Data" }) {
             <span>{user.username}</span>
           </div>
         )}
+
+        {/* Admin Settings Button */}
+        <button
+          onClick={() => navigate("/settings")}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            padding: "6px 14px",
+            borderRadius: "6px",
+            border: "1px solid #1E3A8A",
+            backgroundColor: "#1E3A8A",
+            color: "#FFFFFF",
+            fontSize: "13px",
+            fontWeight: "600",
+            cursor: "pointer",
+            transition: "all 0.2s ease",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "#2563EB";
+            e.currentTarget.style.borderColor = "#2563EB";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "#1E3A8A";
+            e.currentTarget.style.borderColor = "#1E3A8A";
+          }}
+          title="Company Settings & Quotation Terms"
+        >
+          <FiSettings />
+          <span>Admin Settings</span>
+        </button>
 
         {/* Logout Button */}
         <button

@@ -16,6 +16,7 @@ import SitesPage from "./pages/SitesPage";
 import ShuttersPage from "./pages/ShuttersPage";
 import QuotationsPage from "./pages/QuotationsPage";
 import PaymentsPage from "./pages/PaymentsPage";
+import CompanySettingsPage from "./pages/CompanySettingsPage";
 
 export default function App() {
   return (
@@ -88,6 +89,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <PaymentsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <CompanySettingsPage />
                 </ProtectedRoute>
               }
             />

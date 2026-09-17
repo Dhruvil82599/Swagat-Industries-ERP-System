@@ -326,6 +326,50 @@ async function createQuotation(req, res, next) {
     const quotationDate = req.body.quotation_date ? new Date(req.body.quotation_date) : new Date();
     const quotationNo = await generateQuotationNumber(quotationDate);
 
+    // Fetch active Company Settings and Terms to snapshot into the Quotation for historical consistency
+    let companyDetailsSnapshot = req.body.company_details || req.body.companyDetails || null;
+    if (!companyDetailsSnapshot) {
+      const activeSetting = await prisma.companySetting.findFirst({
+        where: { isActive: true },
+        orderBy: { id: 'desc' }
+      });
+      if (activeSetting) {
+        companyDetailsSnapshot = {
+          companyName: activeSetting.companyName,
+          logoUrl: activeSetting.logoUrl,
+          address: activeSetting.address,
+          cityStatePincode: activeSetting.cityStatePincode,
+          mobile: activeSetting.mobile,
+          altMobile: activeSetting.altMobile,
+          email: activeSetting.email,
+          website: activeSetting.website,
+          gstNo: activeSetting.gstNo,
+          panNo: activeSetting.panNo,
+          bankName: activeSetting.bankName,
+          accountNo: activeSetting.accountNo,
+          ifscCode: activeSetting.ifscCode,
+          branchName: activeSetting.branchName
+        };
+      }
+    }
+
+    let quotationTermsSnapshot = req.body.quotation_terms || req.body.quotationTerms || null;
+    if (!quotationTermsSnapshot) {
+      const activeTerms = await prisma.quotationTerm.findMany({
+        where: { isActive: true },
+        orderBy: { displayOrder: 'asc' }
+      });
+      if (activeTerms && activeTerms.length > 0) {
+        quotationTermsSnapshot = activeTerms.map(t => ({
+          id: t.id,
+          termKey: t.termKey,
+          termTitle: t.termTitle,
+          termText: t.termText,
+          displayOrder: t.displayOrder
+        }));
+      }
+    }
+
     // Run transaction
     const newQuotation = await prisma.$transaction(async (tx) => {
       const created = await tx.quotation.create({
@@ -346,7 +390,9 @@ async function createQuotation(req, res, next) {
           gstPercent: summary.gstPercent,
           gstAmount: summary.gstAmount,
           finalTotal: summary.finalTotal,
-          remark: req.body.remark ? req.body.remark.trim() : null
+          remark: req.body.remark ? req.body.remark.trim() : null,
+          companyDetails: companyDetailsSnapshot,
+          quotationTerms: quotationTermsSnapshot
         }
       });
 
@@ -585,7 +631,9 @@ async function updateQuotation(req, res, next) {
           gstPercent: summary.gstPercent,
           gstAmount: summary.gstAmount,
           finalTotal: summary.finalTotal,
-          remark: req.body.remark !== undefined ? (req.body.remark ? req.body.remark.trim() : null) : existing.remark
+          remark: req.body.remark !== undefined ? (req.body.remark ? req.body.remark.trim() : null) : existing.remark,
+          companyDetails: req.body.company_details !== undefined ? req.body.company_details : (req.body.companyDetails !== undefined ? req.body.companyDetails : existing.companyDetails),
+          quotationTerms: req.body.quotation_terms !== undefined ? req.body.quotation_terms : (req.body.quotationTerms !== undefined ? req.body.quotationTerms : existing.quotationTerms)
         },
         include: {
           customer: true,

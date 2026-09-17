@@ -119,6 +119,8 @@ model Quotation {
   finalTotal             Decimal            @default(0) @map("final_total") @db.Decimal(12, 2)
 
   remark                 String?            @db.Text
+  companyDetails         Json?              @map("company_details")
+  quotationTerms         Json?              @map("quotation_terms")
   createdAt              DateTime           @default(now()) @map("created_at")
   updatedAt              DateTime           @updatedAt @map("updated_at")
 

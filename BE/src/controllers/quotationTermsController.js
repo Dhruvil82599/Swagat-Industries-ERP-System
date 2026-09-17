@@ -151,23 +151,28 @@ async function updateQuotationTerm(req, res, next) {
 
     const updateData = {};
     if (req.body.term_title !== undefined || req.body.termTitle !== undefined) {
-      const title = (req.body.term_title || req.body.termTitle).trim();
+      const rawTitle = req.body.term_title !== undefined ? req.body.term_title : req.body.termTitle;
+      const title = String(rawTitle || '').trim();
       if (!title) return errorResponse(res, 'Term title cannot be empty', 400);
       updateData.termTitle = title;
     }
     if (req.body.term_text !== undefined || req.body.termText !== undefined) {
-      const text = (req.body.term_text || req.body.termText).trim();
+      const rawText = req.body.term_text !== undefined ? req.body.term_text : req.body.termText;
+      const text = String(rawText || '').trim();
       if (!text) return errorResponse(res, 'Term text cannot be empty', 400);
       updateData.termText = text;
     }
     if (req.body.term_key !== undefined || req.body.termKey !== undefined) {
-      updateData.termKey = (req.body.term_key || req.body.termKey || '').trim() || null;
+      const rawKey = req.body.term_key !== undefined ? req.body.term_key : req.body.termKey;
+      updateData.termKey = String(rawKey || '').trim() || null;
     }
     if (req.body.display_order !== undefined || req.body.displayOrder !== undefined) {
-      updateData.displayOrder = parseInt(req.body.display_order || req.body.displayOrder, 10) || 1;
+      const rawOrder = req.body.display_order !== undefined ? req.body.display_order : req.body.displayOrder;
+      updateData.displayOrder = parseInt(rawOrder, 10) || 1;
     }
     if (req.body.is_active !== undefined || req.body.isActive !== undefined) {
-      updateData.isActive = Boolean(req.body.is_active !== undefined ? req.body.is_active : req.body.isActive);
+      const rawActive = req.body.is_active !== undefined ? req.body.is_active : req.body.isActive;
+      updateData.isActive = Boolean(rawActive);
     }
 
     const updated = await prisma.quotationTerm.update({

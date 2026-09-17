@@ -4,7 +4,6 @@ import AppLayout, { useToast } from "../components/Layout/AppLayout";
 import { api } from "../services/api";
 import ConfirmModal from "../components/UI/ConfirmModal";
 import QuotationPDFModal from "../components/UI/QuotationPDFModal";
-import QuotationTermsModal from "../components/UI/QuotationTermsModal";
 import {
   FiPlus,
   FiSearch,
@@ -45,7 +44,6 @@ export default function QuotationsPage() {
   const [selectedQuotation, setSelectedQuotation] = useState(null);
   const [isPDFOpen, setIsPDFOpen] = useState(false);
   const [pdfQuotationId, setPdfQuotationId] = useState(null);
-  const [isTermsConfigOpen, setIsTermsConfigOpen] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -884,12 +882,6 @@ export default function QuotationsPage() {
             </h2>
 
             <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-              <button
-                className="btn-outline-swagat"
-                onClick={() => setIsTermsConfigOpen(true)}
-              >
-                <FiSliders /> Configure PDF Terms
-              </button>
               <button className="btn-accent-swagat" onClick={openAddModal}>
                 <FiPlus /> Create Quotation
               </button>
@@ -2961,12 +2953,6 @@ export default function QuotationsPage() {
         />
       )}
 
-      {/* QUOTATION TERMS & SETTINGS CONFIGURATION MODAL */}
-      {isTermsConfigOpen && (
-        <QuotationTermsModal
-          onClose={() => setIsTermsConfigOpen(false)}
-        />
-      )}
 
       {/* ADD CUSTOM SHUTTER MODAL DIALOG */}
       {isCustomShutterModalOpen && (
