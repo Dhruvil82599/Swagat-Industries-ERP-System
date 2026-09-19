@@ -408,7 +408,31 @@ Swagat-Industries-ERP-System/
 - **npm** (v9.x or higher)
 - **PostgreSQL** Database Server (v14.x or higher)
 
-### 1. Backend Setup (`/BE`)
+### 1. Database & Backend Setup (`/BE`)
+
+#### Step A: PostgreSQL Installation & Database Creation
+1. Install PostgreSQL (v14+) on your system or server.
+2. Open PostgreSQL shell (`psql` / pgAdmin) and create a fresh database:
+   ```sql
+   CREATE DATABASE swagat_erp_db;
+   ```
+
+#### Step B: Environment Configuration (`BE/.env`)
+Create a `.env` file in the `BE/` directory with the following variables:
+```env
+PORT=5000
+NODE_ENV=development
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/swagat_erp_db?schema=public"
+JWT_SECRET="swagat_erp_secret_jwt_key_2026"
+JWT_EXPIRES_IN="1d"
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT=587
+SMTP_USER="your-email@gmail.com"
+SMTP_PASS="your-app-password"
+FROM_EMAIL="noreply@swagatindustries.com"
+```
+
+#### Step C: Dependencies, Migrations & Startup
 ```bash
 cd BE
 npm install
@@ -418,6 +442,8 @@ npm run prisma:seed
 npm run dev
 ```
 Backend API will start on `http://localhost:5000`.
+
+---
 
 ### 2. Frontend Setup (`/FE`)
 ```bash
@@ -429,14 +455,91 @@ Frontend Vite server will start on `http://localhost:3000`.
 
 ---
 
-## 🧪 Testing & Verification
+## 💾 Database Backup & Restore Guide
 
-During browser-based functional testing via Python Playwright automation, all dummy business data was entered **exclusively through the frontend user interface**:
+The application includes built-in cross-platform backup and restore utilities that run without requiring PostgreSQL CLI tools in PATH.
 
-- **Real Browser Automation**: Tested via Chromium browser on `http://localhost:3000`.
-- **UI Data Entry**: 100% of customers, industries, sites, shutter specifications, quotations, and payments were created via frontend form modals.
-- **Validation Testing**: Verified required fields, mobile number format, GSTIN 15-character uppercase format, and numeric input boundaries.
-- **Error Audit Log**: Detailed testing logs and error audit details are documented separately in [errors.md](./errors.md).
+### 1. Automated JSON Backup
+To export a full database backup snapshot:
+```bash
+cd BE
+npm run db:backup
+```
+- **Output location**: `backups/swagat_erp_backup_YYYY-MM-DD_HH-mm-ss.json`
+- **Pointer update**: `backups/latest_backup.json` is updated automatically.
+
+### 2. Automated JSON Restore
+To restore data from the latest backup:
+```bash
+cd BE
+npm run db:restore
+```
+To restore from a specific backup file:
+```bash
+node scripts/restore.js ../backups/swagat_erp_backup_2026-09-19T13-54-02-828Z.json
+```
+
+### 3. Alternative PostgreSQL CLI Backup (`pg_dump` & `pg_restore`)
+If native PostgreSQL command line tools are preferred:
+
+- **Backup Command (`pg_dump`)**:
+  ```bash
+  pg_dump -U postgres -h localhost -d swagat_erp_db -F c -b -v -f "../backups/swagat_erp_pgdump.dump"
+  ```
+- **Restore Command (`pg_restore`)**:
+  ```bash
+  pg_restore -U postgres -h localhost -d swagat_erp_db -v -c "../backups/swagat_erp_pgdump.dump"
+  ```
+
+---
+
+## 💻 Porting ERP to Another Laptop / Machine
+
+To move Swagat ERP to a new machine:
+
+1. **Copy Repository**: Copy the complete project folder (`Swagat-Industries-ERP`) to the new laptop.
+2. **Install Software**: Install Node.js (v18+) and PostgreSQL (v14+).
+3. **Set Up Database**: Create database `swagat_erp_db` in PostgreSQL.
+4. **Configure Environment**: Update `BE/.env` with your local PostgreSQL password.
+5. **Run Setup Commands**:
+   ```bash
+   cd BE
+   npm install
+   npm run prisma:migrate
+   npm run db:restore
+   ```
+6. **Start Application**: Run `npm run dev` in both `BE` and `FE` folders.
+
+---
+
+## 🧪 Phase 13 E2E Test Results
+
+The system was validated using an automated end-to-end integration test runner (`BE/test_phase13.js`).
+
+| Test Module | Verified Scenarios | Status |
+| :--- | :--- | :---: |
+| **Customer CRUD** | Creation, updating, mobile validation, search | 🟢 PASSED |
+| **Industry CRUD** | Customer mapping, company registration, contact update | 🟢 PASSED |
+| **Site CRUD** | Multi-location mapping under industry, supervisor details | 🟢 PASSED |
+| **Shutter Math Engine** | Manual, Gear, Motorised formulas & allowance calculations | 🟢 PASSED |
+| **Quotation Engine** | Multi-shutter aggregation, GST Yes/No, company snapshot retention | 🟢 PASSED |
+| **Payment Ledger** | Multiple payments, balance recalculations, receipt voucher data | 🟢 PASSED |
+| **Backup & Restore** | Clean JSON snapshot dump, database wipe & 100% record restoration | 🟢 PASSED |
+| **Dashboard Metrics** | Live PostgreSQL health indicator, financial total counters | 🟢 PASSED |
+
+**Command to re-run test suite**:
+```bash
+cd BE
+node test_phase13.js
+```
+
+---
+
+## 📌 Known Limitations & Operational Considerations
+
+1. **Email OTP Delivery**: For forgot password OTP delivery to send real emails, valid SMTP credentials (`SMTP_USER`, `SMTP_PASS`) must be configured in `BE/.env`. In offline/development mode, OTPs log directly to backend console.
+2. **PostgreSQL Service Dependency**: PostgreSQL must be running locally before starting the backend server (`npm run dev`).
+3. **Relative Image Paths**: Uploaded logo images for company settings should be placed in `FE/public/` for portable rendering across client machines.
 
 ---
 
@@ -444,3 +547,4 @@ During browser-based functional testing via Python Playwright automation, all du
 
 This software is proprietary and confidential. Developed specifically for **Swagat Industries**.  
 All rights reserved.
+
