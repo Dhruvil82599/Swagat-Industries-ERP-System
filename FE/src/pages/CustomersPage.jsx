@@ -13,6 +13,7 @@ import {
   FiX, 
   FiUsers 
 } from 'react-icons/fi';
+import { getGstValidationStatus, getMobileValidationStatus } from '../utils/validation';
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState([]);
@@ -101,6 +102,12 @@ export default function CustomersPage() {
     }
     if (!formData.address || formData.address.trim() === '') {
       errors.address = 'Address is required';
+    }
+    if (formData.gst_no && formData.gst_no.trim() !== '') {
+      const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      if (!gstRegex.test(formData.gst_no.trim().toUpperCase())) {
+        errors.gst_no = 'GST Number must be a valid 15-character GSTIN (e.g. 24ABCDE1234F1Z5)';
+      }
     }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -276,75 +283,111 @@ export default function CustomersPage() {
             </div>
             <form onSubmit={handleSave}>
               <div className="modal-body-swagat">
-                <div style={{ display: 'grid', gap: '16px' }}>
-                  <div>
-                    <label className="form-label-swagat">
-                      Customer Name <span style={{ color: 'var(--danger)' }}>*</span>
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control-swagat"
-                      placeholder="e.g. Shree Radhe Textiles"
-                      value={formData.customer_name}
-                      onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
-                    />
-                    {formErrors.customer_name && (
-                      <span style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '4px', display: 'block' }}>
-                        {formErrors.customer_name}
-                      </span>
-                    )}
-                  </div>
+                {(() => {
+                  const mobileStatus = getMobileValidationStatus(formData.mobile_number, false);
+                  const gstStatus = getGstValidationStatus(formData.gst_no);
+                  return (
+                    <div style={{ display: 'grid', gap: '16px' }}>
+                      <div>
+                        <label className="form-label-swagat">
+                          Customer Name <span style={{ color: 'var(--danger)' }}>*</span>
+                        </label>
+                        <input
+                          type="text"
+                          className="form-control-swagat"
+                          placeholder="e.g. Shree Radhe Textiles"
+                          value={formData.customer_name}
+                          onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
+                        />
+                        {formErrors.customer_name && (
+                          <span style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '4px', display: 'block' }}>
+                            {formErrors.customer_name}
+                          </span>
+                        )}
+                      </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                    <div>
-                      <label className="form-label-swagat">
-                        Mobile Number (10 Digits) <span style={{ color: 'var(--danger)' }}>*</span>
-                      </label>
-                      <input
-                        type="text"
-                        maxLength="10"
-                        className="form-control-swagat"
-                        placeholder="e.g. 9825012345"
-                        value={formData.mobile_number}
-                        onChange={(e) => setFormData({ ...formData, mobile_number: e.target.value.replace(/\D/g, '') })}
-                      />
-                      {formErrors.mobile_number && (
-                        <span style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '4px', display: 'block' }}>
-                          {formErrors.mobile_number}
-                        </span>
-                      )}
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                        <div>
+                          <label className="form-label-swagat">
+                            Mobile Number (10 Digits) <span style={{ color: 'var(--danger)' }}>*</span>
+                          </label>
+                          <input
+                            type="text"
+                            maxLength="10"
+                            className="form-control-swagat"
+                            placeholder="e.g. 9825012345"
+                            value={formData.mobile_number}
+                            onChange={(e) => setFormData({ ...formData, mobile_number: e.target.value.replace(/\D/g, '') })}
+                          />
+                          {formErrors.mobile_number ? (
+                            <span style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '4px', display: 'block' }}>
+                              ✕ {formErrors.mobile_number}
+                            </span>
+                          ) : mobileStatus.message ? (
+                            <span
+                              style={{
+                                fontSize: '12px',
+                                fontWeight: 500,
+                                color: mobileStatus.isValid ? 'var(--success)' : 'var(--danger)',
+                                marginTop: '4px',
+                                display: 'block'
+                              }}
+                            >
+                              {mobileStatus.message}
+                            </span>
+                          ) : null}
+                        </div>
+
+                        <div>
+                          <label className="form-label-swagat">GST Number (Optional)</label>
+                          <input
+                            type="text"
+                            maxLength="15"
+                            className="form-control-swagat"
+                            placeholder="e.g. 24ABCDE1234F1Z5"
+                            value={formData.gst_no}
+                            onChange={(e) => setFormData({ ...formData, gst_no: e.target.value.toUpperCase() })}
+                          />
+                          {formErrors.gst_no ? (
+                            <span style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '4px', display: 'block' }}>
+                              {formErrors.gst_no}
+                            </span>
+                          ) : gstStatus.message ? (
+                            <span
+                              style={{
+                                fontSize: '12px',
+                                fontWeight: 500,
+                                color: gstStatus.isValid ? 'var(--success)' : 'var(--danger)',
+                                marginTop: '4px',
+                                display: 'block'
+                              }}
+                            >
+                              {gstStatus.message}
+                            </span>
+                          ) : null}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="form-label-swagat">
+                          Full Address <span style={{ color: 'var(--danger)' }}>*</span>
+                        </label>
+                        <textarea
+                          rows="3"
+                          className="form-control-swagat"
+                          placeholder="Enter billing/office address..."
+                          value={formData.address}
+                          onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                        />
+                        {formErrors.address && (
+                          <span style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '4px', display: 'block' }}>
+                            {formErrors.address}
+                          </span>
+                        )}
+                      </div>
                     </div>
-
-                    <div>
-                      <label className="form-label-swagat">GST Number (Optional)</label>
-                      <input
-                        type="text"
-                        className="form-control-swagat"
-                        placeholder="e.g. 24AAAAA0000A1Z5"
-                        value={formData.gst_no}
-                        onChange={(e) => setFormData({ ...formData, gst_no: e.target.value.toUpperCase() })}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="form-label-swagat">
-                      Full Address <span style={{ color: 'var(--danger)' }}>*</span>
-                    </label>
-                    <textarea
-                      rows="3"
-                      className="form-control-swagat"
-                      placeholder="Enter billing/office address..."
-                      value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    />
-                    {formErrors.address && (
-                      <span style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '4px', display: 'block' }}>
-                        {formErrors.address}
-                      </span>
-                    )}
-                  </div>
-                </div>
+                  );
+                })()}
               </div>
               <div className="modal-footer-swagat">
                 <button

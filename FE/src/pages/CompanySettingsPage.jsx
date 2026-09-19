@@ -20,6 +20,7 @@ import {
   FiArrowUp,
   FiArrowDown,
 } from "react-icons/fi";
+import { getGstValidationStatus, getMobileValidationStatus } from "../utils/validation";
 
 export default function CompanySettingsPage() {
   const { showToast } = useToast();
@@ -112,7 +113,10 @@ export default function CompanySettingsPage() {
   }
 
   const handleSettingsChange = (e) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+    if (name === 'gstNo') {
+      value = value.toUpperCase();
+    }
     setSettingsData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -129,6 +133,14 @@ export default function CompanySettingsPage() {
     if (!settingsData.mobile.trim()) {
       showToast("Mobile Number is required", "error");
       return;
+    }
+
+    if (settingsData.gstNo && settingsData.gstNo.trim() !== '') {
+      const gstStat = getGstValidationStatus(settingsData.gstNo);
+      if (gstStat.isValid === false) {
+        showToast("GST Number must be a valid 15-character GSTIN (e.g. 24ABCDE1234F1Z5)", "error");
+        return;
+      }
     }
 
     try {
@@ -353,9 +365,28 @@ export default function CompanySettingsPage() {
                     className="form-control-swagat"
                     value={settingsData.mobile}
                     onChange={handleSettingsChange}
-                    placeholder="e.g. +91 98765 43210"
+                    placeholder="e.g. 9876543210"
                     required
                   />
+                  {(() => {
+                    const mobStatus = getMobileValidationStatus(settingsData.mobile, false);
+                    if (mobStatus.message) {
+                      return (
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: 500,
+                            color: mobStatus.isValid ? "var(--success)" : "var(--danger)",
+                            marginTop: "4px",
+                            display: "block",
+                          }}
+                        >
+                          {mobStatus.message}
+                        </span>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
 
                 {/* Alternate Mobile */}
@@ -367,8 +398,27 @@ export default function CompanySettingsPage() {
                     className="form-control-swagat"
                     value={settingsData.altMobile}
                     onChange={handleSettingsChange}
-                    placeholder="e.g. +91 91234 56789"
+                    placeholder="e.g. 9123456789"
                   />
+                  {(() => {
+                    const altStatus = getMobileValidationStatus(settingsData.altMobile, true);
+                    if (altStatus.message) {
+                      return (
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: 500,
+                            color: altStatus.isValid ? "var(--success)" : "var(--danger)",
+                            marginTop: "4px",
+                            display: "block",
+                          }}
+                        >
+                          {altStatus.message}
+                        </span>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
 
                 {/* GST Number */}
@@ -377,11 +427,31 @@ export default function CompanySettingsPage() {
                   <input
                     type="text"
                     name="gstNo"
+                    maxLength="15"
                     className="form-control-swagat"
                     value={settingsData.gstNo}
                     onChange={handleSettingsChange}
                     placeholder="e.g. 24ABCDE1234F1Z5"
                   />
+                  {(() => {
+                    const gstStat = getGstValidationStatus(settingsData.gstNo);
+                    if (gstStat.message) {
+                      return (
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: 500,
+                            color: gstStat.isValid ? "var(--success)" : "var(--danger)",
+                            marginTop: "4px",
+                            display: "block",
+                          }}
+                        >
+                          {gstStat.message}
+                        </span>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
 
                 {/* PAN Number */}

@@ -15,6 +15,7 @@ import {
   FiUsers,
   FiFilter,
 } from "react-icons/fi";
+import { getGstValidationStatus, getMobileValidationStatus } from "../utils/validation";
 
 export default function IndustriesPage() {
   const [industries, setIndustries] = useState([]);
@@ -121,6 +122,12 @@ export default function IndustriesPage() {
     }
     if (formData.mobile_no && !/^\d{10}$/.test(formData.mobile_no.trim())) {
       errors.mobile_no = "Mobile number must be a valid 10-digit number";
+    }
+    if (formData.gst_no && formData.gst_no.trim() !== "") {
+      const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      if (!gstRegex.test(formData.gst_no.trim().toUpperCase())) {
+        errors.gst_no = "GST Number must be a valid 15-character GSTIN (e.g. 24ABCDE1234F1Z5)";
+      }
     }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -488,18 +495,32 @@ export default function IndustriesPage() {
                           })
                         }
                       />
-                      {formErrors.mobile_no && (
-                        <span
-                          style={{
-                            fontSize: "12px",
-                            color: "var(--danger)",
-                            marginTop: "4px",
-                            display: "block",
-                          }}
-                        >
-                          {formErrors.mobile_no}
-                        </span>
-                      )}
+                      {(() => {
+                        const mobStatus = getMobileValidationStatus(formData.mobile_no, true);
+                        if (formErrors.mobile_no) {
+                          return (
+                            <span style={{ fontSize: "12px", color: "var(--danger)", marginTop: "4px", display: "block" }}>
+                              ✕ {formErrors.mobile_no}
+                            </span>
+                          );
+                        }
+                        if (mobStatus.message) {
+                          return (
+                            <span
+                              style={{
+                                fontSize: "12px",
+                                fontWeight: 500,
+                                color: mobStatus.isValid ? "var(--success)" : "var(--danger)",
+                                marginTop: "4px",
+                                display: "block",
+                              }}
+                            >
+                              {mobStatus.message}
+                            </span>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
                   </div>
 
@@ -509,8 +530,9 @@ export default function IndustriesPage() {
                     </label>
                     <input
                       type="text"
+                      maxLength="15"
                       className="form-control-swagat"
-                      placeholder="e.g. 24AAAAA0000A1Z5"
+                      placeholder="e.g. 24ABCDE1234F1Z5"
                       value={formData.gst_no}
                       onChange={(e) =>
                         setFormData({
@@ -519,6 +541,32 @@ export default function IndustriesPage() {
                         })
                       }
                     />
+                    {(() => {
+                      const gstStat = getGstValidationStatus(formData.gst_no);
+                      if (formErrors.gst_no) {
+                        return (
+                          <span style={{ fontSize: "12px", color: "var(--danger)", marginTop: "4px", display: "block" }}>
+                            {formErrors.gst_no}
+                          </span>
+                        );
+                      }
+                      if (gstStat.message) {
+                        return (
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              fontWeight: 500,
+                              color: gstStat.isValid ? "var(--success)" : "var(--danger)",
+                              marginTop: "4px",
+                              display: "block",
+                            }}
+                          >
+                            {gstStat.message}
+                          </span>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
 
                   <div>

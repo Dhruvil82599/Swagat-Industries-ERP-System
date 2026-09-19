@@ -65,4 +65,23 @@ To enhance user experience and visual interactivity, dynamic CSS hover effects h
 3. **Icon Scaling Animation**:
    - The icon wrapper inside the hovered card scales up slightly by `1.10x` (`transform: scale(1.10)`), providing an instant responsive affordance to user hover.
 
+---
+
+### System-Wide GSTIN & Mobile Number Real-Time Validation
+
+To ensure clean financial records and prevent data entry mistakes across the ERP, strict format validation with dynamic key-release feedback has been implemented:
+
+1. **GSTIN Format Validation**:
+   - Standard 15-character Indian GSTIN format enforced via regular expression:
+     `/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/`
+   - Automatically forces text input to UPPERCASE as user types.
+   - Enforced across Customer (`CustomersPage.jsx`), Industry (`IndustriesPage.jsx`), and Company Settings (`CompanySettingsPage.jsx`) modules.
+   - Backend controllers (`customerController.js`, `industryController.js`, `companySettingsController.js`) enforce 400 Bad Request validation error responses if an invalid GSTIN format is submitted.
+
+2. **Real-Time Key Release (keyup/onChange) Green & Red Feedback**:
+   - Integrated `FE/src/utils/validation.js` helper module to analyze input character length and format in real time.
+   - **Green Status Message (`✓ Valid 15-character GSTIN` / `✓ Valid 10-digit mobile number`)**: Displayed in `var(--success)` (#16A34A) as soon as the user completes entering a valid format.
+   - **Red Status Message (`✕ GSTIN must be 15 characters (X/15)` / `✕ Invalid GSTIN format` / `✕ Enter 10-digit mobile number (Y/10)`)**: Displayed in `var(--danger)` (#DC2626) while typing an incomplete or invalid format.
+   - Optional empty inputs (like GSTIN or optional mobile numbers) remain clean without intrusive errors until typing begins.
+
 Wait for confirmation.

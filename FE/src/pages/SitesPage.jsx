@@ -16,6 +16,7 @@ import {
   FiUsers, 
   FiFilter 
 } from 'react-icons/fi';
+import { getMobileValidationStatus } from '../utils/validation';
 
 export default function SitesPage() {
   const [sites, setSites] = useState([]);
@@ -420,11 +421,32 @@ export default function SitesPage() {
                         value={formData.mobile_no}
                         onChange={(e) => setFormData({ ...formData, mobile_no: e.target.value.replace(/\D/g, '') })}
                       />
-                      {formErrors.mobile_no && (
-                        <span style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '4px', display: 'block' }}>
-                          {formErrors.mobile_no}
-                        </span>
-                      )}
+                      {(() => {
+                        const mobStatus = getMobileValidationStatus(formData.mobile_no, true);
+                        if (formErrors.mobile_no) {
+                          return (
+                            <span style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '4px', display: 'block' }}>
+                              ✕ {formErrors.mobile_no}
+                            </span>
+                          );
+                        }
+                        if (mobStatus.message) {
+                          return (
+                            <span
+                              style={{
+                                fontSize: '12px',
+                                fontWeight: 500,
+                                color: mobStatus.isValid ? 'var(--success)' : 'var(--danger)',
+                                marginTop: '4px',
+                                display: 'block'
+                              }}
+                            >
+                              {mobStatus.message}
+                            </span>
+                          );
+                        }
+                        return null;
+                      })()}
                     </div>
                   </div>
 

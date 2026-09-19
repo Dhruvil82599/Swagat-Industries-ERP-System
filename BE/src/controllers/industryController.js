@@ -13,6 +13,7 @@ function validateIndustryData(data, isUpdate = false) {
   const name = data.industry_name || data.industryName;
   const address = data.address;
   const mobile = data.mobile_no || data.mobileNo;
+  const gst = data.gst_no !== undefined ? data.gst_no : data.gstNo;
 
   if (!isUpdate && (customerId === undefined || customerId === null || isNaN(parseInt(customerId, 10)))) {
     errors.push({ field: 'customer_id', message: 'Valid customer ID is required' });
@@ -34,6 +35,14 @@ function validateIndustryData(data, isUpdate = false) {
     const cleaned = String(mobile).trim();
     if (!/^\d{10}$/.test(cleaned)) {
       errors.push({ field: 'mobile_no', message: 'Mobile number must be a valid 10-digit number' });
+    }
+  }
+
+  if (gst !== undefined && gst !== null && String(gst).trim() !== '') {
+    const cleanedGst = String(gst).trim().toUpperCase();
+    const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+    if (!gstRegex.test(cleanedGst)) {
+      errors.push({ field: 'gst_no', message: 'GST Number must be a valid 15-character GSTIN (e.g. 24ABCDE1234F1Z5)' });
     }
   }
 

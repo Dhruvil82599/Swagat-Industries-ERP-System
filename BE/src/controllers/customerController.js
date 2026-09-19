@@ -12,6 +12,7 @@ function validateCustomerData(data, isUpdate = false) {
   const name = data.customer_name || data.customerName;
   const mobile = data.mobile_number || data.mobileNumber;
   const address = data.address;
+  const gst = data.gst_no !== undefined ? data.gst_no : data.gstNo;
 
   if (!isUpdate || name !== undefined) {
     if (!name || typeof name !== 'string' || name.trim() === '') {
@@ -33,6 +34,14 @@ function validateCustomerData(data, isUpdate = false) {
   if (!isUpdate || address !== undefined) {
     if (!address || typeof address !== 'string' || address.trim() === '') {
       errors.push({ field: 'address', message: 'Address is required' });
+    }
+  }
+
+  if (gst !== undefined && gst !== null && String(gst).trim() !== '') {
+    const cleanedGst = String(gst).trim().toUpperCase();
+    const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+    if (!gstRegex.test(cleanedGst)) {
+      errors.push({ field: 'gst_no', message: 'GST Number must be a valid 15-character GSTIN (e.g. 24ABCDE1234F1Z5)' });
     }
   }
 

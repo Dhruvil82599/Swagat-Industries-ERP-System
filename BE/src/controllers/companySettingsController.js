@@ -50,6 +50,17 @@ async function updateCompanySettings(req, res, next) {
       orderBy: { id: 'desc' }
     });
 
+    const gstInput = req.body.gst_no !== undefined ? req.body.gst_no : req.body.gstNo;
+    if (gstInput !== undefined && gstInput !== null && String(gstInput).trim() !== '') {
+      const cleanedGst = String(gstInput).trim().toUpperCase();
+      const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+      if (!gstRegex.test(cleanedGst)) {
+        return errorResponse(res, 'Validation failed', 400, [
+          { field: 'gst_no', message: 'GST Number must be a valid 15-character GSTIN (e.g. 24ABCDE1234F1Z5)' }
+        ]);
+      }
+    }
+
     const data = {
       companyName: req.body.company_name !== undefined ? req.body.company_name : (req.body.companyName !== undefined ? req.body.companyName : (settings ? settings.companyName : 'Swagat Industries')),
       logoUrl: req.body.logo_url !== undefined ? req.body.logo_url : (req.body.logoUrl !== undefined ? req.body.logoUrl : (settings ? settings.logoUrl : null)),
@@ -59,7 +70,7 @@ async function updateCompanySettings(req, res, next) {
       altMobile: req.body.alt_mobile !== undefined ? req.body.alt_mobile : (req.body.altMobile !== undefined ? req.body.altMobile : (settings ? settings.altMobile : null)),
       email: req.body.email !== undefined ? req.body.email : (settings ? settings.email : null),
       website: req.body.website !== undefined ? req.body.website : (settings ? settings.website : null),
-      gstNo: req.body.gst_no !== undefined ? req.body.gst_no : (req.body.gstNo !== undefined ? req.body.gstNo : (settings ? settings.gstNo : null)),
+      gstNo: req.body.gst_no !== undefined ? (req.body.gst_no ? req.body.gst_no.trim().toUpperCase() : null) : (req.body.gstNo !== undefined ? (req.body.gstNo ? req.body.gstNo.trim().toUpperCase() : null) : (settings ? settings.gstNo : null)),
       panNo: req.body.pan_no !== undefined ? req.body.pan_no : (req.body.panNo !== undefined ? req.body.panNo : (settings ? settings.panNo : null)),
       bankName: req.body.bank_name !== undefined ? req.body.bank_name : (req.body.bankName !== undefined ? req.body.bankName : (settings ? settings.bankName : null)),
       accountNo: req.body.account_no !== undefined ? req.body.account_no : (req.body.accountNo !== undefined ? req.body.accountNo : (settings ? settings.accountNo : null)),
