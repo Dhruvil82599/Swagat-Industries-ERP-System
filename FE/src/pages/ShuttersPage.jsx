@@ -56,6 +56,57 @@ const calculateShutterPrice = (sht) => {
   return round2(shutterBasic + giCoverBasic);
 };
 
+const computeShutterPreviewFromObj = (sht) => {
+  if (!sht) return null;
+  const hIn = parseFloat(sht.heightInches ?? sht.height_inches) || 0;
+  const wIn = parseFloat(sht.widthInches ?? sht.width_inches) || 0;
+  const rate = parseFloat(sht.ratePerSqft ?? sht.rate_per_sqft) || 0;
+  const giRate = parseFloat(sht.giTopCoverRatePerSqft ?? sht.gi_top_cover_rate_per_sqft) || 0;
+  const type = sht.shutterType || sht.shutter_type || "Manual";
+  const gear = type === "Gear" ? parseFloat(sht.gearPrice ?? sht.gear_price) || 0 : 0;
+  const motor = type === "Motorised" ? parseFloat(sht.motorPrice ?? sht.motor_price) || 0 : 0;
+
+  if (hIn <= 0 || wIn <= 0) return null;
+
+  const round2 = (val) => Math.round((Number(val) + Number.EPSILON) * 100) / 100;
+
+  const hFt = round2(hIn / 12);
+  const wFt = round2(wIn / 12);
+
+  let overH = 0;
+  let overW = 0;
+  let coverSize = 0;
+
+  if (type === "Manual") {
+    overH = round2(hFt + 1.5);
+    overW = round2(wFt + 0.5);
+    coverSize = round2(overW + 0.5);
+  } else {
+    overH = round2(hFt + 2.0);
+    overW = round2(wFt + 0.75);
+    coverSize = round2(overW + 0.75);
+  }
+
+  const totalSqft = round2(overH * overW);
+  const shutterBasic = round2(
+    totalSqft * rate + (type === "Gear" ? gear : type === "Motorised" ? motor : 0)
+  );
+  const giCoverBasic = round2(coverSize * giRate);
+  const basicTotal = round2(shutterBasic + giCoverBasic);
+
+  return {
+    hFt,
+    wFt,
+    overH,
+    overW,
+    totalSqft,
+    coverSize,
+    shutterBasic,
+    giCoverBasic,
+    basicTotal,
+  };
+};
+
 export default function ShuttersPage() {
   const [shutters, setShutters] = useState([]);
   const [sites, setSites] = useState([]);
@@ -1046,9 +1097,9 @@ export default function ShuttersPage() {
       {/* View Shutter Details Modal */}
       {isViewOpen && selectedShutter && (
         <div className="modal-overlay">
-          <div className="modal-content-swagat">
+          <div className="modal-content-swagat modal-lg">
             <div className="modal-header-swagat">
-              <h3>Shutter Details</h3>
+              <h3>View Shutter Catalog Item</h3>
               <button
                 className="modal-close-btn"
                 onClick={() => setIsViewOpen(false)}
@@ -1057,149 +1108,284 @@ export default function ShuttersPage() {
               </button>
             </div>
             <div className="modal-body-swagat">
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "16px",
-                  marginBottom: "20px",
-                }}
-              >
-                <div>
-                  <div
-                    style={{ fontSize: "12px", color: "var(--text-secondary)" }}
-                  >
-                    Shutter Name/No.
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "16px",
-                      fontWeight: 700,
-                      color: "var(--primary)",
-                    }}
-                  >
-                    {selectedShutter.shutterNameNo}
-                  </div>
-                </div>
-                <div>
-                  <div
-                    style={{ fontSize: "12px", color: "var(--text-secondary)" }}
-                  >
-                    Site / Location
-                  </div>
-                  <div style={{ fontSize: "15px", fontWeight: 600 }}>
-                    {selectedShutter.site?.siteName || "N/A"}
-                  </div>
-                </div>
-                <div>
-                  <div
-                    style={{ fontSize: "12px", color: "var(--text-secondary)" }}
-                  >
-                    Dimensions
-                  </div>
-                  <div style={{ fontSize: "15px", fontWeight: 600 }}>
-                    {selectedShutter.heightInches}" ×{" "}
-                    {selectedShutter.widthInches}"
-                  </div>
-                </div>
-                <div>
-                  <div
-                    style={{ fontSize: "12px", color: "var(--text-secondary)" }}
-                  >
-                    Shutter Type
-                  </div>
+              <div style={{ display: "grid", gap: "16px" }}>
+                {/* Site & Name */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1.2fr 1fr",
+                    gap: "16px",
+                  }}
+                >
                   <div>
-                    <span
-                      className={`badge-swagat badge-${selectedShutter.shutterType.toLowerCase()}`}
-                    >
-                      {selectedShutter.shutterType}
-                    </span>
+                    <label className="form-label-swagat">Belongs to Site</label>
+                    <input
+                      type="text"
+                      className="form-control-swagat"
+                      value={
+                        selectedShutter.site
+                          ? `${selectedShutter.site.siteName}${
+                              selectedShutter.site.cityLocation
+                                ? ` (${selectedShutter.site.cityLocation})`
+                                : ""
+                            }${
+                              selectedShutter.site.industry?.industryName
+                                ? ` - ${selectedShutter.site.industry.industryName}`
+                                : ""
+                            }`
+                          : "N/A"
+                      }
+                      readOnly
+                      disabled
+                    />
                   </div>
-                </div>
-                <div>
-                  <div
-                    style={{ fontSize: "12px", color: "var(--text-secondary)" }}
-                  >
-                    Fitting Type
-                  </div>
-                  <div style={{ fontSize: "14px", fontWeight: 600 }}>
-                    {selectedShutter.fittingType}
-                  </div>
-                </div>
-                <div>
-                  <div
-                    style={{ fontSize: "12px", color: "var(--text-secondary)" }}
-                  >
-                    Rate per Sqft
-                  </div>
-                  <div style={{ fontSize: "14px", fontWeight: 600 }}>
-                    ₹{Number(selectedShutter.ratePerSqft).toFixed(2)}
-                  </div>
-                </div>
-                <div>
-                  <div
-                    style={{ fontSize: "12px", color: "var(--text-secondary)" }}
-                  >
-                    GI Top Cover Rate
-                  </div>
-                  <div style={{ fontSize: "14px", fontWeight: 600 }}>
-                    ₹{Number(selectedShutter.giTopCoverRatePerSqft).toFixed(2)}
-                  </div>
-                </div>
-                {selectedShutter.shutterType === "Gear" && (
-                  <div>
-                    <div
-                      style={{
-                        fontSize: "12px",
-                        color: "var(--text-secondary)",
-                      }}
-                    >
-                      Gear Price
-                    </div>
-                    <div style={{ fontSize: "14px", fontWeight: 600 }}>
-                      ₹{Number(selectedShutter.gearPrice).toFixed(2)}
-                    </div>
-                  </div>
-                )}
-                {selectedShutter.shutterType === "Motorised" && (
-                  <div>
-                    <div
-                      style={{
-                        fontSize: "12px",
-                        color: "var(--text-secondary)",
-                      }}
-                    >
-                      Motor Price
-                    </div>
-                    <div style={{ fontSize: "14px", fontWeight: 600 }}>
-                      ₹{Number(selectedShutter.motorPrice).toFixed(2)}
-                    </div>
-                  </div>
-                )}
-              </div>
 
-              {selectedShutter.remark && (
-                <div>
-                  <div
-                    style={{
-                      fontSize: "12px",
-                      color: "var(--text-secondary)",
-                      marginBottom: "4px",
-                    }}
-                  >
-                    Remark
-                  </div>
-                  <div
-                    style={{
-                      fontStyle: "italic",
-                      fontSize: "13px",
-                      color: "var(--text-secondary)",
-                    }}
-                  >
-                    {selectedShutter.remark}
+                  <div>
+                    <label className="form-label-swagat">
+                      Shutter Name / Number
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control-swagat"
+                      value={selectedShutter.shutterNameNo || ""}
+                      readOnly
+                      disabled
+                    />
                   </div>
                 </div>
-              )}
+
+                {/* Dimensions */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "16px",
+                  }}
+                >
+                  <div>
+                    <label className="form-label-swagat">
+                      Height (Inches)
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control-swagat"
+                      value={selectedShutter.heightInches || ""}
+                      readOnly
+                      disabled
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label-swagat">Width (Inches)</label>
+                    <input
+                      type="text"
+                      className="form-control-swagat"
+                      value={selectedShutter.widthInches || ""}
+                      readOnly
+                      disabled
+                    />
+                  </div>
+                </div>
+
+                {/* Shutter Type & Fitting Type */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "16px",
+                  }}
+                >
+                  <div>
+                    <label className="form-label-swagat">Shutter Type</label>
+                    <input
+                      type="text"
+                      className="form-control-swagat"
+                      value={selectedShutter.shutterType || ""}
+                      readOnly
+                      disabled
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label-swagat">Fitting Type</label>
+                    <input
+                      type="text"
+                      className="form-control-swagat"
+                      value={selectedShutter.fittingType || ""}
+                      readOnly
+                      disabled
+                    />
+                  </div>
+                </div>
+
+                {/* Rates */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "16px",
+                  }}
+                >
+                  <div>
+                    <label className="form-label-swagat">
+                      Rate Per Sq.Ft. (₹)
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control-swagat"
+                      value={selectedShutter.ratePerSqft || "0"}
+                      readOnly
+                      disabled
+                    />
+                  </div>
+
+                  <div>
+                    <label className="form-label-swagat">
+                      GI Top Cover Rate Per Sq.Ft. (₹)
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control-swagat"
+                      value={selectedShutter.giTopCoverRatePerSqft || "0"}
+                      readOnly
+                      disabled
+                    />
+                  </div>
+                </div>
+
+                {/* Dynamic Fields based on Shutter Type */}
+                {selectedShutter.shutterType === "Gear" && (
+                  <div
+                    style={{
+                      backgroundColor: "#FEF3C7",
+                      padding: "14px",
+                      borderRadius: "6px",
+                      border: "1px solid #FDE68A",
+                    }}
+                  >
+                    <label
+                      className="form-label-swagat"
+                      style={{ color: "#92400E" }}
+                    >
+                      Gear Price (₹)
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control-swagat"
+                      value={selectedShutter.gearPrice || "0"}
+                      readOnly
+                      disabled
+                    />
+                  </div>
+                )}
+
+                {selectedShutter.shutterType === "Motorised" && (
+                  <div
+                    style={{
+                      backgroundColor: "#DBEAFE",
+                      padding: "14px",
+                      borderRadius: "6px",
+                      border: "1px solid #BFDBFE",
+                    }}
+                  >
+                    <label
+                      className="form-label-swagat"
+                      style={{ color: "#1E40AF" }}
+                    >
+                      Motor Price (₹)
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control-swagat"
+                      value={selectedShutter.motorPrice || "0"}
+                      readOnly
+                      disabled
+                    />
+                  </div>
+                )}
+
+                {/* Live Shutter Calculation Preview */}
+                {(() => {
+                  const viewPreview = computeShutterPreviewFromObj(selectedShutter);
+                  if (!viewPreview) return null;
+                  return (
+                    <div className="calc-preview-box">
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontWeight: 700,
+                            fontSize: "13px",
+                            color: "var(--primary-dark)",
+                          }}
+                        >
+                          Live Shutter Calculation Preview
+                        </span>
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            color: "var(--text-secondary)",
+                          }}
+                        >
+                          Height: {viewPreview.hFt}' | Width: {viewPreview.wFt}'
+                        </span>
+                      </div>
+                      <div className="calc-preview-grid">
+                        <div className="calc-preview-item">
+                          <div className="label">Over Height (Feet)</div>
+                          <div className="value">{viewPreview.overH}'</div>
+                        </div>
+                        <div className="calc-preview-item">
+                          <div className="label">Over Width (Feet)</div>
+                          <div className="value">{viewPreview.overW}'</div>
+                        </div>
+                        <div className="calc-preview-item">
+                          <div className="label">Total sq. ft</div>
+                          <div className="value">{viewPreview.totalSqft} sq.ft</div>
+                        </div>
+                        <div className="calc-preview-item">
+                          <div className="label">GI Top Cover in sq. ft</div>
+                          <div className="value">{viewPreview.coverSize}'</div>
+                        </div>
+                        <div className="calc-preview-item">
+                          <div className="label">Shutter Basic</div>
+                          <div className="value">₹{viewPreview.shutterBasic}</div>
+                        </div>
+                        <div className="calc-preview-item">
+                          <div className="label">GI Top Cover Basic</div>
+                          <div className="value">₹{viewPreview.giCoverBasic}</div>
+                        </div>
+                        <div className="calc-preview-item">
+                          <div className="label">Basic Total</div>
+                          <div
+                            className="value"
+                            style={{ color: "var(--success)", fontWeight: 700 }}
+                          >
+                            ₹{viewPreview.basicTotal}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                <div>
+                  <label className="form-label-swagat">Remark (Optional)</label>
+                  <input
+                    type="text"
+                    className="form-control-swagat"
+                    value={selectedShutter.remark || ""}
+                    placeholder="No remark"
+                    readOnly
+                    disabled
+                  />
+                </div>
+              </div>
             </div>
             <div className="modal-footer-swagat">
               <button
