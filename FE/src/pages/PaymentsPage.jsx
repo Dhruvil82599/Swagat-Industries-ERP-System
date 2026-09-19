@@ -20,6 +20,8 @@ import {
   FiCalendar,
   FiPrinter,
 } from "react-icons/fi";
+import ActionButtons from "../components/UI/ActionButtons";
+
 
 export default function PaymentsPage() {
   const [searchParams] = useSearchParams();
@@ -698,30 +700,14 @@ export default function PaymentsPage() {
                         })}
                       </td>
                       <td style={{ textAlign: "right" }}>
-                        <div style={{ display: "inline-flex", gap: "6px" }}>
-                          <button
-                            className="btn-icon-action"
-                            title="Print Payment Slip"
-                            onClick={() => setPrintingPaymentId(pay.id)}
-                            style={{ color: "#059669" }}
-                          >
-                            <FiPrinter />
-                          </button>
-                          <button
-                            className="btn-icon-action"
-                            title="Edit Payment"
-                            onClick={() => openEditModal(pay)}
-                          >
-                            <FiEdit2 />
-                          </button>
-                          <button
-                            className="btn-icon-action danger"
-                            title="Delete Payment"
-                            onClick={() => openDeleteModal(pay)}
-                          >
-                            <FiTrash2 />
-                          </button>
-                        </div>
+                        <ActionButtons
+                          onPrint={() => setPrintingPaymentId(pay.id)}
+                          printTitle="Print Payment Slip"
+                          onEdit={() => openEditModal(pay)}
+                          editTitle="Edit Payment"
+                          onDelete={() => openDeleteModal(pay)}
+                          deleteTitle="Delete Payment"
+                        />
                       </td>
                     </tr>
                   );

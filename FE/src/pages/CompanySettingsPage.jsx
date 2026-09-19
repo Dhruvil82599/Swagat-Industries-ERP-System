@@ -21,7 +21,10 @@ import {
   FiArrowUp,
   FiArrowDown,
 } from "react-icons/fi";
-import { getGstValidationStatus, getMobileValidationStatus } from "../utils/validation";
+import { getGstValidationStatus, getMobileValidationStatus, getAccountNoValidationStatus } from "../utils/validation";
+import ActionButtons from "../components/UI/ActionButtons";
+
+
 
 export default function CompanySettingsPage() {
   const { showToast } = useToast();
@@ -120,6 +123,9 @@ export default function CompanySettingsPage() {
     } else if (name === 'mobile' || name === 'altMobile') {
       // Strip alphabetic letters and non-phone characters automatically
       value = value.replace(/[^\d+\-\s()]/g, '');
+    } else if (name === 'accountNo') {
+      // Strip letters and special characters (digits only)
+      value = value.replace(/\D/g, '');
     }
     setSettingsData((prev) => ({ ...prev, [name]: value }));
   };
@@ -157,6 +163,14 @@ export default function CompanySettingsPage() {
       const gstStat = getGstValidationStatus(settingsData.gstNo);
       if (gstStat.isValid === false) {
         showToast("GST Number must be a valid 15-character GSTIN (e.g. 24ABCDE1234F1Z5)", "error");
+        return;
+      }
+    }
+
+    if (settingsData.accountNo && settingsData.accountNo.trim() !== '') {
+      const accStat = getAccountNoValidationStatus(settingsData.accountNo);
+      if (accStat.isValid === false) {
+        showToast(accStat.message ? accStat.message.replace('✕ ', '') : "Invalid Bank Account Number", "error");
         return;
       }
     }
@@ -610,6 +624,25 @@ export default function CompanySettingsPage() {
                     onChange={handleSettingsChange}
                     placeholder="e.g. 12345678901"
                   />
+                  {(() => {
+                    const accStatus = getAccountNoValidationStatus(settingsData.accountNo);
+                    if (accStatus.message) {
+                      return (
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            fontWeight: 500,
+                            color: accStatus.isValid ? "var(--success)" : "var(--danger)",
+                            marginTop: "4px",
+                            display: "block",
+                          }}
+                        >
+                          {accStatus.message}
+                        </span>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
 
                 <div className="form-group-swagat">
@@ -744,24 +777,12 @@ export default function CompanySettingsPage() {
                         </button>
                       </td>
                       <td style={{ textAlign: "right" }}>
-                        <div style={{ display: "inline-flex", gap: "8px" }}>
-                          <button
-                            type="button"
-                            className="btn-icon-swagat"
-                            title="Edit Term"
-                            onClick={() => handleOpenEditTerm(term)}
-                          >
-                            <FiEdit />
-                          </button>
-                          <button
-                            type="button"
-                            className="btn-icon-swagat danger"
-                            title="Delete Term"
-                            onClick={() => setDeletingTermId(term.id)}
-                          >
-                            <FiTrash2 />
-                          </button>
-                        </div>
+                        <ActionButtons
+                          onEdit={() => handleOpenEditTerm(term)}
+                          editTitle="Edit Term"
+                          onDelete={() => setDeletingTermId(term.id)}
+                          deleteTitle="Delete Term"
+                        />
                       </td>
                     </tr>
                   ))}

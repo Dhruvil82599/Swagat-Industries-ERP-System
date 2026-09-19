@@ -17,6 +17,8 @@ import {
   FiFilter,
   FiDollarSign,
 } from "react-icons/fi";
+import ActionButtons from "../components/UI/ActionButtons";
+
 
 const calculateShutterPrice = (sht) => {
   if (!sht) return 0;
@@ -578,29 +580,14 @@ export default function ShuttersPage() {
                       </span>
                     </td>
                     <td style={{ textAlign: "right" }}>
-                      <div style={{ display: "inline-flex", gap: "6px" }}>
-                        <button
-                          className="btn-icon-action"
-                          title="View Details"
-                          onClick={() => openViewModal(sht)}
-                        >
-                          <FiEye />
-                        </button>
-                        <button
-                          className="btn-icon-action"
-                          title="Edit Shutter"
-                          onClick={() => openEditModal(sht)}
-                        >
-                          <FiEdit2 />
-                        </button>
-                        <button
-                          className="btn-icon-action danger"
-                          title="Delete Shutter"
-                          onClick={() => openDeleteModal(sht)}
-                        >
-                          <FiTrash2 />
-                        </button>
-                      </div>
+                      <ActionButtons
+                        onView={() => openViewModal(sht)}
+                        viewTitle="View Details"
+                        onEdit={() => openEditModal(sht)}
+                        editTitle="Edit Shutter"
+                        onDelete={() => openDeleteModal(sht)}
+                        deleteTitle="Delete Shutter"
+                      />
                     </td>
                   </tr>
                 ))}

@@ -16,6 +16,8 @@ import {
   FiFilter,
 } from "react-icons/fi";
 import { getGstValidationStatus, getMobileValidationStatus } from "../utils/validation";
+import ActionButtons from "../components/UI/ActionButtons";
+
 
 export default function IndustriesPage() {
   const [industries, setIndustries] = useState([]);
@@ -338,29 +340,14 @@ export default function IndustriesPage() {
                       </button>
                     </td>
                     <td style={{ textAlign: "right" }}>
-                      <div style={{ display: "inline-flex", gap: "6px" }}>
-                        <button
-                          className="btn-icon-action"
-                          title="View Details"
-                          onClick={() => openViewModal(ind)}
-                        >
-                          <FiEye />
-                        </button>
-                        <button
-                          className="btn-icon-action"
-                          title="Edit Industry"
-                          onClick={() => openEditModal(ind)}
-                        >
-                          <FiEdit2 />
-                        </button>
-                        <button
-                          className="btn-icon-action danger"
-                          title="Delete Industry"
-                          onClick={() => openDeleteModal(ind)}
-                        >
-                          <FiTrash2 />
-                        </button>
-                      </div>
+                      <ActionButtons
+                        onView={() => openViewModal(ind)}
+                        viewTitle="View Details"
+                        onEdit={() => openEditModal(ind)}
+                        editTitle="Edit Industry"
+                        onDelete={() => openDeleteModal(ind)}
+                        deleteTitle="Delete Industry"
+                      />
                     </td>
                   </tr>
                 ))}

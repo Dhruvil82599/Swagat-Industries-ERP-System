@@ -22,6 +22,8 @@ import {
   FiSliders,
   FiCreditCard,
 } from "react-icons/fi";
+import ActionButtons, { ActionButton, ActionButtonsGroup } from "../components/UI/ActionButtons";
+
 
 export default function QuotationsPage() {
   const navigate = useNavigate();
@@ -1068,37 +1070,21 @@ export default function QuotationsPage() {
                       </span>
                     </td>
                     <td style={{ textAlign: "right" }}>
-                      <div style={{ display: "inline-flex", gap: "6px" }}>
-                        <button
-                          className="btn-icon-action"
-                          style={{ color: "#10B981", backgroundColor: "#ECFDF5", borderColor: "#A7F3D0" }}
+                      <ActionButtons
+                        onView={() => openViewModal(q)}
+                        viewTitle="View Quotation"
+                        onEdit={() => openEditModal(q)}
+                        editTitle="Edit Quotation"
+                        onDelete={() => openDeleteModal(q)}
+                        deleteTitle="Delete Quotation"
+                      >
+                        <ActionButton
+                          variant="success"
+                          icon={<FiCreditCard />}
                           title="View & Record Payments"
                           onClick={() => navigate(`/payments?quotationId=${q.id}`)}
-                        >
-                          <FiCreditCard />
-                        </button>
-                        <button
-                          className="btn-icon-action"
-                          title="View Quotation"
-                          onClick={() => openViewModal(q)}
-                        >
-                          <FiEye />
-                        </button>
-                        <button
-                          className="btn-icon-action"
-                          title="Edit Quotation"
-                          onClick={() => openEditModal(q)}
-                        >
-                          <FiEdit2 />
-                        </button>
-                        <button
-                          className="btn-icon-action danger"
-                          title="Delete Quotation"
-                          onClick={() => openDeleteModal(q)}
-                        >
-                          <FiTrash2 />
-                        </button>
-                      </div>
+                        />
+                      </ActionButtons>
                     </td>
                   </tr>
                 ))}

@@ -87,3 +87,44 @@ export function getMobileValidationStatus(value, isOptional = false) {
     message: '✓ Valid 10-digit mobile number'
   };
 }
+
+/**
+ * Real-time Bank Account Number validation status reporter
+ * Account numbers must contain only numeric digits (typically 9 to 18 digits).
+ * @param {string} value 
+ * @returns {{ isValid: boolean | null, message: string }}
+ */
+export function getAccountNoValidationStatus(value) {
+  if (!value || String(value).trim() === '') {
+    return { isValid: null, message: '' };
+  }
+
+  const raw = String(value).trim();
+
+  if (/[^\d]/.test(raw)) {
+    return {
+      isValid: false,
+      message: '✕ Account number cannot contain letters or special characters'
+    };
+  }
+
+  if (raw.length < 9) {
+    return {
+      isValid: false,
+      message: `✕ Account number is too short (${raw.length}/9-18 digits)`
+    };
+  }
+
+  if (raw.length > 18) {
+    return {
+      isValid: false,
+      message: `✕ Account number cannot exceed 18 digits (${raw.length}/18)`
+    };
+  }
+
+  return {
+    isValid: true,
+    message: '✓ Valid Bank Account Number'
+  };
+}
+

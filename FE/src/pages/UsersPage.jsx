@@ -18,6 +18,8 @@ import {
   FiEye,
   FiEyeOff
 } from 'react-icons/fi';
+import ActionButtons, { ActionButton, ActionButtonsGroup } from '../components/UI/ActionButtons';
+
 
 export default function UsersPage() {
   const [users, setUsers] = useState([]);
@@ -314,37 +316,21 @@ export default function UsersPage() {
                       <td>{u.email || <span style={{ color: '#94A3B8' }}>N/A</span>}</td>
                       <td>{formatDateDDMMYYYY(u.createdAt)}</td>
                       <td style={{ textAlign: 'right' }}>
-
-                        <div style={{ display: 'inline-flex', gap: '6px' }}>
-                          <button
-                            className="btn-icon-action"
-                            title="Edit User Details"
-                            onClick={() => openEditModal(u)}
-                          >
-                            <FiEdit2 />
-                          </button>
-                          <button
-                            className="btn-icon-action"
-                            title="Reset Password"
-                            onClick={() => {
-                              setSelectedUser(u);
-                              setResetPasswordForm({ newPassword: '' });
-                              setIsResetModalOpen(true);
-                            }}
-                          >
-                            <FiKey />
-                          </button>
-                          <button
-                            className="btn-icon-action danger"
-                            title="Delete User"
-                            onClick={() => {
-                              setSelectedUser(u);
-                              setIsDeleteModalOpen(true);
-                            }}
-                          >
-                            <FiTrash2 />
-                          </button>
-                        </div>
+                        <ActionButtons
+                          onEdit={() => openEditModal(u)}
+                          editTitle="Edit User Details"
+                          onKey={() => {
+                            setSelectedUser(u);
+                            setResetPasswordForm({ newPassword: '' });
+                            setIsResetModalOpen(true);
+                          }}
+                          keyTitle="Reset Password"
+                          onDelete={() => {
+                            setSelectedUser(u);
+                            setIsDeleteModalOpen(true);
+                          }}
+                          deleteTitle="Delete User"
+                        />
                       </td>
                     </tr>
                   ))}
@@ -391,13 +377,12 @@ export default function UsersPage() {
                       <td>{formatDateDDMMYYYY(inv.expiresAt)}</td>
 
                       <td style={{ textAlign: 'right' }}>
-                        <button
-                          className="btn-icon-action danger"
+                        <ActionButton
+                          variant="danger"
+                          iconName="delete"
                           title="Cancel Invitation"
                           onClick={() => handleCancelInvite(inv.id)}
-                        >
-                          <FiTrash2 />
-                        </button>
+                        />
                       </td>
                     </tr>
                   ))}

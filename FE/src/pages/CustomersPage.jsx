@@ -14,6 +14,8 @@ import {
   FiUsers 
 } from 'react-icons/fi';
 import { getGstValidationStatus, getMobileValidationStatus } from '../utils/validation';
+import ActionButtons from '../components/UI/ActionButtons';
+
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState([]);
@@ -239,29 +241,14 @@ export default function CustomersPage() {
                       </button>
                     </td>
                     <td style={{ textAlign: 'right' }}>
-                      <div style={{ display: 'inline-flex', gap: '6px' }}>
-                        <button
-                          className="btn-icon-action"
-                          title="View Details"
-                          onClick={() => openViewModal(cust)}
-                        >
-                          <FiEye />
-                        </button>
-                        <button
-                          className="btn-icon-action"
-                          title="Edit Customer"
-                          onClick={() => openEditModal(cust)}
-                        >
-                          <FiEdit2 />
-                        </button>
-                        <button
-                          className="btn-icon-action danger"
-                          title="Delete Customer"
-                          onClick={() => openDeleteModal(cust)}
-                        >
-                          <FiTrash2 />
-                        </button>
-                      </div>
+                      <ActionButtons
+                        onView={() => openViewModal(cust)}
+                        viewTitle="View Details"
+                        onEdit={() => openEditModal(cust)}
+                        editTitle="Edit Customer"
+                        onDelete={() => openDeleteModal(cust)}
+                        deleteTitle="Delete Customer"
+                      />
                     </td>
                   </tr>
                 ))}

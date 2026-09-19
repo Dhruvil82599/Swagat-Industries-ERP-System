@@ -17,6 +17,8 @@ import {
   FiFilter 
 } from 'react-icons/fi';
 import { getMobileValidationStatus } from '../utils/validation';
+import ActionButtons from '../components/UI/ActionButtons';
+
 
 export default function SitesPage() {
   const [sites, setSites] = useState([]);
@@ -293,29 +295,14 @@ export default function SitesPage() {
                       </button>
                     </td>
                     <td style={{ textAlign: 'right' }}>
-                      <div style={{ display: 'inline-flex', gap: '6px' }}>
-                        <button
-                          className="btn-icon-action"
-                          title="View Details"
-                          onClick={() => openViewModal(site)}
-                        >
-                          <FiEye />
-                        </button>
-                        <button
-                          className="btn-icon-action"
-                          title="Edit Site"
-                          onClick={() => openEditModal(site)}
-                        >
-                          <FiEdit2 />
-                        </button>
-                        <button
-                          className="btn-icon-action danger"
-                          title="Delete Site"
-                          onClick={() => openDeleteModal(site)}
-                        >
-                          <FiTrash2 />
-                        </button>
-                      </div>
+                      <ActionButtons
+                        onView={() => openViewModal(site)}
+                        viewTitle="View Details"
+                        onEdit={() => openEditModal(site)}
+                        editTitle="Edit Site"
+                        onDelete={() => openDeleteModal(site)}
+                        deleteTitle="Delete Site"
+                      />
                     </td>
                   </tr>
                 ))}
