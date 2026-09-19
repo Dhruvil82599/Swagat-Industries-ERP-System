@@ -175,17 +175,16 @@ const forgotPassword = async (req, res) => {
       where: {
         OR: [
           { username: searchStr },
-          { email: searchStr }
+          { email: searchStr.toLowerCase() }
         ]
       }
     });
 
     if (!user) {
-      // Return success to prevent enumeration attack, but notify if user is test admin
-      return successResponse(
+      return errorResponse(
         res,
-        { emailSent: true },
-        'If an account exists for this username/email, a verification code has been sent.'
+        `No registered account found for "${searchStr}". Please check your username or email.`,
+        404
       );
     }
 
@@ -221,7 +220,7 @@ const forgotPassword = async (req, res) => {
         devSimulated: mailResult.simulated || false,
         devOtp: process.env.NODE_ENV !== 'production' ? otp : undefined
       },
-      'Verification OTP code sent successfully to registered email.'
+      `Verification OTP code sent successfully to registered email (${targetEmail.replace(/(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => gp2 + '*'.repeat(gp3.length))}).`
     );
   } catch (error) {
     console.error('forgotPassword error:', error);
@@ -231,14 +230,20 @@ const forgotPassword = async (req, res) => {
 
 const verifyOtp = async (req, res) => {
   try {
-    const { username, otp } = req.body;
+    const { username, identifier, otp } = req.body;
+    const searchStr = (identifier || username || '').trim();
 
-    if (!username || !otp) {
-      return errorResponse(res, 'Username and OTP code are required.', 400);
+    if (!searchStr || !otp) {
+      return errorResponse(res, 'Username/Email and OTP code are required.', 400);
     }
 
-    const user = await prisma.user.findUnique({
-      where: { username: username.trim() }
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { username: searchStr },
+          { email: searchStr.toLowerCase() }
+        ]
+      }
     });
 
     if (!user || !user.resetOtp || !user.resetOtpExpires) {
@@ -253,7 +258,7 @@ const verifyOtp = async (req, res) => {
       return errorResponse(res, 'Invalid 6-digit verification code. Please check and try again.', 400);
     }
 
-    return successResponse(res, { verified: true }, 'OTP code verified successfully.');
+    return successResponse(res, { verified: true, username: user.username }, 'OTP code verified successfully.');
   } catch (error) {
     console.error('verifyOtp error:', error);
     return errorResponse(res, 'Failed to verify OTP code.', 500);
@@ -262,9 +267,10 @@ const verifyOtp = async (req, res) => {
 
 const resetPassword = async (req, res) => {
   try {
-    const { username, otp, newPassword } = req.body;
+    const { username, identifier, otp, newPassword } = req.body;
+    const searchStr = (identifier || username || '').trim();
 
-    if (!username || !otp || !newPassword) {
+    if (!searchStr || !otp || !newPassword) {
       return errorResponse(res, 'All fields are required.', 400);
     }
 
@@ -272,8 +278,13 @@ const resetPassword = async (req, res) => {
       return errorResponse(res, 'New password must be at least 6 characters long.', 400);
     }
 
-    const user = await prisma.user.findUnique({
-      where: { username: username.trim() }
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { username: searchStr },
+          { email: searchStr.toLowerCase() }
+        ]
+      }
     });
 
     if (!user || !user.resetOtp || !user.resetOtpExpires) {
@@ -299,12 +310,13 @@ const resetPassword = async (req, res) => {
       }
     });
 
-    return successResponse(res, null, 'Password reset successfully! You can now sign in with your new password.');
+    return successResponse(res, { username: user.username }, 'Password reset successfully! You can now sign in with your new password.');
   } catch (error) {
     console.error('resetPassword error:', error);
     return errorResponse(res, 'Failed to reset password.', 500);
   }
 };
+
 
 const verifyInviteCode = async (req, res) => {
   try {
