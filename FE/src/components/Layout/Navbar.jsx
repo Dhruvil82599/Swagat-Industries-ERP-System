@@ -25,13 +25,16 @@ export default function Navbar({ title = "Master Data" }) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   
-  // Change Password state
+  // Change Password state (2-Step Flow)
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [changePasswordStep, setChangePasswordStep] = useState(1); // 1 = Verify Current, 2 = Set New
   const [changePasswordData, setChangePasswordData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+  const [currentPassStatus, setCurrentPassStatus] = useState("idle"); // "idle", "checking", "valid", "invalid"
+  const [currentPassError, setCurrentPassError] = useState("");
   const [changePasswordLoading, setChangePasswordLoading] = useState(false);
   const [showPassState, setShowPassState] = useState({
     current: false,
@@ -40,6 +43,7 @@ export default function Navbar({ title = "Master Data" }) {
   });
 
   const profileRef = useRef(null);
+  const keyCheckTimeoutRef = useRef(null);
 
   useEffect(() => {
     api
@@ -67,18 +71,78 @@ export default function Navbar({ title = "Master Data" }) {
     logout();
   };
 
-  const handleChangePasswordSubmit = async (e) => {
-    e.preventDefault();
-    if (!changePasswordData.currentPassword) {
-      showToast("Current Password is required", "error");
+  const resetChangePasswordModal = () => {
+    setShowChangePasswordModal(false);
+    setChangePasswordStep(1);
+    setChangePasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    setCurrentPassStatus("idle");
+    setCurrentPassError("");
+    if (keyCheckTimeoutRef.current) {
+      clearTimeout(keyCheckTimeoutRef.current);
+    }
+  };
+
+  // Real-time Key Release Current Password Verification
+  const verifyCurrentPassRealtime = (val) => {
+    if (keyCheckTimeoutRef.current) {
+      clearTimeout(keyCheckTimeoutRef.current);
+    }
+
+    if (!val || !val.trim()) {
+      setCurrentPassStatus("idle");
+      setCurrentPassError("");
       return;
     }
+
+    setCurrentPassStatus("checking");
+    setCurrentPassError("");
+
+    // Debounce verification check on key release (350ms)
+    keyCheckTimeoutRef.current = setTimeout(async () => {
+      try {
+        await authAPI.verifyCurrentPassword({ currentPassword: val });
+        setCurrentPassStatus("valid");
+        setCurrentPassError("");
+      } catch (err) {
+        setCurrentPassStatus("invalid");
+        setCurrentPassError(err.message || "Incorrect current password");
+      }
+    }, 350);
+  };
+
+  const handleCurrentPasswordChange = (e) => {
+    const val = e.target.value;
+    setChangePasswordData((prev) => ({ ...prev, currentPassword: val }));
+    verifyCurrentPassRealtime(val);
+  };
+
+  const handleCurrentPasswordKeyUp = (e) => {
+    // Immediate check trigger on Enter key if input is entered
+    if (e.key === "Enter" && currentPassStatus === "valid") {
+      e.preventDefault();
+      setChangePasswordStep(2);
+    }
+  };
+
+  const handleProceedToStep2 = (e) => {
+    e.preventDefault();
+    if (currentPassStatus !== "valid") {
+      showToast("Please enter a valid current password first.", "error");
+      return;
+    }
+    setChangePasswordStep(2);
+  };
+
+  const handleChangePasswordSubmit = async (e) => {
+    e.preventDefault();
+    const notify = showToast || addToast;
+
     if (!changePasswordData.newPassword || changePasswordData.newPassword.length < 6) {
-      showToast("New Password must be at least 6 characters long", "error");
+      if (notify) notify("New Password must be at least 6 characters long", "error");
       return;
     }
     if (changePasswordData.newPassword !== changePasswordData.confirmPassword) {
-      showToast("New Password and Confirm Password do not match", "error");
+      if (notify) notify("New Password and Confirm Password do not match", "error");
       return;
     }
 
@@ -88,11 +152,10 @@ export default function Navbar({ title = "Master Data" }) {
         currentPassword: changePasswordData.currentPassword,
         newPassword: changePasswordData.newPassword,
       });
-      showToast("Password updated successfully!", "success");
-      setShowChangePasswordModal(false);
-      setChangePasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      if (notify) notify("Password updated successfully!", "success");
+      resetChangePasswordModal();
     } catch (err) {
-      showToast(err.message || "Failed to update password", "error");
+      if (notify) notify(err.message || "Failed to update password", "error");
     } finally {
       setChangePasswordLoading(false);
     }
@@ -317,7 +380,7 @@ export default function Navbar({ title = "Master Data" }) {
         )}
       </div>
 
-      {/* Change Password Modal */}
+      {/* Change Password Modal (2-Step Flow) */}
       {showChangePasswordModal && (
         <div
           style={{
@@ -340,12 +403,14 @@ export default function Navbar({ title = "Master Data" }) {
               backgroundColor: "#FFFFFF",
               borderRadius: "14px",
               padding: "28px",
-              maxWidth: "420px",
+              maxWidth: "430px",
               width: "100%",
               boxShadow: "0 25px 50px -12px rgba(11, 34, 57, 0.35)",
               border: "1px solid #CBD5E1",
+              animation: "dropdownFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
             }}
           >
+            {/* Modal Header */}
             <div
               style={{
                 display: "flex",
@@ -358,106 +423,188 @@ export default function Navbar({ title = "Master Data" }) {
             >
               <div style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "18px", fontWeight: "700", color: "#123B5D" }}>
                 <FiKey style={{ color: "#F28C28" }} />
-                <span>Change Password</span>
+                <span>
+                  {changePasswordStep === 1
+                    ? "Verify Current Password"
+                    : "Set New Password"}
+                </span>
               </div>
               <button
-                onClick={() => setShowChangePasswordModal(false)}
+                type="button"
+                onClick={resetChangePasswordModal}
                 style={{ background: "none", border: "none", fontSize: "20px", color: "#94A3B8", cursor: "pointer" }}
               >
                 <FiX />
               </button>
             </div>
 
-            <form onSubmit={handleChangePasswordSubmit}>
-              {/* Current Password */}
-              <div style={{ marginBottom: "16px" }}>
-                <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#172B3A", marginBottom: "6px" }}>
-                  Current Password
-                </label>
-                <div style={{ position: "relative" }}>
-                  <input
-                    type={showPassState.current ? "text" : "password"}
-                    className="form-control-swagat"
-                    value={changePasswordData.currentPassword}
-                    onChange={(e) => setChangePasswordData({ ...changePasswordData, currentPassword: e.target.value })}
-                    placeholder="Enter current password"
-                    required
-                  />
+            {/* Step 1: Current Password Verification with Key Release Check */}
+            {changePasswordStep === 1 && (
+              <form onSubmit={handleProceedToStep2}>
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#172B3A", marginBottom: "6px" }}>
+                    Enter Current Password
+                  </label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type={showPassState.current ? "text" : "password"}
+                      className="form-control-swagat"
+                      value={changePasswordData.currentPassword}
+                      onChange={handleCurrentPasswordChange}
+                      onKeyUp={handleCurrentPasswordKeyUp}
+                      placeholder="Type your current password..."
+                      required
+                      autoFocus
+                      style={{
+                        borderColor:
+                          currentPassStatus === "valid"
+                            ? "#16A34A"
+                            : currentPassStatus === "invalid"
+                            ? "#DC2626"
+                            : "#CBD5E1",
+                        boxShadow:
+                          currentPassStatus === "valid"
+                            ? "0 0 0 3px rgba(22, 163, 74, 0.15)"
+                            : currentPassStatus === "invalid"
+                            ? "0 0 0 3px rgba(220, 38, 38, 0.15)"
+                            : "none",
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassState((prev) => ({ ...prev, current: !prev.current }))}
+                      style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#94A3B8", cursor: "pointer" }}
+                    >
+                      {showPassState.current ? <FiEyeOff /> : <FiEye />}
+                    </button>
+                  </div>
+
+                  {/* Real-time Status Indicator */}
+                  <div style={{ marginTop: "10px", minHeight: "22px", fontSize: "12.5px" }}>
+                    {currentPassStatus === "checking" && (
+                      <span style={{ color: "#123B5D", display: "flex", alignItems: "center", gap: "6px" }}>
+                        <span className="spinner" style={{ width: "12px", height: "12px", borderWidth: "2px" }} />
+                        Verifying password on key release...
+                      </span>
+                    )}
+                    {currentPassStatus === "valid" && (
+                      <span style={{ color: "#15803D", fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }}>
+                        <FiCheckCircle style={{ fontSize: "15px" }} />
+                        Current password verified! Click Proceed to set new password.
+                      </span>
+                    )}
+                    {currentPassStatus === "invalid" && (
+                      <span style={{ color: "#DC2626", fontWeight: "500", display: "flex", alignItems: "center", gap: "6px" }}>
+                        <FiAlertCircle style={{ fontSize: "15px" }} />
+                        {currentPassError || "Incorrect current password."}
+                      </span>
+                    )}
+                    {currentPassStatus === "idle" && (
+                      <span style={{ color: "#64748B" }}>
+                        Enter your existing password to unlock password modification.
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "24px" }}>
                   <button
                     type="button"
-                    onClick={() => setShowPassState((prev) => ({ ...prev, current: !prev.current }))}
-                    style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#94A3B8", cursor: "pointer" }}
+                    className="btn-outline-swagat"
+                    onClick={resetChangePasswordModal}
                   >
-                    {showPassState.current ? <FiEyeOff /> : <FiEye />}
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn-primary-swagat"
+                    disabled={currentPassStatus !== "valid"}
+                    style={{
+                      opacity: currentPassStatus === "valid" ? 1 : 0.55,
+                      cursor: currentPassStatus === "valid" ? "pointer" : "not-allowed",
+                      backgroundColor: currentPassStatus === "valid" ? "#123B5D" : "#94A3B8",
+                    }}
+                  >
+                    <span>Proceed</span>
                   </button>
                 </div>
-              </div>
+              </form>
+            )}
 
-              {/* New Password */}
-              <div style={{ marginBottom: "16px" }}>
-                <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#172B3A", marginBottom: "6px" }}>
-                  New Password
-                </label>
-                <div style={{ position: "relative" }}>
-                  <input
-                    type={showPassState.new ? "text" : "password"}
-                    className="form-control-swagat"
-                    value={changePasswordData.newPassword}
-                    onChange={(e) => setChangePasswordData({ ...changePasswordData, newPassword: e.target.value })}
-                    placeholder="Enter new password (min. 6 chars)"
-                    required
-                  />
+            {/* Step 2: Set New Password & Confirm Password Popup */}
+            {changePasswordStep === 2 && (
+              <form onSubmit={handleChangePasswordSubmit}>
+                <div style={{ backgroundColor: "#F8FAFC", padding: "10px 14px", borderRadius: "8px", borderLeft: "4px solid #16A34A", marginBottom: "16px", fontSize: "12.5px", color: "#15803D", fontWeight: "600" }}>
+                  ✓ Current password verified. Please specify your new security credentials.
+                </div>
+
+                {/* New Password */}
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#172B3A", marginBottom: "6px" }}>
+                    New Password
+                  </label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type={showPassState.new ? "text" : "password"}
+                      className="form-control-swagat"
+                      value={changePasswordData.newPassword}
+                      onChange={(e) => setChangePasswordData({ ...changePasswordData, newPassword: e.target.value })}
+                      placeholder="Enter new password (min. 6 chars)"
+                      required
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassState((prev) => ({ ...prev, new: !prev.new }))}
+                      style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#94A3B8", cursor: "pointer" }}
+                    >
+                      {showPassState.new ? <FiEyeOff /> : <FiEye />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Confirm New Password */}
+                <div style={{ marginBottom: "24px" }}>
+                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#172B3A", marginBottom: "6px" }}>
+                    Confirm New Password
+                  </label>
+                  <div style={{ position: "relative" }}>
+                    <input
+                      type={showPassState.confirm ? "text" : "password"}
+                      className="form-control-swagat"
+                      value={changePasswordData.confirmPassword}
+                      onChange={(e) => setChangePasswordData({ ...changePasswordData, confirmPassword: e.target.value })}
+                      placeholder="Re-enter new password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassState((prev) => ({ ...prev, confirm: !prev.confirm }))}
+                      style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#94A3B8", cursor: "pointer" }}
+                    >
+                      {showPassState.confirm ? <FiEyeOff /> : <FiEye />}
+                    </button>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
                   <button
                     type="button"
-                    onClick={() => setShowPassState((prev) => ({ ...prev, new: !prev.new }))}
-                    style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#94A3B8", cursor: "pointer" }}
+                    className="btn-outline-swagat"
+                    onClick={() => setChangePasswordStep(1)}
                   >
-                    {showPassState.new ? <FiEyeOff /> : <FiEye />}
+                    Back
                   </button>
-                </div>
-              </div>
-
-              {/* Confirm New Password */}
-              <div style={{ marginBottom: "24px" }}>
-                <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#172B3A", marginBottom: "6px" }}>
-                  Confirm New Password
-                </label>
-                <div style={{ position: "relative" }}>
-                  <input
-                    type={showPassState.confirm ? "text" : "password"}
-                    className="form-control-swagat"
-                    value={changePasswordData.confirmPassword}
-                    onChange={(e) => setChangePasswordData({ ...changePasswordData, confirmPassword: e.target.value })}
-                    placeholder="Re-enter new password"
-                    required
-                  />
                   <button
-                    type="button"
-                    onClick={() => setShowPassState((prev) => ({ ...prev, confirm: !prev.confirm }))}
-                    style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#94A3B8", cursor: "pointer" }}
+                    type="submit"
+                    className="btn-primary-swagat"
+                    disabled={changePasswordLoading}
                   >
-                    {showPassState.confirm ? <FiEyeOff /> : <FiEye />}
+                    {changePasswordLoading ? "Updating..." : "Update Password"}
                   </button>
                 </div>
-              </div>
-
-              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
-                <button
-                  type="button"
-                  className="btn-outline-swagat"
-                  onClick={() => setShowChangePasswordModal(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary-swagat"
-                  disabled={changePasswordLoading}
-                >
-                  {changePasswordLoading ? "Updating..." : "Update Password"}
-                </button>
-              </div>
-            </form>
+              </form>
+            )}
           </div>
         </div>
       )}

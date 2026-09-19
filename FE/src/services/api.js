@@ -61,6 +61,34 @@ export const authAPI = {
       headers: getAuthHeaders(),
       body: JSON.stringify(data),
     }).then(handleResponse),
+
+  verifyCurrentPassword: (data) =>
+    fetch(`${BASE_URL}/auth/verify-current-password`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+
+  forgotPassword: (data) =>
+    fetch(`${BASE_URL}/auth/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+
+  verifyOtp: (data) =>
+    fetch(`${BASE_URL}/auth/verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+
+  resetPassword: (data) =>
+    fetch(`${BASE_URL}/auth/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).then(handleResponse),
 };
 
 export const api = {
