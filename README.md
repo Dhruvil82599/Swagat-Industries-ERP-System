@@ -201,6 +201,10 @@ Transaction ledger tracking advance payments, partial settlements, and full paym
 *Updated payment ledger displaying total collected revenue and automatically recalculated outstanding pending balances.*
 ![Payment Ledger History](./FE/public/screenshots/08-payments/payment-history.png)
 
+#### Payment Receipt Slip Voucher Modal
+*Official printable payment receipt voucher featuring Swagat Industries letterhead, unique receipt sequence number (`REC-XXXXX`), payment method details, amount converted into Indian Rupee words, quotation summary, remaining balance status badge, and one-click WhatsApp sharing.*
+![Payment Receipt Slip](./FE/public/screenshots/08-payments/payment-slip-modal.png)
+
 ---
 
 ### 🏢 9. Company Settings & Terms (`09-settings/`)
@@ -219,7 +223,7 @@ Architecture managing company profile branding, GSTIN/PAN details, bank account 
 High-fidelity PDF preview modal incorporating Swagat Industries letterhead logo, customer details, shutter specification table, itemized financial summary, bank payment instructions, and terms & conditions footer.
 
 #### Printable PDF Quotation Preview
-*Clean, formatted printable quotation PDF preview ready for browser printing or client download.*
+*Clean, enterprise-formatted printable quotation preview featuring official letterhead, customer profile, site specifications, shutter line-item dimension math, tax summary, bank payment instructions, and terms & conditions clauses ready for browser printing or client PDF download.*
 ![Printable PDF Quotation](./FE/public/screenshots/10-pdf/quotation-pdf-preview.png)
 
 ---
