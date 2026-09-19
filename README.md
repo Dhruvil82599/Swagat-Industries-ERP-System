@@ -34,10 +34,16 @@ flowchart LR
 
 ### 🔐 1. Authentication & Security (`01-auth/`)
 
-The authentication module features Swagat Industries branding, CAPTCHA challenge verification, JWT token persistence, and bcrypt password hashing.
+The authentication and access control module features enterprise Swagat Industries branding, interactive canvas CAPTCHA challenge verification, JWT token persistence, bcrypt password hashing, automatic post-login dashboard navigation, and complete self-service password recovery workflows.
+
+#### Features & Capabilities
+- **Canvas CAPTCHA Verification**: Dynamic client-side graphical code generation preventing bot automated brute-force attacks.
+- **Forgot Password & OTP Recovery**: Integrated email notification system dispatching 6-digit OTP verification codes via SMTP with 15-minute expiration timers.
+- **Live Password Pre-Verification**: Real-time password check before allowing credential updates.
+- **Always-Redirect Dashboard Navigation**: Preserved state navigation routing users directly to the Executive Dashboard upon successful authentication.
 
 #### Login Screen
-*Clean, enterprise login interface with username, password, interactive canvas CAPTCHA, and password visibility toggle.*
+*Clean, enterprise login interface with username, password, interactive canvas CAPTCHA, password visibility toggle, and forgot password recovery link.*
 ![Login Screen](./FE/public/screenshots/01-auth/login.png)
 
 #### Login Validation & Error Handling
@@ -172,10 +178,15 @@ Automated quotation generator featuring cascading customer-industry-site selecti
 
 ### 💳 8. Payment Ledger & Balance Tracking (`08-payments/`)
 
-Transaction ledger tracking advance payments, partial settlements, and full payments per quotation with multi-method support (**UPI**, **Cash**, **Cheque**, **Bank Transfer**, **Google Pay**).
+Transaction ledger tracking advance payments, partial settlements, and full payments per quotation with multi-method support (**UPI**, **Cash**, **Cheque**, **Bank Transfer**, **Google Pay**), live balance recalculations, printable voucher slips, and WhatsApp receipt dispatching.
+
+#### Features & Capabilities
+- **Printable Payment Slip Generator (`PaymentSlipModal`)**: High-fidelity A4 printable receipt voucher featuring company branding, receipt sequence number (`REC-XXXXX`), payment transaction details, amount converted into Indian Rupee words (*e.g. Rupees Ten Thousand Only*), quotation breakdown, remaining balance status badge (*FULLY PAID* / *PARTIALLY PAID*), and signature blocks.
+- **One-Click WhatsApp Receipt Sharing**: Generates formatted WhatsApp payment confirmations sent directly to customer mobile numbers.
+- **Direct PDF & Print Export**: Integrated `@media print` layout ready for physical printing or PDF saving.
 
 #### Payments List View
-*Ledger table displaying payment dates, quotation numbers, payment methods, transaction reference numbers, and received amounts.*
+*Ledger table displaying payment dates, quotation numbers, payment methods, transaction reference numbers, received amounts, and action buttons for printing payment slips.*
 ![Payments List](./FE/public/screenshots/08-payments/payments-list.png)
 
 #### Record Payment Modal
@@ -266,6 +277,7 @@ $$\text{Outstanding Pending Balance} = \text{Final Total} - \sum \text{Recorded 
 - **Database**: PostgreSQL (`v14+`)
 - **ORM**: Prisma ORM (`v6.4.1`)
 - **Security & Auth**: JSON Web Tokens (`jsonwebtoken v9.0.3`) & `bcryptjs` (`v3.0.3`)
+- **Email & Mailer System**: Nodemailer (`v6.10.0`) for SMTP OTP delivery with HTML branding templates
 - **Environment**: Dotenv (`v16.4.7`) & CORS (`v2.8.5`)
 
 ---
@@ -275,7 +287,12 @@ $$\text{Outstanding Pending Balance} = \text{Final Total} - \sum \text{Recorded 
 | Module | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- | :---: |
 | **Auth** | `POST` | `/api/auth/login` | Authenticate admin user & issue JWT token | ❌ |
+| **Auth** | `POST` | `/api/auth/forgot-password` | Request 6-digit password reset OTP email | ❌ |
+| **Auth** | `POST` | `/api/auth/verify-otp` | Verify password reset 6-digit OTP code | ❌ |
+| **Auth** | `POST` | `/api/auth/reset-password` | Reset account password using verified OTP | ❌ |
 | **Auth** | `GET` | `/api/auth/me` | Fetch authenticated admin profile | 🟢 |
+| **Auth** | `POST` | `/api/auth/logout` | Revoke session & perform admin logout | 🟢 |
+| **Auth** | `POST` | `/api/auth/verify-current-password` | Live verification of current password | 🟢 |
 | **Auth** | `POST` | `/api/auth/change-password` | Update current user password | 🟢 |
 | **Dashboard** | `GET` | `/api/dashboard` | Retrieve operational & financial KPI metrics | 🟢 |
 | **Customers** | `GET` | `/api/customers` | Fetch all customer records | 🟢 |
@@ -295,7 +312,8 @@ $$\text{Outstanding Pending Balance} = \text{Final Total} - \sum \text{Recorded 
 | **Quotations** | `GET / PUT / DELETE` | `/api/quotations/:id` | View detail, update, or delete quotation | 🟢 |
 | **Payments** | `GET` | `/api/payments` | Fetch payment transactions ledger | 🟢 |
 | **Payments** | `POST` | `/api/payments` | Record payment against quotation | 🟢 |
-| **Payments** | `GET / PUT / DELETE` | `/api/payments/:id` | View detail, update, or delete payment | 🟢 |
+| **Payments** | `GET` | `/api/payments/:id` | Fetch full payment detail & quotation balance for receipt slip | 🟢 |
+| **Payments** | `PUT / DELETE` | `/api/payments/:id` | Update or delete payment transaction | 🟢 |
 | **Company Settings** | `GET / PUT` | `/api/company-settings` | Fetch or update company profile & bank details | 🟢 |
 | **Quotation Terms** | `GET / POST` | `/api/quotation-terms` | Fetch or create quotation terms clauses | 🟢 |
 | **Quotation Terms** | `PUT / DELETE` | `/api/quotation-terms/:id` | Update or delete quotation term clause | 🟢 |
