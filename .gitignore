@@ -6,7 +6,6 @@ build
 *.log
 package-lock.json
 agent.md
-checkFullProject.md
 errors.md
 phase-1.md
 phase-2.md
@@ -22,3 +21,5 @@ phase-10.md
 phase-11.md
 phase-12.md
 phase-13.md
+chechFullProject.md
+layout.md
