@@ -15,6 +15,7 @@ const paymentRoutes = require("./paymentRoutes");
 const companySettingsRoutes = require("./companySettingsRoutes");
 const quotationTermsRoutes = require("./quotationTermsRoutes");
 const dashboardRoutes = require("./dashboardRoutes");
+const userRoutes = require("./userRoutes");
 
 // Public authentication routes
 router.use("/auth", authRoutes);
@@ -29,6 +30,8 @@ router.use("/quotations", authMiddleware, quotationRoutes);
 router.use("/payments", authMiddleware, paymentRoutes);
 router.use("/company-settings", authMiddleware, companySettingsRoutes);
 router.use("/quotation-terms", authMiddleware, quotationTermsRoutes);
+router.use("/users", userRoutes);
+
 
 // Health check & database connection status (Public for monitoring/navbar check)
 router.get("/health", async (req, res) => {

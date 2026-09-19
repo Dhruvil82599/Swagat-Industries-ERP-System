@@ -17,6 +17,7 @@ import ShuttersPage from "./pages/ShuttersPage";
 import QuotationsPage from "./pages/QuotationsPage";
 import PaymentsPage from "./pages/PaymentsPage";
 import CompanySettingsPage from "./pages/CompanySettingsPage";
+import UsersPage from "./pages/UsersPage";
 
 export default function App() {
   return (
@@ -93,6 +94,14 @@ export default function App() {
               }
             />
             <Route
+              path="/users"
+              element={
+                <ProtectedRoute>
+                  <UsersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/settings"
               element={
                 <ProtectedRoute>
@@ -108,6 +117,7 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+
 
             {/* Catch-all fallback */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />

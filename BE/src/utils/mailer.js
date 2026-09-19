@@ -90,6 +90,100 @@ const sendOtpEmail = async (toEmail, username, otp) => {
   }
 };
 
+
+/**
+ * Send User Invitation Email
+ * @param {string} toEmail - Recipient email address
+ * @param {string} fullName - Invited user full name
+ * @param {string} inviteCode - 6-digit invitation code
+ */
+const sendInviteEmail = async (toEmail, fullName, inviteCode) => {
+  const smtpHost = process.env.SMTP_HOST;
+  const smtpPort = process.env.SMTP_PORT || 587;
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+  let smtpFrom = process.env.SMTP_FROM || '"Swagat Industries ERP" <no-reply@swagatindustries.com>';
+  if (!smtpFrom.includes('<')) {
+    const cleanName = smtpFrom.replace(/"/g, '').trim() || 'Swagat Industries ERP';
+    const senderEmail = (process.env.SMTP_USER && process.env.SMTP_USER.includes('@'))
+      ? process.env.SMTP_USER
+      : 'no-reply@swagatindustries.com';
+    smtpFrom = `"${cleanName}" <${senderEmail}>`;
+  }
+
+  const subject = `Swagat ERP - You are Invited! Invitation Code: ${inviteCode}`;
+  const htmlContent = `
+    <div style="font-family: 'Segoe UI', Helvetica, Arial, sans-serif; max-width: 580px; margin: 0 auto; background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.08);">
+      <div style="background-color: #123B5D; padding: 24px 32px; text-align: center;">
+        <h2 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.02em;">Swagat Industries ERP</h2>
+        <p style="color: #cbd5e1; margin: 4px 0 0 0; font-size: 13px;">Team Member Registration Invitation</p>
+      </div>
+      <div style="padding: 32px; color: #1e293b;">
+        <h3 style="margin-top: 0; color: #123B5D; font-size: 18px;">Welcome to Swagat ERP!</h3>
+        <p style="font-size: 14.5px; line-height: 1.6; color: #475569;">
+          Hello <strong>${fullName || toEmail}</strong>,
+        </p>
+        <p style="font-size: 14.5px; line-height: 1.6; color: #475569;">
+          You have been invited to join Swagat Industries ERP as a team member. You will have full access to manage customers, quotations, shutter inventory, and payment records.
+        </p>
+        <p style="font-size: 14.5px; line-height: 1.6; color: #475569;">
+          Use your 6-digit Invitation Code below to complete your registration:
+        </p>
+
+        <div style="margin: 28px 0; text-align: center;">
+          <div style="display: inline-block; background-color: #F8FAFC; border: 2px dashed #123B5D; border-radius: 10px; padding: 16px 36px;">
+            <span style="font-family: monospace; font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #F28C28;">${inviteCode}</span>
+          </div>
+        </div>
+
+        <p style="font-size: 13px; color: #64748B; line-height: 1.5;">
+          ⏱️ <strong>This invitation code will expire in 48 hours.</strong><br/>
+          Go to the Swagat ERP login screen, click <strong>"Have an Invite Code? Register Here"</strong>, and enter this code to complete setup.
+        </p>
+
+        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 28px 0 20px 0;" />
+        <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">
+          Swagat Industries ERP &bull; Secure Enterprise Portal &bull; Confidential
+        </p>
+      </div>
+    </div>
+  `;
+
+  if (!smtpHost || !smtpUser) {
+    console.log('\n==================================================');
+    console.log(`[SWAGAT ERP DEV INVITE MAILER] Invitation for ${fullName || toEmail} (${toEmail}): Code = ${inviteCode}`);
+    console.log('==================================================\n');
+    return { success: true, simulated: true };
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: Number(smtpPort),
+      secure: Number(smtpPort) === 465,
+      auth: {
+        user: smtpUser,
+        pass: smtpPass,
+      },
+    });
+
+    await transporter.sendMail({
+      from: smtpFrom,
+      to: toEmail,
+      subject,
+      html: htmlContent,
+    });
+
+    return { success: true, simulated: false };
+  } catch (error) {
+    console.error('Nodemailer send invite error:', error);
+    console.log(`[FALLBACK DEV INVITE LOG] Email: ${toEmail}, Code: ${inviteCode}`);
+    return { success: false, error: error.message };
+  }
+};
+
 module.exports = {
   sendOtpEmail,
+  sendInviteEmail,
 };
+

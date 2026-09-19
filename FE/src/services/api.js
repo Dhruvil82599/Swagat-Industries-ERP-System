@@ -89,10 +89,72 @@ export const authAPI = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     }).then(handleResponse),
+
+  verifyInviteCode: (data) =>
+    fetch(`${BASE_URL}/auth/verify-invite`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+
+  completeInviteRegistration: (data) =>
+    fetch(`${BASE_URL}/auth/complete-invite-registration`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).then(handleResponse),
 };
 
 export const api = {
+  // Users Management
+  getUsers: () =>
+    fetch(`${BASE_URL}/users`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+  createUser: (data) =>
+    fetch(`${BASE_URL}/users`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+  updateUser: (userId, data) =>
+    fetch(`${BASE_URL}/users/${userId}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+  deleteUser: (userId) =>
+
+    fetch(`${BASE_URL}/users/${userId}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+  resetUserPassword: (userId, data) =>
+    fetch(`${BASE_URL}/users/${userId}/reset-password`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+
+  // User Invitations
+  getInvitations: () =>
+    fetch(`${BASE_URL}/users/invitations`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+  sendUserInvite: (data) =>
+    fetch(`${BASE_URL}/users/invite`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+  cancelInvitation: (inviteId) =>
+    fetch(`${BASE_URL}/users/invitations/${inviteId}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+
   // Customers
+
   getCustomers: (search = "") => {
     const query = search ? `?search=${encodeURIComponent(search)}` : "";
     return fetch(`${BASE_URL}/customers${query}`, {

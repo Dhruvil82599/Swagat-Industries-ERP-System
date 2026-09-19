@@ -42,6 +42,98 @@ export default function LoginPage() {
   const [forgotSuccess, setForgotSuccess] = useState("");
   const [resendTimer, setResendTimer] = useState(0);
 
+  // Invite Registration State
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteStep, setInviteStep] = useState(1);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
+  const [inviteUsername, setInviteUsername] = useState("");
+  const [inviteFullName, setInviteFullName] = useState("");
+  const [invitePassword, setInvitePassword] = useState("");
+  const [inviteConfirmPassword, setInviteConfirmPassword] = useState("");
+  const [inviteShowPass, setInviteShowPass] = useState(false);
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteError, setInviteError] = useState("");
+
+  const resetInviteModal = () => {
+    setShowInviteModal(false);
+    setInviteStep(1);
+    setInviteEmail("");
+    setInviteCode("");
+    setInviteUsername("");
+    setInviteFullName("");
+    setInvitePassword("");
+    setInviteConfirmPassword("");
+    setInviteError("");
+  };
+
+  const handleVerifyInvite = async (e) => {
+    if (e) e.preventDefault();
+    setInviteError("");
+
+    if (!inviteEmail.trim() || !inviteCode.trim()) {
+      setInviteError("Please enter your email and 6-digit invitation code.");
+      return;
+    }
+
+    try {
+      setInviteLoading(true);
+      const res = await authAPI.verifyInviteCode({
+        email: inviteEmail.trim(),
+        code: inviteCode.trim(),
+      });
+      if (res.fullName) {
+        setInviteFullName(res.fullName);
+      }
+      setInviteStep(2);
+    } catch (err) {
+      setInviteError(err.message || "Invalid or expired invitation code.");
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
+  const handleCompleteInviteRegistration = async (e) => {
+    if (e) e.preventDefault();
+    setInviteError("");
+
+    if (!inviteUsername.trim()) {
+      setInviteError("Please choose a username.");
+      return;
+    }
+    if (!invitePassword || invitePassword.length < 6) {
+      setInviteError("Password must be at least 6 characters long.");
+      return;
+    }
+    if (invitePassword !== inviteConfirmPassword) {
+      setInviteError("Passwords do not match.");
+      return;
+    }
+
+    try {
+      setInviteLoading(true);
+      const res = await authAPI.completeInviteRegistration({
+        email: inviteEmail.trim(),
+        code: inviteCode.trim(),
+        username: inviteUsername.trim(),
+        fullName: inviteFullName.trim(),
+        password: invitePassword,
+      });
+
+      if (res.token) {
+        localStorage.setItem("swagat_erp_token", res.token);
+        localStorage.setItem("swagat_erp_user", JSON.stringify(res.user));
+        window.dispatchEvent(new Event("swagat_auth_change"));
+        navigate("/dashboard", { replace: true });
+      }
+    } catch (err) {
+      setInviteError(err.message || "Failed to complete registration.");
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
+
   const canvasRef = useRef(null);
   const resendIntervalRef = useRef(null);
 
@@ -854,7 +946,20 @@ export default function LoginPage() {
               </>
             )}
           </button>
+
+          <div style={{ textAlign: "center", marginTop: "16px" }}>
+            <button
+              type="button"
+              className="forgot-password-link"
+              style={{ fontSize: "13.5px", display: "inline-flex", alignItems: "center", gap: "6px" }}
+              onClick={() => setShowInviteModal(true)}
+            >
+              <FiMail style={{ color: "#F28C28" }} />
+              <span>Have an Invite Code? Register Account</span>
+            </button>
+          </div>
         </form>
+
 
         <div className="login-footer">
           Swagat Industries ERP &copy; {new Date().getFullYear()} &bull; Secure
@@ -1169,7 +1274,192 @@ export default function LoginPage() {
           </div>
         </div>
       )}
+
+      {/* Invite Registration Modal */}
+      {showInviteModal && (
+        <div className="modal-overlay" onClick={resetInviteModal}>
+          <div className="forgot-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header-flex">
+              <div className="modal-title-flex">
+                <FiMail style={{ color: "#F28C28", fontSize: "20px" }} />
+                <span>
+                  {inviteStep === 1 && "Verify Invitation Code"}
+                  {inviteStep === 2 && "Complete Account Setup"}
+                </span>
+              </div>
+              <button
+                type="button"
+                className="btn-close-modal"
+                onClick={resetInviteModal}
+                aria-label="Close modal"
+              >
+                <FiX />
+              </button>
+            </div>
+
+            {/* Error Alert */}
+            {inviteError && (
+              <div className="error-alert" style={{ marginBottom: "16px" }}>
+                <FiAlertCircle style={{ flexShrink: 0, fontSize: "18px" }} />
+                <span>{inviteError}</span>
+              </div>
+            )}
+
+            {/* Step 1: Enter Email & Code */}
+            {inviteStep === 1 && (
+              <form onSubmit={handleVerifyInvite}>
+                <p className="modal-body-text">
+                  Enter your email address and the 6-digit invitation code sent by your ERP administrator:
+                </p>
+
+                <div className="form-group" style={{ marginBottom: "16px" }}>
+                  <label className="form-label">Email Address</label>
+                  <div className="input-wrapper">
+                    <FiMail className="input-icon" />
+                    <input
+                      type="email"
+                      required
+                      className="login-input"
+                      placeholder="e.g. your-email@swagat.com"
+                      value={inviteEmail}
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: "20px" }}>
+                  <label className="form-label">6-Digit Invitation Code</label>
+                  <div className="input-wrapper">
+                    <FiKey className="input-icon" />
+                    <input
+                      type="text"
+                      maxLength={6}
+                      required
+                      className="login-input"
+                      placeholder="e.g. 123456"
+                      value={inviteCode}
+                      onChange={(e) => setInviteCode(e.target.value.replace(/\D/g, ''))}
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="btn-submit"
+                  disabled={inviteLoading}
+                >
+                  {inviteLoading ? (
+                    <>
+                      <div className="spinner" />
+                      <span>Verifying Code...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Verify Code & Continue</span>
+                      <FiArrowRight />
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
+
+            {/* Step 2: Complete Profile */}
+            {inviteStep === 2 && (
+              <form onSubmit={handleCompleteInviteRegistration}>
+                <div className="modal-info-box" style={{ marginBottom: "16px" }}>
+                  ✅ Invitation Code Verified! Complete your details below to set up your account.
+                </div>
+
+                <div className="form-group" style={{ marginBottom: "14px" }}>
+                  <label className="form-label">Full Name</label>
+                  <div className="input-wrapper">
+                    <FiUser className="input-icon" />
+                    <input
+                      type="text"
+                      className="login-input"
+                      placeholder="e.g. Ramesh Patel"
+                      value={inviteFullName}
+                      onChange={(e) => setInviteFullName(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: "14px" }}>
+                  <label className="form-label">Username</label>
+                  <div className="input-wrapper">
+                    <FiUser className="input-icon" />
+                    <input
+                      type="text"
+                      required
+                      className="login-input"
+                      placeholder="Choose a username"
+                      value={inviteUsername}
+                      onChange={(e) => setInviteUsername(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: "14px" }}>
+                  <label className="form-label">Password (Min 6 Chars)</label>
+                  <div className="input-wrapper">
+                    <FiLock className="input-icon" />
+                    <input
+                      type={inviteShowPass ? "text" : "password"}
+                      required
+                      className="login-input"
+                      placeholder="Enter password"
+                      value={invitePassword}
+                      onChange={(e) => setInvitePassword(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="password-toggle"
+                      onClick={() => setInviteShowPass(!inviteShowPass)}
+                    >
+                      {inviteShowPass ? <FiEyeOff /> : <FiEye />}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: "20px" }}>
+                  <label className="form-label">Confirm Password</label>
+                  <div className="input-wrapper">
+                    <FiLock className="input-icon" />
+                    <input
+                      type={inviteShowPass ? "text" : "password"}
+                      required
+                      className="login-input"
+                      placeholder="Re-enter password"
+                      value={inviteConfirmPassword}
+                      onChange={(e) => setInviteConfirmPassword(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="btn-submit"
+                  disabled={inviteLoading}
+                >
+                  {inviteLoading ? (
+                    <>
+                      <div className="spinner" />
+                      <span>Creating Account...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Complete Registration & Sign In</span>
+                      <FiCheckCircle />
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
 

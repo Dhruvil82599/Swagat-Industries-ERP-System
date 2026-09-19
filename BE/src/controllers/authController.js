@@ -306,6 +306,140 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const verifyInviteCode = async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+      return errorResponse(res, 'Email address and invitation code are required.', 400);
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanCode = code.trim();
+
+    const invitation = await prisma.userInvitation.findFirst({
+      where: {
+        email: cleanEmail,
+        code: cleanCode,
+        isUsed: false,
+      }
+    });
+
+    if (!invitation) {
+      return errorResponse(res, 'Invalid invitation code or email address.', 400);
+    }
+
+    if (new Date() > new Date(invitation.expiresAt)) {
+      return errorResponse(res, 'This invitation code has expired. Please request a new invitation from your administrator.', 400);
+    }
+
+    return successResponse(
+      res,
+      {
+        verified: true,
+        email: invitation.email,
+        fullName: invitation.fullName || '',
+      },
+      'Invitation code verified successfully.'
+    );
+  } catch (error) {
+    console.error('verifyInviteCode error:', error);
+    return errorResponse(res, 'Failed to verify invitation code.', 500);
+  }
+};
+
+const completeInviteRegistration = async (req, res) => {
+  try {
+    const { email, code, username, fullName, password } = req.body;
+
+    if (!email || !code || !username || !password) {
+      return errorResponse(res, 'Email, invitation code, username, and password are required.', 400);
+    }
+
+    if (password.length < 6) {
+      return errorResponse(res, 'Password must be at least 6 characters long.', 400);
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanCode = code.trim();
+    const cleanUsername = username.trim();
+
+    // Verify invitation code exists and is valid
+    const invitation = await prisma.userInvitation.findFirst({
+      where: {
+        email: cleanEmail,
+        code: cleanCode,
+        isUsed: false,
+      }
+    });
+
+    if (!invitation) {
+      return errorResponse(res, 'Invalid or expired invitation code.', 400);
+    }
+
+    if (new Date() > new Date(invitation.expiresAt)) {
+      return errorResponse(res, 'This invitation code has expired.', 400);
+    }
+
+    // Check unique username
+    const existingUser = await prisma.user.findUnique({
+      where: { username: cleanUsername }
+    });
+    if (existingUser) {
+      return errorResponse(res, 'Username is already taken. Please choose another username.', 400);
+    }
+
+    // Check if email already registered
+    const existingEmail = await prisma.user.findFirst({
+      where: { email: cleanEmail }
+    });
+    if (existingEmail) {
+      return errorResponse(res, 'An account with this email address already exists.', 400);
+    }
+
+    // Hash password
+    const passwordHash = await bcrypt.hash(password, 10);
+
+    // Create user and mark invitation as used
+    const newUser = await prisma.user.create({
+      data: {
+        username: cleanUsername,
+        email: cleanEmail,
+        fullName: fullName && fullName.trim() ? fullName.trim() : (invitation.fullName || 'Swagat Team Member'),
+        passwordHash,
+        role: 'ADMIN', // Standard full access role
+      }
+    });
+
+    await prisma.userInvitation.update({
+      where: { id: invitation.id },
+      data: { isUsed: true }
+    });
+
+    // Generate JWT token for auto-login
+    const secret = process.env.JWT_SECRET || 'swagat_erp_jwt_secret_key_2026_super_secure';
+    const payload = {
+      id: newUser.id,
+      username: newUser.username,
+      fullName: newUser.fullName,
+      role: newUser.role,
+    };
+    const token = jwt.sign(payload, secret, { expiresIn: '24h' });
+
+    return successResponse(
+      res,
+      {
+        user: payload,
+        token,
+      },
+      'Registration completed successfully! Welcome to Swagat ERP.'
+    );
+  } catch (error) {
+    console.error('completeInviteRegistration error:', error);
+    return errorResponse(res, 'Failed to complete registration.', 500);
+  }
+};
+
 module.exports = {
   login,
   getMe,
@@ -314,5 +448,8 @@ module.exports = {
   verifyCurrentPassword,
   forgotPassword,
   verifyOtp,
-  resetPassword
+  resetPassword,
+  verifyInviteCode,
+  completeInviteRegistration,
 };
+

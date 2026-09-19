@@ -14,7 +14,9 @@ import {
   FiEye,
   FiEyeOff,
   FiX,
+  FiUsers,
 } from "react-icons/fi";
+
 
 export default function Navbar({ title = "Master Data" }) {
   const navigate = useNavigate();
@@ -238,14 +240,14 @@ export default function Navbar({ title = "Master Data" }) {
                   fontWeight: "700",
                 }}
               >
-                {user?.username ? user.username.charAt(0).toUpperCase() : <FiUser />}
+                {user?.fullName ? user.fullName.charAt(0).toUpperCase() : (user?.username ? user.username.charAt(0).toUpperCase() : <FiUser />)}
               </div>
               <div style={{ textAlign: "left", display: "flex", flexDirection: "column" }}>
                 <span style={{ fontSize: "13.5px", fontWeight: "700", color: "#172B3A", lineHeight: 1.2 }}>
-                  {user?.username || "Administrator"}
+                  {user?.fullName || user?.username || "Administrator"}
                 </span>
                 <span style={{ fontSize: "11px", color: "#64748B", fontWeight: "500" }}>
-                  {user?.role || "ADMIN"}
+                  {user?.username ? `@${user.username}` : (user?.role || "ADMIN")}
                 </span>
               </div>
               <FiChevronDown
@@ -277,14 +279,44 @@ export default function Navbar({ title = "Master Data" }) {
               >
                 <div style={{ padding: "14px 16px", backgroundColor: "#F8FAFC", borderBottom: "1px solid #F1F5F9" }}>
                   <div style={{ fontSize: "13.5px", fontWeight: 700, color: "#123B5D" }}>
-                    {user?.fullName || "Swagat Administrator"}
+                    {user?.fullName || user?.username || "Swagat Administrator"}
                   </div>
                   <div style={{ fontSize: "11.5px", color: "#64748B", marginTop: "2px" }}>
-                    System Administrator
+                    @{user?.username || "admin"}
                   </div>
                 </div>
 
+
                 <div style={{ padding: "6px" }}>
+                  {/* User Management Option */}
+                  <button
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      navigate("/users");
+                    }}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "10px 12px",
+                      border: "none",
+                      backgroundColor: "transparent",
+                      color: "#172B3A",
+                      fontSize: "13.5px",
+                      fontWeight: "600",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      transition: "all 0.15s ease",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F1F5F9")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                  >
+                    <FiUsers style={{ color: "#123B5D", fontSize: "16px" }} />
+                    <span>User Management</span>
+                  </button>
+
                   {/* Company Settings Option */}
                   <button
                     onClick={() => {
@@ -313,6 +345,7 @@ export default function Navbar({ title = "Master Data" }) {
                     <FiSettings style={{ color: "#123B5D", fontSize: "16px" }} />
                     <span>Company Settings</span>
                   </button>
+
 
                   {/* Change Password Option */}
                   <button
