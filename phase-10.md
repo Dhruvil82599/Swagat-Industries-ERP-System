@@ -82,6 +82,30 @@ To ensure clean financial records and prevent data entry mistakes across the ERP
    - Integrated `FE/src/utils/validation.js` helper module to analyze input character length and format in real time.
    - **Green Status Message (`✓ Valid 15-character GSTIN` / `✓ Valid 10-digit mobile number`)**: Displayed in `var(--success)` (#16A34A) as soon as the user completes entering a valid format.
    - **Red Status Message (`✕ GSTIN must be 15 characters (X/15)` / `✕ Invalid GSTIN format` / `✕ Enter 10-digit mobile number (Y/10)`)**: Displayed in `var(--danger)` (#DC2626) while typing an incomplete or invalid format.
-   - Optional empty inputs (like GSTIN or optional mobile numbers) remain clean without intrusive errors until typing begins.
+---
 
-Wait for confirmation.
+### Quotation Item & Financial Calculation Flow Sequence
+
+The quotation calculation engine follows a strict, step-by-step financial sequence across real-time recalculation, backend processing, and PDF generation:
+
+1. **Item-Level 3-Column Financial Table Breakdown**:
+   - Every shutter table across the system (Wizard Item Editor, Master Catalog Selection, View Quotation Modal, and Printable PDF Preview) explicitly displays identical 14-column layout with 3 separate financial columns per item:
+     - **`Basic Total (No Cover)`**: Shutter basic price calculated as `(Over Height × Over Width × Rate per Sqft) + (Gear Price or Motor Price)`.
+     - **`GI Cover Total`**: GI top cover price calculated as `Cover Size R.Ft × GI Cover Rate per Sqft`.
+     - **`Shutter Price (Basic + Cover)`**: Grand item basic total calculated as `Basic Total (No Cover) + GI Cover Total`.
+
+2. **Full Layout & Sequence Parity Between View & Edit Pages**:
+   - The **View Quotation Modal** and **Edit Quotation Page** now feature 100% structural and visual parity:
+     - **Items Table**: Identical 14 columns (`Sr`, `Shutter Name`, `Height (in)`, `Width (in)`, `Type`, `Fitting`, `Over H × W`, `Shutter Sqft`, `GI Cover R.Ft`, `Rate/Sqft`, `GI Cover Rate`, `Basic Total (No Cover)`, `GI Cover Total`, `Shutter Price (Basic + Cover)`).
+     - **Recalculation Engine Header**: Unified `Quotation Financial Recalculation Engine` section box.
+     - **Top Section**: `Additional Charges` section positioned **FIRST**.
+     - **Bottom Section**: `Transportation Charges` & `GST Status` grid positioned **BELOW** Additional Charges.
+     - **6-Card Summary Metrics Row**: Identical order (`Shutter Price` -> `Additional Charges` -> `Transportation` -> `Total Basic (GST Base)` -> `GST Amount (18%)` -> `Final Total (Incl. GST)`).
+     - **Formula Calculation Sequence Banner**: Identical blue highlighted formula breakdown banner (`1. Shutter Price` ➔ `2. Add Charges & Transport` ➔ `3. Apply GST & Final Total`).
+
+3. **Streamlined Additional Charges (Removal of `Charge Type` & `Remark`)**:
+   - Simplified the **Additional Charges** row in both the Edit/Create Quotation Wizard and the View Quotation Modal:
+     - **Fields Removed**: `Charge Type` dropdown ("Quotation-wise" / "Shutter-wise") and `Remark (Optional)` text input.
+     - **Fields Retained**: Clean `Description` input (e.g. Fabrication Work) and `Amount (₹)` input.
+     - **Edit Wizard Layout**: Grid layout updated to 3 clean columns (`Description` [2fr], `Amount (₹)` [1fr], `Remove Button` [auto]).
+     - **View Quotation Modal Table**: Table header simplified to 3 columns (`#`, `Description`, `Amount`).

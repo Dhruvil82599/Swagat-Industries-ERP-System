@@ -1300,7 +1300,15 @@ export default function QuotationsPage() {
                               <th>Rate/Sqft</th>
                               <th>GI Cover Rate</th>
                               <th>Gear/Motor Price</th>
-                              <th>Basic Total</th>
+                              <th style={{ backgroundColor: "#F8FAFC", color: "var(--primary-dark)" }}>
+                                Basic Total (No Cover)
+                              </th>
+                              <th style={{ backgroundColor: "#F8FAFC", color: "#0284C7" }}>
+                                GI Cover Total
+                              </th>
+                              <th style={{ backgroundColor: "#ECFDF5", color: "var(--success)", fontWeight: 800 }}>
+                                Shutter Price (Basic + Cover)
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
@@ -1438,12 +1446,13 @@ export default function QuotationsPage() {
                                         ? `₹${motor.toFixed(2)}`
                                         : "-"}
                                   </td>
-                                  <td
-                                    style={{
-                                      fontWeight: 700,
-                                      color: "var(--dark)",
-                                    }}
-                                  >
+                                  <td style={{ fontWeight: 600, color: "#334155" }}>
+                                    ₹{shutterBasic.toFixed(2)}
+                                  </td>
+                                  <td style={{ fontWeight: 600, color: "#0284C7" }}>
+                                    ₹{giTopCoverBasic.toFixed(2)}
+                                  </td>
+                                  <td style={{ fontWeight: 800, color: "var(--success)" }}>
                                     ₹{basicTotal.toFixed(2)}
                                   </td>
                                 </tr>
@@ -1523,7 +1532,9 @@ export default function QuotationsPage() {
                             <th>GI Cover R.Ft</th>
                             <th>Rate/Sqft</th>
                             <th>GI Cover Rate</th>
-                            <th>Basic Total</th>
+                            <th style={{ backgroundColor: "#F8FAFC", color: "var(--primary-dark)" }}>Basic Total (No Cover)</th>
+                            <th style={{ backgroundColor: "#F8FAFC", color: "#0284C7" }}>GI Cover Total</th>
+                            <th style={{ backgroundColor: "#ECFDF5", color: "var(--success)", fontWeight: 800 }}>Shutter Price (Basic + Cover)</th>
                             <th style={{ width: "75px" }}>Action</th>
                           </tr>
                         </thead>
@@ -1729,10 +1740,17 @@ export default function QuotationsPage() {
                                     }
                                   />
                                 </td>
+                                <td style={{ fontWeight: 600, color: "#334155" }}>
+                                  ₹{item.shutterBasic.toFixed(2)}
+                                </td>
+                                <td style={{ fontWeight: 600, color: "#0284C7" }}>
+                                  ₹{item.giTopCoverBasic.toFixed(2)}
+                                </td>
                                 <td
                                   style={{
-                                    fontWeight: 700,
-                                    color: "var(--dark)",
+                                    fontWeight: 800,
+                                    color: "var(--success)",
+                                    fontSize: "13px",
                                   }}
                                 >
                                   ₹{item.basicTotal.toFixed(2)}
@@ -1812,107 +1830,14 @@ export default function QuotationsPage() {
                       Quotation Financial Recalculation Engine
                     </h4>
 
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: "16px",
-                        marginBottom: "16px",
-                      }}
-                    >
-                      {/* Transportation */}
-                      <div>
-                        <label className="form-label-swagat">
-                          Transportation Charges (₹)
-                        </label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          className="form-control-swagat"
-                          placeholder="e.g. 1500"
-                          value={formData.transportation_charges}
-                          onWheel={(e) => e.target.blur()}
-                          onKeyDown={(e) =>
-                            (e.key === "ArrowUp" || e.key === "ArrowDown") &&
-                            e.preventDefault()
-                          }
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              transportation_charges: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-
-                      {/* GST Toggle */}
-                      <div>
-                        <label className="form-label-swagat">
-                          GST Applicable
-                        </label>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "16px",
-                            paddingTop: "8px",
-                          }}
-                        >
-                          <label
-                            style={{
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "6px",
-                            }}
-                          >
-                            <input
-                              type="radio"
-                              name="gst_app"
-                              checked={formData.gst_applicable === true}
-                              onChange={() =>
-                                setFormData({
-                                  ...formData,
-                                  gst_applicable: true,
-                                })
-                              }
-                            />
-                            <span>Yes (18%)</span>
-                          </label>
-                          <label
-                            style={{
-                              cursor: "pointer",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "6px",
-                            }}
-                          >
-                            <input
-                              type="radio"
-                              name="gst_app"
-                              checked={formData.gst_applicable === false}
-                              onChange={() =>
-                                setFormData({
-                                  ...formData,
-                                  gst_applicable: false,
-                                })
-                              }
-                            />
-                            <span>No GST</span>
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Additional Charges Section (Phase 7) */}
+                    {/* Additional Charges Section (Phase 7) — Positioned BEFORE Transportation & GST */}
                     <div
                       style={{
                         backgroundColor: "#F8FAFC",
                         padding: "16px",
                         borderRadius: "8px",
                         border: "1px solid #E2E8F0",
-                        marginBottom: "20px",
+                        marginBottom: "16px",
                       }}
                     >
                       <div
@@ -2048,7 +1973,7 @@ export default function QuotationsPage() {
                               key={chg.id || idx}
                               style={{
                                 display: "grid",
-                                gridTemplateColumns: "2.2fr 1.1fr 1.3fr 1.8fr auto",
+                                gridTemplateColumns: "2fr 1fr auto",
                                 gap: "10px",
                                 alignItems: "center",
                                 padding: "10px 12px",
@@ -2112,63 +2037,6 @@ export default function QuotationsPage() {
                                   }
                                 />
                               </div>
-                              <div>
-                                <label
-                                  style={{
-                                    fontSize: "11px",
-                                    color: "var(--text-secondary)",
-                                    display: "block",
-                                    marginBottom: "2px",
-                                  }}
-                                >
-                                  Charge Type
-                                </label>
-                                <select
-                                  className="form-control-swagat"
-                                  style={{ fontSize: "13px", height: "34px" }}
-                                  value={chg.charge_type || "Quotation-wise"}
-                                  onChange={(e) =>
-                                    handleAdditionalChargeChange(
-                                      idx,
-                                      "charge_type",
-                                      e.target.value,
-                                    )
-                                  }
-                                >
-                                  <option value="Quotation-wise">
-                                    Quotation-wise
-                                  </option>
-                                  <option value="Shutter-wise">
-                                    Shutter-wise
-                                  </option>
-                                </select>
-                              </div>
-                              <div>
-                                <label
-                                  style={{
-                                    fontSize: "11px",
-                                    color: "var(--text-secondary)",
-                                    display: "block",
-                                    marginBottom: "2px",
-                                  }}
-                                >
-                                  Remark (Optional)
-                                </label>
-                                <input
-                                  type="text"
-                                  className="form-control-swagat"
-                                  style={{ fontSize: "13px", height: "34px" }}
-                                  placeholder="e.g. 2 Workers"
-                                  value={chg.remark || ""}
-                                  onChange={(e) =>
-                                    handleAdditionalChargeChange(
-                                      idx,
-                                      "remark",
-                                      e.target.value,
-                                    )
-                                  }
-                                />
-                              </div>
                               <div style={{ paddingTop: "14px" }}>
                                 <button
                                   type="button"
@@ -2185,7 +2053,101 @@ export default function QuotationsPage() {
                       )}
                     </div>
 
-                    {/* Summary Calculation Card */}
+                    {/* Transportation & GST Toggle Inputs — Positioned BELOW Additional Charges */}
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: "16px",
+                        marginBottom: "16px",
+                      }}
+                    >
+                      {/* Transportation */}
+                      <div>
+                        <label className="form-label-swagat">
+                          Transportation Charges (₹)
+                        </label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          className="form-control-swagat"
+                          placeholder="e.g. 1500"
+                          value={formData.transportation_charges}
+                          onWheel={(e) => e.target.blur()}
+                          onKeyDown={(e) =>
+                            (e.key === "ArrowUp" || e.key === "ArrowDown") &&
+                            e.preventDefault()
+                          }
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              transportation_charges: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+
+                      {/* GST Toggle */}
+                      <div>
+                        <label className="form-label-swagat">
+                          GST Applicable
+                        </label>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "16px",
+                            paddingTop: "8px",
+                          }}
+                        >
+                          <label
+                            style={{
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "6px",
+                            }}
+                          >
+                            <input
+                              type="radio"
+                              name="gst_app"
+                              checked={formData.gst_applicable === true}
+                              onChange={() =>
+                                setFormData({
+                                  ...formData,
+                                  gst_applicable: true,
+                                })
+                              }
+                            />
+                            <span>Yes (18%)</span>
+                          </label>
+                          <label
+                            style={{
+                              cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "6px",
+                            }}
+                          >
+                            <input
+                              type="radio"
+                              name="gst_app"
+                              checked={formData.gst_applicable === false}
+                              onChange={() =>
+                                setFormData({
+                                  ...formData,
+                                  gst_applicable: false,
+                                })
+                              }
+                            />
+                            <span>No GST</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Summary Calculation Card (Explicit 6 Columns) */}
                     <div
                       style={{
                         backgroundColor: "#FFFFFF",
@@ -2203,82 +2165,53 @@ export default function QuotationsPage() {
                           flexWrap: "wrap",
                         }}
                       >
-                        <div style={{ flex: 1, minWidth: "110px" }}>
-                          <div
-                            style={{
-                              fontSize: "11px",
-                              color: "var(--text-secondary)",
-                            }}
-                          >
-                            Shutter Subtotal
-                          </div>
-                          <div style={{ fontWeight: 700, fontSize: "14px" }}>
-                            ₹{summaryPreview.shutterBasicTotal.toFixed(2)}
-                          </div>
-                        </div>
-                        <div style={{ flex: 1, minWidth: "110px" }}>
-                          <div
-                            style={{
-                              fontSize: "11px",
-                              color: "var(--text-secondary)",
-                            }}
-                          >
-                            GI Cover Subtotal
-                          </div>
-                          <div style={{ fontWeight: 700, fontSize: "14px" }}>
-                            ₹{summaryPreview.giTopCoverTotal.toFixed(2)}
-                          </div>
-                        </div>
-
-                        {summaryPreview.transportation > 0 && (
-                          <div style={{ flex: 1, minWidth: "110px" }}>
-                            <div
-                              style={{
-                                fontSize: "11px",
-                                color: "var(--text-secondary)",
-                              }}
-                            >
-                              Transportation
-                            </div>
-                            <div style={{ fontWeight: 700, fontSize: "14px", color: "#0284C7" }}>
-                              +₹{summaryPreview.transportation.toFixed(2)}
-                            </div>
-                          </div>
-                        )}
-
-                        {summaryPreview.addlTotal > 0 && (
-                          <div style={{ flex: 1, minWidth: "110px" }}>
-                            <div
-                              style={{
-                                fontSize: "11px",
-                                color: "var(--text-secondary)",
-                              }}
-                            >
-                              Additional Charges
-                            </div>
-                            <div style={{ fontWeight: 700, fontSize: "14px", color: "#7C3AED" }}>
-                              +₹{summaryPreview.addlTotal.toFixed(2)}
-                            </div>
-                          </div>
-                        )}
-
-                        {summaryPreview.discount > 0 && (
-                          <div style={{ flex: 1, minWidth: "110px" }}>
-                            <div
-                              style={{
-                                fontSize: "11px",
-                                color: "var(--text-secondary)",
-                              }}
-                            >
-                              Discount
-                            </div>
-                            <div style={{ fontWeight: 700, fontSize: "14px", color: "#DC2626" }}>
-                              -₹{summaryPreview.discount.toFixed(2)}
-                            </div>
-                          </div>
-                        )}
-
+                        {/* Column 1: Shutter Price */}
                         <div style={{ flex: 1, minWidth: "120px" }}>
+                          <div
+                            style={{
+                              fontSize: "11px",
+                              color: "var(--text-secondary)",
+                            }}
+                          >
+                            Shutter Price
+                          </div>
+                          <div style={{ fontWeight: 700, fontSize: "14px", color: "#1E293B" }}>
+                            ₹{(summaryPreview.shutterBasicTotal + summaryPreview.giTopCoverTotal).toFixed(2)}
+                          </div>
+                        </div>
+
+                        {/* Column 2: Additional Charges */}
+                        <div style={{ flex: 1, minWidth: "120px" }}>
+                          <div
+                            style={{
+                              fontSize: "11px",
+                              color: "var(--text-secondary)",
+                            }}
+                          >
+                            Additional Charges
+                          </div>
+                          <div style={{ fontWeight: 700, fontSize: "14px", color: "#7C3AED" }}>
+                            +₹{summaryPreview.addlTotal.toFixed(2)}
+                          </div>
+                        </div>
+
+                        {/* Column 3: Transportation */}
+                        <div style={{ flex: 1, minWidth: "110px" }}>
+                          <div
+                            style={{
+                              fontSize: "11px",
+                              color: "var(--text-secondary)",
+                            }}
+                          >
+                            Transportation
+                          </div>
+                          <div style={{ fontWeight: 700, fontSize: "14px", color: "#0284C7" }}>
+                            +₹{summaryPreview.transportation.toFixed(2)}
+                          </div>
+                        </div>
+
+                        {/* Column 4: Total Basic (GST Base) */}
+                        <div style={{ flex: 1, minWidth: "130px" }}>
                           <div
                             style={{
                               fontSize: "11px",
@@ -2297,6 +2230,8 @@ export default function QuotationsPage() {
                             ₹{summaryPreview.totalBasic.toFixed(2)}
                           </div>
                         </div>
+
+                        {/* Column 5: GST Amount */}
                         <div style={{ flex: 1, minWidth: "120px" }}>
                           <div
                             style={{
@@ -2318,7 +2253,9 @@ export default function QuotationsPage() {
                             ₹{summaryPreview.gstAmount.toFixed(2)}
                           </div>
                         </div>
-                        <div style={{ flex: 1, minWidth: "130px" }}>
+
+                        {/* Column 6: Final Total */}
+                        <div style={{ flex: 1, minWidth: "135px" }}>
                           <div
                             style={{
                               fontSize: "11px",
@@ -2343,7 +2280,7 @@ export default function QuotationsPage() {
                       <div
                         style={{
                           marginTop: "14px",
-                          padding: "10px 14px",
+                          padding: "12px 16px",
                           backgroundColor: "#EFF6FF",
                           border: "1px solid #60A5FA",
                           borderRadius: "6px",
@@ -2352,7 +2289,7 @@ export default function QuotationsPage() {
                           fontWeight: 600,
                           display: "flex",
                           flexDirection: "column",
-                          gap: "4px",
+                          gap: "6px",
                         }}
                       >
                         <div
@@ -2365,19 +2302,20 @@ export default function QuotationsPage() {
                             fontSize: "12px",
                           }}
                         >
-                          <span>📘 Formula Breakdown:</span>
+                          <span>📘 Formula Calculation Sequence:</span>
                           <span style={{ color: "#1E40AF", fontWeight: 800 }}>
                             Final Total: ₹{summaryPreview.finalTotal.toFixed(2)}
                           </span>
                         </div>
-                        <div style={{ fontSize: "12px", color: "#1E40AF" }}>
-                          ₹{(summaryPreview.shutterBasicTotal + summaryPreview.giTopCoverTotal).toFixed(2)} (Basic Shutters & Cover)
-                          {summaryPreview.transportation > 0 && ` + ₹${summaryPreview.transportation.toFixed(2)} (Transport)`}
-                          {summaryPreview.addlTotal > 0 && ` + ₹${summaryPreview.addlTotal.toFixed(2)} (Additional Charges)`}
-                          {summaryPreview.discount > 0 && ` - ₹${summaryPreview.discount.toFixed(2)} (Discount)`}
-                          {formData.gst_applicable ? ` + ₹${summaryPreview.gstAmount.toFixed(2)} (GST 18%)` : ` (No GST)`}
-                          {` = `}
-                          <strong style={{ color: "#1D4ED8" }}>₹{summaryPreview.finalTotal.toFixed(2)}</strong>
+                        <div style={{ fontSize: "11px", color: "#1E40AF", lineHeight: 1.6 }}>
+                          <strong>1. Shutter Price:</strong> Billed Shutters & Cover = <strong>₹{(summaryPreview.shutterBasicTotal + summaryPreview.giTopCoverTotal).toFixed(2)}</strong>
+                          <br />
+                          <strong>2. Add Charges & Transport:</strong> Shutter Price (₹{(summaryPreview.shutterBasicTotal + summaryPreview.giTopCoverTotal).toFixed(2)})
+                          {summaryPreview.addlTotal > 0 ? ` + Additional Charges (₹${summaryPreview.addlTotal.toFixed(2)})` : ` + Additional Charges (₹0.00)`}
+                          {summaryPreview.transportation > 0 ? ` + Transport (₹${summaryPreview.transportation.toFixed(2)})` : ` + Transport (₹0.00)`}
+                          {` = `}<strong>Total Basic (GST Base): ₹{summaryPreview.totalBasic.toFixed(2)}</strong>
+                          <br />
+                          <strong>3. Apply GST & Final Total:</strong> {formData.gst_applicable ? `GST 18% on Total Basic (₹${summaryPreview.totalBasic.toFixed(2)}) = ₹${summaryPreview.gstAmount.toFixed(2)}` : `No GST (₹0.00)`} ➔ <strong>Final Billed Total = ₹{summaryPreview.finalTotal.toFixed(2)}</strong>
                         </div>
                       </div>
                     </div>
@@ -2514,13 +2452,12 @@ export default function QuotationsPage() {
                     {selectedQuotation.site?.siteName || "N/A"}
                   </div>
                   <div style={{ fontSize: "12px", color: "#475569" }}>
-                    {selectedQuotation.site?.siteAddress},{" "}
-                    {selectedQuotation.site?.cityLocation}
+                    {selectedQuotation.site?.siteAddress || selectedQuotation.siteAddress || "N/A"}
                   </div>
                 </div>
               </div>
 
-              {/* Quotation Table with exact 13 required columns */}
+              {/* Quotation Shutter Items Table (Matches Edit Page Table Exactly) */}
               <h4
                 style={{
                   fontSize: "14px",
@@ -2529,7 +2466,7 @@ export default function QuotationsPage() {
                   color: "var(--primary-dark)",
                 }}
               >
-                Quotation Items Table
+                Quotation Shutter Items ({selectedQuotation.items ? selectedQuotation.items.length : 0})
               </h4>
               <div
                 style={{
@@ -2542,199 +2479,246 @@ export default function QuotationsPage() {
                 <table className="erp-table" style={{ fontSize: "12px" }}>
                   <thead>
                     <tr style={{ backgroundColor: "#F1F5F9" }}>
-                      <th> Sr No.</th>
-                      <th>Height (Inch)</th>
-                      <th>Width (Inch)</th>
-                      <th>Over Height (Ft)</th>
-                      <th>Over Width (Ft)</th>
-                      <th>Total Sqft</th>
-                      <th>GI Top Cover Sqft</th>
-                      <th>Rate Per Sqft</th>
-                      <th>GI Top Cover Rate</th>
-                      <th>Basic Total</th>
-                      <th>Transportation</th>
-                      <th>GST (18%)</th>
-                      <th>Final Total</th>
+                      <th style={{ width: "35px" }}>Sr</th>
+                      <th style={{ minWidth: "120px" }}>Shutter Name</th>
+                      <th>Height (in)</th>
+                      <th>Width (in)</th>
+                      <th>Type</th>
+                      <th>Fitting</th>
+                      <th>Over H × W</th>
+                      <th>Shutter Sqft</th>
+                      <th>GI Cover R.Ft</th>
+                      <th>Rate/Sqft</th>
+                      <th>GI Cover Rate</th>
+                      <th style={{ backgroundColor: "#F8FAFC", color: "var(--primary-dark)" }}>Basic Total (No Cover)</th>
+                      <th style={{ backgroundColor: "#F8FAFC", color: "#0284C7" }}>GI Cover Total</th>
+                      <th style={{ backgroundColor: "#ECFDF5", color: "var(--success)", fontWeight: 800 }}>Shutter Price (Basic + Cover)</th>
                     </tr>
                   </thead>
                   <tbody>
                     {selectedQuotation.items &&
-                      selectedQuotation.items.map((item) => {
+                      selectedQuotation.items.map((item, idx) => {
                         const hFt = item.heightFt
                           ? Number(item.heightFt)
                           : Number((item.heightInches / 12).toFixed(2));
                         const wFt = item.widthFt
                           ? Number(item.widthFt)
                           : Number((item.widthInches / 12).toFixed(2));
+                        const rate = Number(item.ratePerSqft || 0);
+                        const giRate = Number(item.giTopCoverRatePerSqft || 0);
+                        const sqft = Number(item.totalSqft || 0);
+                        const coverRft = Number(item.coverSize || 0);
+                        const type = item.shutterType || "Manual";
+                        const gear = type === "Gear" ? Number(item.gearPrice || 0) : 0;
+                        const motor = type === "Motorised" ? Number(item.motorPrice || 0) : 0;
+                        const overH = item.overHeight ? Number(item.overHeight) : 0;
+                        const overW = item.overWidth ? Number(item.overWidth) : 0;
+
+                        const itemShutterBasic = item.shutterBasic !== undefined ? Number(item.shutterBasic) : (sqft * rate + gear + motor);
+                        const itemGiCoverBasic = item.giTopCoverBasic !== undefined ? Number(item.giTopCoverBasic) : (coverRft * giRate);
+                        const itemBasicTotal = item.basicTotal !== undefined ? Number(item.basicTotal) : (itemShutterBasic + itemGiCoverBasic);
+
                         return (
-                          <tr key={item.id}>
-                            <td>{item.srNo}</td>
-                            <td>
-                              {Number(item.heightInches || 0)}" ({hFt}')
-                            </td>
-                            <td>
-                              {Number(item.widthInches || 0)}" ({wFt}')
-                            </td>
+                          <tr key={item.id || idx}>
+                            <td style={{ fontWeight: 700 }}>{item.srNo || idx + 1}</td>
                             <td style={{ fontWeight: 600 }}>
-                              {Number(item.overHeight || 0)}'
+                              {item.shutterNameNo || item.shutter_name_no || `Shutter ${idx + 1}`}
                             </td>
-                            <td style={{ fontWeight: 600 }}>
-                              {Number(item.overWidth || 0)}'
-                            </td>
-                            <td
-                              style={{
-                                fontWeight: 700,
-                                color: "var(--primary)",
-                              }}
-                            >
-                              {Number(item.totalSqft || 0)}
-                            </td>
-                            <td>{Number(item.coverSize || 0)}'</td>
-                            <td>₹{Number(item.ratePerSqft || 0).toFixed(2)}</td>
                             <td>
-                              ₹
-                              {Number(item.giTopCoverRatePerSqft || 0).toFixed(
-                                2,
-                              )}
+                              {Number(item.heightInches || 0)}"
+                              <div style={{ fontSize: "10px", color: "var(--text-secondary)" }}>
+                                ({hFt}')
+                              </div>
                             </td>
-                            <td style={{ fontWeight: 700 }}>
-                              ₹{Number(item.basicTotal || 0).toFixed(2)}
+                            <td>
+                              {Number(item.widthInches || 0)}"
+                              <div style={{ fontSize: "10px", color: "var(--text-secondary)" }}>
+                                ({wFt}')
+                              </div>
                             </td>
-                            <td>—</td>
-                            <td>—</td>
-                            <td>—</td>
+                            <td>
+                              <span className={`badge-swagat badge-${type.toLowerCase()}`}>
+                                {type}
+                              </span>
+                            </td>
+                            <td>{item.fittingType || "A Type"}</td>
+                            <td style={{ fontWeight: 600 }}>
+                              {overH}' × {overW}'
+                            </td>
+                            <td style={{ fontWeight: 700, color: "var(--primary)" }}>
+                              {sqft}
+                            </td>
+                            <td style={{ fontWeight: 600, color: "#0284C7" }}>
+                              {coverRft}'
+                            </td>
+                            <td>₹{rate.toFixed(2)}</td>
+                            <td>₹{giRate.toFixed(2)}</td>
+                            <td style={{ fontWeight: 600, color: "#334155" }}>
+                              ₹{itemShutterBasic.toFixed(2)}
+                            </td>
+                            <td style={{ fontWeight: 600, color: "#0284C7" }}>
+                              ₹{itemGiCoverBasic.toFixed(2)}
+                            </td>
+                            <td style={{ fontWeight: 800, color: "var(--success)", fontSize: "13px" }}>
+                              ₹{itemBasicTotal.toFixed(2)}
+                            </td>
                           </tr>
                         );
                       })}
-                    {/* Summary row */}
+                    {/* Items Table Summary Row */}
                     <tr style={{ backgroundColor: "#F8FAFC", fontWeight: 700 }}>
-                      <td
-                        colSpan="9"
-                        style={{
-                          textAlign: "right",
-                          color: "var(--primary-dark)",
-                        }}
-                      >
-                        Quotation Totals & Charges:
+                      <td colSpan="11" style={{ textAlign: "right", color: "var(--primary-dark)" }}>
+                        Quotation Shutter Items Total:
                       </td>
-                      <td style={{ color: "var(--primary)" }}>
+                      <td style={{ color: "#334155", fontWeight: 700 }}>
+                        ₹{Number(selectedQuotation.shutterBasicTotal || 0).toFixed(2)}
+                      </td>
+                      <td style={{ color: "#0284C7", fontWeight: 700 }}>
+                        ₹{Number(selectedQuotation.giTopCoverTotal || 0).toFixed(2)}
+                      </td>
+                      <td style={{ color: "var(--success)", fontWeight: 800, fontSize: "14px" }}>
                         ₹
                         {(
                           Number(selectedQuotation.shutterBasicTotal || 0) +
                           Number(selectedQuotation.giTopCoverTotal || 0)
                         ).toFixed(2)}
                       </td>
-                      <td>
-                        ₹
-                        {Number(
-                          selectedQuotation.transportationCharges,
-                        ).toFixed(2)}
-                      </td>
-                      <td>₹{Number(selectedQuotation.gstAmount).toFixed(2)}</td>
-                      <td style={{ color: "var(--success)", fontSize: "14px" }}>
-                        ₹{Number(selectedQuotation.finalTotal).toFixed(2)}
-                      </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
-              {/* Additional Charges Section (Phase 7 - Only if charges exist with amount > 0) */}
+
+              {/* Quotation Financial Recalculation Engine Box (Matches Edit Page Exactly) */}
+              <h4
+                style={{
+                  fontSize: "14px",
+                  fontWeight: 700,
+                  marginBottom: "12px",
+                  color: "var(--primary-dark)",
+                }}
+              >
+                Quotation Financial Recalculation Engine
+              </h4>
+
+              {/* Additional Charges Section (Optional) — Positioned FIRST */}
               {selectedQuotation.additionalCharges &&
                 selectedQuotation.additionalCharges.some(
                   (c) => Number(c.amount) > 0,
-                ) && (
-                  <div style={{ marginBottom: "20px" }}>
-                    <h4
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: 700,
-                        marginBottom: "10px",
-                        color: "var(--primary-dark)",
-                      }}
-                    >
-                      Additional Charges
-                    </h4>
-                    <div
-                      style={{
-                        border: "1px solid #CBD5E1",
-                        borderRadius: "6px",
-                        overflow: "hidden",
-                      }}
-                    >
-                      <table className="erp-table" style={{ fontSize: "12px" }}>
-                        <thead>
-                          <tr style={{ backgroundColor: "#F1F5F9" }}>
-                            <th style={{ width: "40px" }}>#</th>
-                            <th>Description</th>
-                            <th>Charge Type</th>
-                            <th>Remark</th>
-                            <th style={{ textAlign: "right" }}>Amount</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedQuotation.additionalCharges
-                            .filter((c) => Number(c.amount) > 0)
-                            .map((c, idx) => (
-                              <tr key={c.id || idx}>
-                                <td>{idx + 1}</td>
-                                <td style={{ fontWeight: 600 }}>{c.description}</td>
-                                <td>
-                                  <span
-                                    className="badge-swagat"
-                                    style={{
-                                      backgroundColor: "#E2E8F0",
-                                      color: "#334155",
-                                    }}
-                                  >
-                                    {c.chargeType || "Quotation-wise"}
-                                  </span>
-                                </td>
-                                <td>{c.remark || "—"}</td>
-                                <td
-                                  style={{
-                                    textAlign: "right",
-                                    fontWeight: 700,
-                                    color: "#7C3AED",
-                                  }}
-                                >
-                                  +₹{Number(c.amount).toFixed(2)}
-                                </td>
-                              </tr>
-                            ))}
-                          <tr style={{ backgroundColor: "#F8FAFC", fontWeight: 700 }}>
-                            <td
-                              colSpan="4"
-                              style={{
-                                textAlign: "right",
-                                color: "var(--text-secondary)",
-                              }}
-                            >
-                              Total Additional Charges:
-                            </td>
-                            <td
-                              style={{
-                                textAlign: "right",
-                                color: "#7C3AED",
-                                fontSize: "13px",
-                              }}
-                            >
-                              +₹
-                              {Number(
-                                selectedQuotation.additionalChargesTotal || 0,
-                              ).toFixed(2)}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
+                ) ? (
+                <div style={{ marginBottom: "16px" }}>
+                  <div
+                    style={{
+                      border: "1px solid #CBD5E1",
+                      borderRadius: "6px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <table className="erp-table" style={{ fontSize: "12px" }}>
+                      <thead>
+                        <tr style={{ backgroundColor: "#F1F5F9" }}>
+                          <th style={{ width: "40px" }}>#</th>
+                          <th>Description</th>
+                          <th style={{ textAlign: "right" }}>Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {selectedQuotation.additionalCharges
+                          .filter((c) => Number(c.amount) > 0)
+                          .map((c, idx) => (
+                            <tr key={c.id || idx}>
+                              <td>{idx + 1}</td>
+                              <td style={{ fontWeight: 600 }}>{c.description}</td>
+                              <td
+                                style={{
+                                  textAlign: "right",
+                                  fontWeight: 700,
+                                  color: "#7C3AED",
+                                }}
+                              >
+                                +₹{Number(c.amount).toFixed(2)}
+                              </td>
+                            </tr>
+                          ))}
+                        <tr style={{ backgroundColor: "#F8FAFC", fontWeight: 700 }}>
+                          <td
+                            colSpan="2"
+                            style={{
+                              textAlign: "right",
+                              color: "var(--text-secondary)",
+                            }}
+                          >
+                            Total Additional Charges:
+                          </td>
+                          <td
+                            style={{
+                              textAlign: "right",
+                              color: "#7C3AED",
+                              fontSize: "13px",
+                            }}
+                          >
+                            +₹
+                            {Number(
+                              selectedQuotation.additionalChargesTotal || 0,
+                            ).toFixed(2)}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
-                )}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "var(--text-secondary)",
+                    fontStyle: "italic",
+                    padding: "10px 14px",
+                    backgroundColor: "#F8FAFC",
+                    borderRadius: "6px",
+                    border: "1px dashed #CBD5E1",
+                    marginBottom: "16px",
+                  }}
+                >
+                  No additional charges added to this quotation.
+                </div>
+              )}
 
-              {/* Discount Section (Phase 7 - Only if discountAmount > 0) */}
+              {/* Transportation Charges & GST Display Box — Positioned BELOW Additional Charges */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "16px",
+                  marginBottom: "16px",
+                  backgroundColor: "#F8FAFC",
+                  padding: "14px 16px",
+                  borderRadius: "8px",
+                  border: "1px solid #E2E8F0",
+                }}
+              >
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", marginBottom: "4px" }}>
+                    Transportation Charges
+                  </div>
+                  <div style={{ fontSize: "15px", fontWeight: 700, color: "#0284C7" }}>
+                    ₹{Number(selectedQuotation.transportationCharges || 0).toFixed(2)}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", marginBottom: "4px" }}>
+                    GST Status
+                  </div>
+                  <div style={{ fontSize: "14px", fontWeight: 700, color: selectedQuotation.gstApplicable ? "#D97706" : "#64748B" }}>
+                    {selectedQuotation.gstApplicable ? "✓ Yes (18% GST Applicable)" : "✕ No GST"}
+                  </div>
+                </div>
+              </div>
+
+              {/* Discount Section (Only if discountAmount > 0) */}
               {Number(selectedQuotation.discountAmount) > 0 && (
                 <div
                   style={{
-                    marginBottom: "20px",
+                    marginBottom: "16px",
                     padding: "12px 16px",
                     backgroundColor: "#FEF2F2",
                     border: "1px solid #FCA5A5",
@@ -2762,109 +2746,194 @@ export default function QuotationsPage() {
                 </div>
               )}
 
-              {/* Final Total Formula Calculation Banner (Highlighted Blue) */}
-              <div
-                style={{
-                  marginBottom: "20px",
-                  padding: "14px 18px",
-                  backgroundColor: "#EFF6FF",
-                  border: "1px solid #60A5FA",
-                  borderRadius: "8px",
-                  boxShadow: "0 1px 3px rgba(37, 99, 235, 0.08)",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "6px",
-                    flexWrap: "wrap",
-                    gap: "8px",
-                  }}
-                >
-                  <span
+              {/* Financial Summary Card (Explicit 6 Columns) */}
+              {(() => {
+                const viewShutterPrice =
+                  Number(selectedQuotation.shutterBasicTotal || 0) +
+                  Number(selectedQuotation.giTopCoverTotal || 0);
+                const viewAddlTotal = Number(selectedQuotation.additionalChargesTotal || 0);
+                const viewTransport = Number(selectedQuotation.transportationCharges || 0);
+                const viewDiscount = Number(selectedQuotation.discountAmount || 0);
+                const viewTotalBasic = Number(
+                  selectedQuotation.totalBasic ||
+                    viewShutterPrice + viewAddlTotal + viewTransport - viewDiscount,
+                );
+                const viewGstAmount = Number(selectedQuotation.gstAmount || 0);
+                const viewFinalTotal = Number(selectedQuotation.finalTotal || 0);
+
+                return (
+                  <div
                     style={{
-                      fontSize: "13px",
-                      fontWeight: 700,
-                      color: "#1D4ED8",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
+                      backgroundColor: "#FFFFFF",
+                      padding: "14px 18px",
+                      borderRadius: "6px",
+                      border: "1px solid #CBD5E1",
+                      marginBottom: "20px",
                     }}
                   >
-                    <span style={{ fontSize: "15px" }}>📘</span> Final Amount Formula Breakdown:
-                  </span>
-                  <span
-                    style={{
-                      fontSize: "14px",
-                      fontWeight: 800,
-                      color: "#1E40AF",
-                      backgroundColor: "#DBEAFE",
-                      padding: "3px 10px",
-                      borderRadius: "12px",
-                      border: "1px solid #93C5FD",
-                    }}
-                  >
-                    Final Total: ₹{Number(selectedQuotation.finalTotal).toFixed(2)}
-                  </span>
-                </div>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    color: "#1E3A8A",
-                    fontWeight: 600,
-                    lineHeight: 1.5,
-                    backgroundColor: "#FFFFFF",
-                    padding: "8px 12px",
-                    borderRadius: "6px",
-                    border: "1px solid #BFDBFE",
-                  }}
-                >
-                  ₹{(
-                    Number(selectedQuotation.shutterBasicTotal || 0) +
-                    Number(selectedQuotation.giTopCoverTotal || 0)
-                  ).toFixed(2)}{" "}
-                  <span style={{ color: "#2563EB" }}>(Shutter + Cover Basic)</span>
-                  {Number(selectedQuotation.transportationCharges || 0) > 0 && (
-                    <>
-                      {" + ₹"}
-                      {Number(selectedQuotation.transportationCharges).toFixed(2)}{" "}
-                      <span style={{ color: "#0284C7" }}>(Transportation)</span>
-                    </>
-                  )}
-                  {Number(selectedQuotation.additionalChargesTotal || 0) > 0 && (
-                    <>
-                      {" + ₹"}
-                      {Number(selectedQuotation.additionalChargesTotal).toFixed(2)}{" "}
-                      <span style={{ color: "#7C3AED" }}>(Additional Charges)</span>
-                    </>
-                  )}
-                  {Number(selectedQuotation.discountAmount || 0) > 0 && (
-                    <>
-                      {" - ₹"}
-                      {Number(selectedQuotation.discountAmount).toFixed(2)}{" "}
-                      <span style={{ color: "#DC2626" }}>(Discount)</span>
-                    </>
-                  )}
-                  {selectedQuotation.gstApplicable ? (
-                    <>
-                      {" + ₹"}
-                      {Number(selectedQuotation.gstAmount).toFixed(2)}{" "}
-                      <span style={{ color: "#D97706" }}>(GST 18%)</span>
-                    </>
-                  ) : (
-                    <>
-                      {" "}
-                      <span style={{ color: "#64748B" }}>(No GST)</span>
-                    </>
-                  )}
-                  {" = "}
-                  <strong style={{ color: "#1D4ED8", fontSize: "13px" }}>
-                    ₹{Number(selectedQuotation.finalTotal).toFixed(2)}
-                  </strong>
-                </div>
-              </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: "12px",
+                        textAlign: "center",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      {/* Column 1: Shutter Price */}
+                      <div style={{ flex: 1, minWidth: "120px" }}>
+                        <div
+                          style={{
+                            fontSize: "11px",
+                            color: "var(--text-secondary)",
+                          }}
+                        >
+                          Shutter Price
+                        </div>
+                        <div style={{ fontWeight: 700, fontSize: "14px", color: "#1E293B" }}>
+                          ₹{viewShutterPrice.toFixed(2)}
+                        </div>
+                      </div>
+
+                      {/* Column 2: Additional Charges */}
+                      <div style={{ flex: 1, minWidth: "120px" }}>
+                        <div
+                          style={{
+                            fontSize: "11px",
+                            color: "var(--text-secondary)",
+                          }}
+                        >
+                          Additional Charges
+                        </div>
+                        <div style={{ fontWeight: 700, fontSize: "14px", color: "#7C3AED" }}>
+                          +₹{viewAddlTotal.toFixed(2)}
+                        </div>
+                      </div>
+
+                      {/* Column 3: Transportation */}
+                      <div style={{ flex: 1, minWidth: "110px" }}>
+                        <div
+                          style={{
+                            fontSize: "11px",
+                            color: "var(--text-secondary)",
+                          }}
+                        >
+                          Transportation
+                        </div>
+                        <div style={{ fontWeight: 700, fontSize: "14px", color: "#0284C7" }}>
+                          +₹{viewTransport.toFixed(2)}
+                        </div>
+                      </div>
+
+                      {/* Column 4: Total Basic (GST Base) */}
+                      <div style={{ flex: 1, minWidth: "130px" }}>
+                        <div
+                          style={{
+                            fontSize: "11px",
+                            color: "var(--text-secondary)",
+                          }}
+                        >
+                          Total Basic (GST Base)
+                        </div>
+                        <div
+                          style={{
+                            fontWeight: 700,
+                            fontSize: "14px",
+                            color: "var(--primary)",
+                          }}
+                        >
+                          ₹{viewTotalBasic.toFixed(2)}
+                        </div>
+                      </div>
+
+                      {/* Column 5: GST Amount */}
+                      <div style={{ flex: 1, minWidth: "120px" }}>
+                        <div
+                          style={{
+                            fontSize: "11px",
+                            color: "var(--text-secondary)",
+                          }}
+                        >
+                          GST Amount ({selectedQuotation.gstApplicable ? "18%" : "0%"})
+                        </div>
+                        <div
+                          style={{
+                            fontWeight: 700,
+                            fontSize: "14px",
+                            color: selectedQuotation.gstApplicable ? "#D97706" : "#64748B",
+                          }}
+                        >
+                          ₹{viewGstAmount.toFixed(2)}
+                        </div>
+                      </div>
+
+                      {/* Column 6: Final Total */}
+                      <div style={{ flex: 1, minWidth: "135px" }}>
+                        <div
+                          style={{
+                            fontSize: "11px",
+                            color: "var(--text-secondary)",
+                          }}
+                        >
+                          Final Total (Incl. GST)
+                        </div>
+                        <div
+                          style={{
+                            fontWeight: 800,
+                            fontSize: "17px",
+                            color: "var(--success)",
+                          }}
+                        >
+                          ₹{viewFinalTotal.toFixed(2)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Formula Calculation Banner (Highlighted Blue) */}
+                    <div
+                      style={{
+                        marginTop: "14px",
+                        padding: "12px 16px",
+                        backgroundColor: "#EFF6FF",
+                        border: "1px solid #60A5FA",
+                        borderRadius: "6px",
+                        fontSize: "12px",
+                        color: "#1E3A8A",
+                        fontWeight: 600,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "6px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          fontWeight: 700,
+                          color: "#1D4ED8",
+                          fontSize: "12px",
+                        }}
+                      >
+                        <span>📘 Formula Calculation Sequence:</span>
+                        <span style={{ color: "#1E40AF", fontWeight: 800 }}>
+                          Final Total: ₹{viewFinalTotal.toFixed(2)}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: "11px", color: "#1E40AF", lineHeight: 1.6 }}>
+                        <strong>1. Shutter Price:</strong> Billed Shutters & Cover = <strong>₹{viewShutterPrice.toFixed(2)}</strong>
+                        <br />
+                        <strong>2. Add Charges & Transport:</strong> Shutter Price (₹{viewShutterPrice.toFixed(2)})
+                        {viewAddlTotal > 0 ? ` + Additional Charges (₹${viewAddlTotal.toFixed(2)})` : ` + Additional Charges (₹0.00)`}
+                        {viewTransport > 0 ? ` + Transport (₹${viewTransport.toFixed(2)})` : ` + Transport (₹0.00)`}
+                        {` = `}<strong>Total Basic (GST Base): ₹{viewTotalBasic.toFixed(2)}</strong>
+                        <br />
+                        <strong>3. Apply GST & Final Total:</strong> {selectedQuotation.gstApplicable ? `GST 18% on Total Basic (₹${viewTotalBasic.toFixed(2)}) = ₹${viewGstAmount.toFixed(2)}` : `No GST (₹0.00)`} ➔ <strong>Final Billed Total = ₹{viewFinalTotal.toFixed(2)}</strong>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="modal-footer-swagat">

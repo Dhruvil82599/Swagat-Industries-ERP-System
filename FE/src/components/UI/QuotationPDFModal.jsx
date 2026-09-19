@@ -627,7 +627,9 @@ Thank you for contacting Swagat Industries. We have generated your quotation. Pl
                     <th>GI Cover</th>
                     <th>Rate/Sqft</th>
                     <th>GI Rate</th>
-                    <th style={{ textAlign: "right" }}>Basic Total</th>
+                    <th style={{ textAlign: "right" }}>Basic (No Cover)</th>
+                    <th style={{ textAlign: "right" }}>GI Cover Total</th>
+                    <th style={{ textAlign: "right" }}>Shutter Price</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -645,7 +647,13 @@ Thank you for contacting Swagat Industries. We have generated your quotation. Pl
                       const coverRft = Number(item.coverSize || 0);
                       const rate = Number(item.ratePerSqft || 0);
                       const giRate = Number(item.giTopCoverRatePerSqft || 0);
-                      const bTotal = Number(item.basicTotal || 0);
+                      const type = item.shutterType || "Manual";
+                      const gear = type === "Gear" ? Number(item.gearPrice || 0) : 0;
+                      const motor = type === "Motorised" ? Number(item.motorPrice || 0) : 0;
+
+                      const shutterBasic = item.shutterBasic !== undefined ? Number(item.shutterBasic) : (sqft * rate + gear + motor);
+                      const giTopCoverBasic = item.giTopCoverBasic !== undefined ? Number(item.giTopCoverBasic) : (coverRft * giRate);
+                      const bTotal = item.basicTotal !== undefined ? Number(item.basicTotal) : (shutterBasic + giTopCoverBasic);
 
                       return (
                         <tr key={item.id || idx}>
@@ -677,7 +685,13 @@ Thank you for contacting Swagat Industries. We have generated your quotation. Pl
                           <td>{coverRft}'</td>
                           <td>₹{rate.toFixed(2)}</td>
                           <td>₹{giRate.toFixed(2)}</td>
-                          <td style={{ textAlign: "right", fontWeight: 700 }}>
+                          <td style={{ textAlign: "right", fontWeight: 600 }}>
+                            ₹{shutterBasic.toFixed(2)}
+                          </td>
+                          <td style={{ textAlign: "right", fontWeight: 600, color: "#0284c7" }}>
+                            ₹{giTopCoverBasic.toFixed(2)}
+                          </td>
+                          <td style={{ textAlign: "right", fontWeight: 700, color: "#047857" }}>
                             ₹{bTotal.toFixed(2)}
                           </td>
                         </tr>
