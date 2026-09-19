@@ -1035,61 +1035,115 @@ export default function LoginPage() {
             )}
 
             {/* Step 3: Create New Password */}
-            {forgotStep === 3 && (
-              <form onSubmit={handleResetPassword}>
-                <p className="modal-body-text">
-                  OTP verified! Enter your new password below:
-                </p>
+            {forgotStep === 3 && (() => {
+              const isNewPassValid = forgotNewPass.length >= 6;
+              const hasConfirmPass = forgotConfirmPass.length > 0;
+              const isPasswordsMatch = hasConfirmPass && forgotNewPass === forgotConfirmPass;
+              const isCanResetPassword = isNewPassValid && isPasswordsMatch;
 
-                <div className="form-group" style={{ marginBottom: "14px" }}>
-                  <label className="form-label">New Password</label>
-                  <div className="input-wrapper">
-                    <FiLock className="input-icon" />
-                    <input
-                      type={forgotShowPass ? "text" : "password"}
-                      className="login-input"
-                      placeholder="Enter new password (min. 6 chars)"
-                      value={forgotNewPass}
-                      onChange={(e) => setForgotNewPass(e.target.value)}
-                      disabled={forgotLoading}
-                      autoFocus
-                      required
-                    />
-                    <button
-                      type="button"
-                      className="password-toggle"
-                      onClick={() => setForgotShowPass(!forgotShowPass)}
-                    >
-                      {forgotShowPass ? <FiEyeOff /> : <FiEye />}
-                    </button>
+              return (
+                <form onSubmit={handleResetPassword}>
+                  <p className="modal-body-text">
+                    OTP verified! Enter your new password below:
+                  </p>
+
+                  <div className="form-group" style={{ marginBottom: "14px" }}>
+                    <label className="form-label">New Password</label>
+                    <div className="input-wrapper">
+                      <FiLock className="input-icon" />
+                      <input
+                        type={forgotShowPass ? "text" : "password"}
+                        className="login-input"
+                        placeholder="Enter new password (min. 6 chars)"
+                        value={forgotNewPass}
+                        onChange={(e) => setForgotNewPass(e.target.value)}
+                        disabled={forgotLoading}
+                        autoFocus
+                        required
+                        style={{
+                          borderColor: forgotNewPass
+                            ? isNewPassValid
+                              ? "#CBD5E1"
+                              : "#DC2626"
+                            : "#E2E8F0",
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className="password-toggle"
+                        onClick={() => setForgotShowPass(!forgotShowPass)}
+                      >
+                        {forgotShowPass ? <FiEyeOff /> : <FiEye />}
+                      </button>
+                    </div>
                   </div>
-                </div>
 
-                <div className="form-group" style={{ marginBottom: "20px" }}>
-                  <label className="form-label">Confirm New Password</label>
-                  <div className="input-wrapper">
-                    <FiLock className="input-icon" />
-                    <input
-                      type={forgotShowPass ? "text" : "password"}
-                      className="login-input"
-                      placeholder="Confirm new password"
-                      value={forgotConfirmPass}
-                      onChange={(e) => setForgotConfirmPass(e.target.value)}
-                      disabled={forgotLoading}
-                      required
-                    />
+                  <div className="form-group" style={{ marginBottom: "20px" }}>
+                    <label className="form-label">Confirm New Password</label>
+                    <div className="input-wrapper">
+                      <FiLock className="input-icon" />
+                      <input
+                        type={forgotShowPass ? "text" : "password"}
+                        className="login-input"
+                        placeholder="Confirm new password"
+                        value={forgotConfirmPass}
+                        onChange={(e) => setForgotConfirmPass(e.target.value)}
+                        disabled={forgotLoading}
+                        required
+                        style={{
+                          borderColor: hasConfirmPass
+                            ? isPasswordsMatch && isNewPassValid
+                              ? "#16A34A"
+                              : "#DC2626"
+                            : "#E2E8F0",
+                          boxShadow: hasConfirmPass
+                            ? isPasswordsMatch && isNewPassValid
+                              ? "0 0 0 3px rgba(22, 163, 74, 0.15)"
+                              : "0 0 0 3px rgba(220, 38, 38, 0.15)"
+                            : "none",
+                        }}
+                      />
+                    </div>
+
+                    {/* Real-time Match Indicator */}
+                    <div style={{ marginTop: "8px", minHeight: "20px", fontSize: "12.5px" }}>
+                      {hasConfirmPass && isPasswordsMatch && isNewPassValid && (
+                        <span style={{ color: "#15803D", fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }}>
+                          <FiCheckCircle style={{ fontSize: "15px" }} />
+                          Passwords match! Reset Password button enabled.
+                        </span>
+                      )}
+                      {hasConfirmPass && isPasswordsMatch && !isNewPassValid && (
+                        <span style={{ color: "#D97706", fontWeight: "500", display: "flex", alignItems: "center", gap: "6px" }}>
+                          <FiAlertCircle style={{ fontSize: "15px" }} />
+                          Password must be at least 6 characters long.
+                        </span>
+                      )}
+                      {hasConfirmPass && !isPasswordsMatch && (
+                        <span style={{ color: "#DC2626", fontWeight: "500", display: "flex", alignItems: "center", gap: "6px" }}>
+                          <FiAlertCircle style={{ fontSize: "15px" }} />
+                          Passwords do not match.
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                <button
-                  type="submit"
-                  className="btn-modal-dismiss"
-                  disabled={forgotLoading}
-                >
-                  {forgotLoading ? "Resetting Password..." : "Reset Password Now"}
-                </button>
-              </form>
-            )}
+                  <button
+                    type="submit"
+                    className="btn-modal-dismiss"
+                    disabled={!isCanResetPassword || forgotLoading}
+                    style={{
+                      opacity: isCanResetPassword && !forgotLoading ? 1 : 0.5,
+                      cursor: isCanResetPassword && !forgotLoading ? "pointer" : "not-allowed",
+                      backgroundColor: isCanResetPassword && !forgotLoading ? "#123B5D" : "#94A3B8",
+                      transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+                    }}
+                  >
+                    {forgotLoading ? "Resetting Password..." : "Reset Password Now"}
+                  </button>
+                </form>
+              );
+            })()}
 
             {/* Step 4: Success State */}
             {forgotStep === 4 && (

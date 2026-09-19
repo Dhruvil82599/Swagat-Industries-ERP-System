@@ -532,79 +532,133 @@ export default function Navbar({ title = "Master Data" }) {
             )}
 
             {/* Step 2: Set New Password & Confirm Password Popup */}
-            {changePasswordStep === 2 && (
-              <form onSubmit={handleChangePasswordSubmit}>
-                <div style={{ backgroundColor: "#F8FAFC", padding: "10px 14px", borderRadius: "8px", borderLeft: "4px solid #16A34A", marginBottom: "16px", fontSize: "12.5px", color: "#15803D", fontWeight: "600" }}>
-                  ✓ Current password verified. Please specify your new security credentials.
-                </div>
+            {changePasswordStep === 2 && (() => {
+              const isNewPassValid = changePasswordData.newPassword.length >= 6;
+              const hasConfirmPass = changePasswordData.confirmPassword.length > 0;
+              const isPasswordsMatch = hasConfirmPass && changePasswordData.newPassword === changePasswordData.confirmPassword;
+              const isCanUpdatePassword = isNewPassValid && isPasswordsMatch;
 
-                {/* New Password */}
-                <div style={{ marginBottom: "16px" }}>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#172B3A", marginBottom: "6px" }}>
-                    New Password
-                  </label>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      type={showPassState.new ? "text" : "password"}
-                      className="form-control-swagat"
-                      value={changePasswordData.newPassword}
-                      onChange={(e) => setChangePasswordData({ ...changePasswordData, newPassword: e.target.value })}
-                      placeholder="Enter new password (min. 6 chars)"
-                      required
-                      autoFocus
-                    />
+              return (
+                <form onSubmit={handleChangePasswordSubmit}>
+                  <div style={{ backgroundColor: "#F8FAFC", padding: "10px 14px", borderRadius: "8px", borderLeft: "4px solid #16A34A", marginBottom: "16px", fontSize: "12.5px", color: "#15803D", fontWeight: "600" }}>
+                    ✓ Current password verified. Please specify your new security credentials.
+                  </div>
+
+                  {/* New Password */}
+                  <div style={{ marginBottom: "16px" }}>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#172B3A", marginBottom: "6px" }}>
+                      New Password
+                    </label>
+                    <div style={{ position: "relative" }}>
+                      <input
+                        type={showPassState.new ? "text" : "password"}
+                        className="form-control-swagat"
+                        value={changePasswordData.newPassword}
+                        onChange={(e) => setChangePasswordData({ ...changePasswordData, newPassword: e.target.value })}
+                        placeholder="Enter new password (min. 6 chars)"
+                        required
+                        autoFocus
+                        style={{
+                          borderColor: changePasswordData.newPassword
+                            ? isNewPassValid
+                              ? "#CBD5E1"
+                              : "#DC2626"
+                            : "#CBD5E1",
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassState((prev) => ({ ...prev, new: !prev.new }))}
+                        style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#94A3B8", cursor: "pointer" }}
+                      >
+                        {showPassState.new ? <FiEyeOff /> : <FiEye />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Confirm New Password */}
+                  <div style={{ marginBottom: "20px" }}>
+                    <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#172B3A", marginBottom: "6px" }}>
+                      Confirm New Password
+                    </label>
+                    <div style={{ position: "relative" }}>
+                      <input
+                        type={showPassState.confirm ? "text" : "password"}
+                        className="form-control-swagat"
+                        value={changePasswordData.confirmPassword}
+                        onChange={(e) => setChangePasswordData({ ...changePasswordData, confirmPassword: e.target.value })}
+                        placeholder="Re-enter new password"
+                        required
+                        style={{
+                          borderColor: hasConfirmPass
+                            ? isPasswordsMatch && isNewPassValid
+                              ? "#16A34A"
+                              : "#DC2626"
+                            : "#CBD5E1",
+                          boxShadow: hasConfirmPass
+                            ? isPasswordsMatch && isNewPassValid
+                              ? "0 0 0 3px rgba(22, 163, 74, 0.15)"
+                              : "0 0 0 3px rgba(220, 38, 38, 0.15)"
+                            : "none",
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassState((prev) => ({ ...prev, confirm: !prev.confirm }))}
+                        style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#94A3B8", cursor: "pointer" }}
+                      >
+                        {showPassState.confirm ? <FiEyeOff /> : <FiEye />}
+                      </button>
+                    </div>
+
+                    {/* Real-time Match Indicator on Key Release / Typing */}
+                    <div style={{ marginTop: "8px", minHeight: "20px", fontSize: "12.5px" }}>
+                      {hasConfirmPass && isPasswordsMatch && isNewPassValid && (
+                        <span style={{ color: "#15803D", fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }}>
+                          <FiCheckCircle style={{ fontSize: "15px" }} />
+                          Passwords match! Update Password button enabled.
+                        </span>
+                      )}
+                      {hasConfirmPass && isPasswordsMatch && !isNewPassValid && (
+                        <span style={{ color: "#D97706", fontWeight: "500", display: "flex", alignItems: "center", gap: "6px" }}>
+                          <FiAlertCircle style={{ fontSize: "15px" }} />
+                          Password must be at least 6 characters long.
+                        </span>
+                      )}
+                      {hasConfirmPass && !isPasswordsMatch && (
+                        <span style={{ color: "#DC2626", fontWeight: "500", display: "flex", alignItems: "center", gap: "6px" }}>
+                          <FiAlertCircle style={{ fontSize: "15px" }} />
+                          Passwords do not match.
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", marginTop: "24px" }}>
                     <button
                       type="button"
-                      onClick={() => setShowPassState((prev) => ({ ...prev, new: !prev.new }))}
-                      style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#94A3B8", cursor: "pointer" }}
+                      className="btn-outline-swagat"
+                      onClick={() => setChangePasswordStep(1)}
                     >
-                      {showPassState.new ? <FiEyeOff /> : <FiEye />}
+                      Back
                     </button>
-                  </div>
-                </div>
-
-                {/* Confirm New Password */}
-                <div style={{ marginBottom: "24px" }}>
-                  <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#172B3A", marginBottom: "6px" }}>
-                    Confirm New Password
-                  </label>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      type={showPassState.confirm ? "text" : "password"}
-                      className="form-control-swagat"
-                      value={changePasswordData.confirmPassword}
-                      onChange={(e) => setChangePasswordData({ ...changePasswordData, confirmPassword: e.target.value })}
-                      placeholder="Re-enter new password"
-                      required
-                    />
                     <button
-                      type="button"
-                      onClick={() => setShowPassState((prev) => ({ ...prev, confirm: !prev.confirm }))}
-                      style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#94A3B8", cursor: "pointer" }}
+                      type="submit"
+                      className="btn-primary-swagat"
+                      disabled={!isCanUpdatePassword || changePasswordLoading}
+                      style={{
+                        opacity: isCanUpdatePassword && !changePasswordLoading ? 1 : 0.5,
+                        cursor: isCanUpdatePassword && !changePasswordLoading ? "pointer" : "not-allowed",
+                        backgroundColor: isCanUpdatePassword && !changePasswordLoading ? "#123B5D" : "#94A3B8",
+                        transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+                      }}
                     >
-                      {showPassState.confirm ? <FiEyeOff /> : <FiEye />}
+                      {changePasswordLoading ? "Updating..." : "Update Password"}
                     </button>
                   </div>
-                </div>
-
-                <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
-                  <button
-                    type="button"
-                    className="btn-outline-swagat"
-                    onClick={() => setChangePasswordStep(1)}
-                  >
-                    Back
-                  </button>
-                  <button
-                    type="submit"
-                    className="btn-primary-swagat"
-                    disabled={changePasswordLoading}
-                  >
-                    {changePasswordLoading ? "Updating..." : "Update Password"}
-                  </button>
-                </div>
-              </form>
-            )}
+                </form>
+              );
+            })()}
           </div>
         </div>
       )}
