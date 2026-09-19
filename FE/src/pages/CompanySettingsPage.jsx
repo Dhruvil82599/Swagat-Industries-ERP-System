@@ -15,6 +15,7 @@ import {
   FiPhone,
   FiMapPin,
   FiBriefcase,
+  FiCreditCard,
   FiDollarSign,
   FiX,
   FiArrowUp,
@@ -303,44 +304,45 @@ export default function CompanySettingsPage() {
       <div className="page-header-swagat" style={{ marginBottom: "24px" }}>
         <div>
           <h1 className="page-title-swagat" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <FiSettings style={{ color: "var(--primary)" }} /> Company Settings & Quotation Terms
+            <FiSettings style={{ color: "var(--primary)" }} /> Company Settings
           </h1>
           <p className="page-subtitle-swagat">
-            Manage company profile details and default terms for new quotations and PDFs
+            Manage company profile details, bank account information, and default quotation terms
           </p>
         </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "32px" }}>
-        {/* ==================== SECTION 1: COMPANY INFORMATION ==================== */}
-        <div className="swagat-card" style={{ padding: "28px" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginBottom: "20px",
-              paddingBottom: "12px",
-              borderBottom: "1px solid var(--border-color)",
-            }}
-          >
-            <h2 style={{ margin: 0, fontSize: "18px", fontWeight: 700, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "8px" }}>
-              <FiBriefcase style={{ color: "var(--primary)" }} /> Company Information
-            </h2>
-            <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
-              * Applies automatically to NEW quotations & PDFs
-            </span>
+        {/* ==================== FORM WRAPPER FOR COMPANY & BANK SETTINGS ==================== */}
+        {settingsLoading ? (
+          <div className="swagat-card" style={{ padding: "40px", textAlign: "center" }}>
+            <div className="spinner-border text-primary" role="status"></div>
+            <p style={{ marginTop: "12px", color: "var(--text-secondary)" }}>
+              Loading company settings...
+            </p>
           </div>
+        ) : (
+          <form onSubmit={handleSaveSettings} style={{ display: "grid", gridTemplateColumns: "1fr", gap: "32px" }}>
+            {/* ==================== CARD 1: COMPANY INFORMATION ==================== */}
+            <div className="swagat-card" style={{ padding: "28px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "20px",
+                  paddingBottom: "12px",
+                  borderBottom: "1px solid var(--border-color)",
+                }}
+              >
+                <h2 style={{ margin: 0, fontSize: "18px", fontWeight: 700, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <FiBriefcase style={{ color: "var(--primary)" }} /> Company Information
+                </h2>
+                <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+                  * Applies automatically to NEW quotations & PDFs
+                </span>
+              </div>
 
-          {settingsLoading ? (
-            <div style={{ textAlign: "center", padding: "40px 0" }}>
-              <div className="spinner-border text-primary" role="status"></div>
-              <p style={{ marginTop: "12px", color: "var(--text-secondary)" }}>
-                Loading company settings...
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleSaveSettings}>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "20px" }}>
                 {/* Company Name */}
                 <div className="form-group-swagat">
@@ -535,63 +537,7 @@ export default function CompanySettingsPage() {
                 </div>
               </div>
 
-              {/* Bank Details Section */}
-              <div style={{ marginTop: "24px", paddingTop: "16px", borderTop: "1px dashed var(--border-color)" }}>
-                <h4 style={{ margin: "0 0 16px 0", fontSize: "14px", fontWeight: 700, color: "var(--text-secondary)" }}>
-                  🏦 Bank Account Information (Optional)
-                </h4>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
-                  <div className="form-group-swagat">
-                    <label className="form-label-swagat">Bank Name</label>
-                    <input
-                      type="text"
-                      name="bankName"
-                      className="form-control-swagat"
-                      value={settingsData.bankName}
-                      onChange={handleSettingsChange}
-                      placeholder="e.g. State Bank of India"
-                    />
-                  </div>
-
-                  <div className="form-group-swagat">
-                    <label className="form-label-swagat">Account No.</label>
-                    <input
-                      type="text"
-                      name="accountNo"
-                      className="form-control-swagat"
-                      value={settingsData.accountNo}
-                      onChange={handleSettingsChange}
-                      placeholder="e.g. 12345678901"
-                    />
-                  </div>
-
-                  <div className="form-group-swagat">
-                    <label className="form-label-swagat">IFSC Code</label>
-                    <input
-                      type="text"
-                      name="ifscCode"
-                      className="form-control-swagat"
-                      value={settingsData.ifscCode}
-                      onChange={handleSettingsChange}
-                      placeholder="e.g. SBIN0001234"
-                    />
-                  </div>
-
-                  <div className="form-group-swagat">
-                    <label className="form-label-swagat">Branch Name</label>
-                    <input
-                      type="text"
-                      name="branchName"
-                      className="form-control-swagat"
-                      value={settingsData.branchName}
-                      onChange={handleSettingsChange}
-                      placeholder="e.g. GIDC Rajkot Branch"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Submit Button */}
+              {/* Submit Button Card 1 */}
               <div style={{ marginTop: "24px", display: "flex", justifyContent: "flex-end" }}>
                 <button
                   type="submit"
@@ -599,14 +545,97 @@ export default function CompanySettingsPage() {
                   disabled={settingsSaving}
                   style={{ minWidth: "180px", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
                 >
-                  <FiSave /> {settingsSaving ? "Saving Settings..." : "Save Company Settings"}
+                  <FiSave /> {settingsSaving ? "Saving Settings..." : "Save Company Information"}
                 </button>
               </div>
-            </form>
-          )}
-        </div>
+            </div>
 
-        {/* ==================== SECTION 2: QUOTATION TERMS ==================== */}
+            {/* ==================== CARD 2: BANK ACCOUNT INFORMATION ==================== */}
+            <div className="swagat-card" style={{ padding: "28px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginBottom: "20px",
+                  paddingBottom: "12px",
+                  borderBottom: "1px solid var(--border-color)",
+                }}
+              >
+                <h2 style={{ margin: 0, fontSize: "18px", fontWeight: 700, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <FiCreditCard style={{ color: "var(--primary)" }} /> Bank Account Information
+                </h2>
+                <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
+                  * Printed on Quotation PDFs & Invoices for payment processing
+                </span>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "20px" }}>
+                <div className="form-group-swagat">
+                  <label className="form-label-swagat">Bank Name</label>
+                  <input
+                    type="text"
+                    name="bankName"
+                    className="form-control-swagat"
+                    value={settingsData.bankName}
+                    onChange={handleSettingsChange}
+                    placeholder="e.g. State Bank of India"
+                  />
+                </div>
+
+                <div className="form-group-swagat">
+                  <label className="form-label-swagat">Account No.</label>
+                  <input
+                    type="text"
+                    name="accountNo"
+                    className="form-control-swagat"
+                    value={settingsData.accountNo}
+                    onChange={handleSettingsChange}
+                    placeholder="e.g. 12345678901"
+                  />
+                </div>
+
+                <div className="form-group-swagat">
+                  <label className="form-label-swagat">IFSC Code</label>
+                  <input
+                    type="text"
+                    name="ifscCode"
+                    className="form-control-swagat"
+                    value={settingsData.ifscCode}
+                    onChange={handleSettingsChange}
+                    placeholder="e.g. SBIN0001234"
+                  />
+                </div>
+
+                <div className="form-group-swagat">
+                  <label className="form-label-swagat">Branch Name</label>
+                  <input
+                    type="text"
+                    name="branchName"
+                    className="form-control-swagat"
+                    value={settingsData.branchName}
+                    onChange={handleSettingsChange}
+                    placeholder="e.g. GIDC Rajkot Branch"
+                  />
+                </div>
+              </div>
+
+              {/* Submit Button Card 2 */}
+              <div style={{ marginTop: "24px", display: "flex", justifyContent: "flex-end" }}>
+                <button
+                  type="submit"
+                  className="btn-primary-swagat"
+                  disabled={settingsSaving}
+                  style={{ minWidth: "180px", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+                >
+                  <FiSave /> {settingsSaving ? "Saving Settings..." : "Save Bank Account Details"}
+                </button>
+              </div>
+            </div>
+          </form>
+        )}
+
+        {/* ==================== CARD 3: QUOTATION TERMS & CONDITIONS ==================== */}
         <div className="swagat-card" style={{ padding: "28px" }}>
           <div
             style={{

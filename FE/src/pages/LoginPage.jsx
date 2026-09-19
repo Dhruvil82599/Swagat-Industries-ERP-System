@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -8,15 +8,24 @@ import {
   FiEyeOff,
   FiAlertCircle,
   FiArrowRight,
+  FiShield,
+  FiRefreshCw,
+  FiKey,
+  FiX,
 } from "react-icons/fi";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [captchaCode, setCaptchaCode] = useState("");
+  const [userCaptcha, setUserCaptcha] = useState("");
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
+
+  const canvasRef = useRef(null);
 
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -30,6 +39,66 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, navigate, from]);
 
+  const generateCaptcha = useCallback(() => {
+    const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+    let code = "";
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setCaptchaCode(code);
+    setUserCaptcha("");
+
+    setTimeout(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      // Fill background
+      ctx.fillStyle = "#F1F5F9";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw random noise lines
+      for (let i = 0; i < 4; i++) {
+        ctx.strokeStyle = `rgba(18, 59, 93, ${0.15 + Math.random() * 0.2})`;
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.stroke();
+      }
+
+      // Draw random noise dots
+      for (let i = 0; i < 25; i++) {
+        ctx.fillStyle = `rgba(18, 59, 93, ${0.2 + Math.random() * 0.25})`;
+        ctx.beginPath();
+        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Draw text characters with subtle random rotation
+      ctx.font = "bold 20px 'Segoe UI', Arial, sans-serif";
+      ctx.textBaseline = "middle";
+      const letterSpacing = canvas.width / (code.length + 1);
+
+      for (let i = 0; i < code.length; i++) {
+        ctx.save();
+        const x = (i + 1) * letterSpacing - 4;
+        const y = canvas.height / 2 + (Math.random() * 4 - 2);
+        const angle = (Math.random() - 0.5) * 0.35; // -10 deg to +10 deg
+
+        ctx.translate(x, y);
+        ctx.rotate(angle);
+        ctx.fillStyle = "#123B5D";
+        ctx.fillText(code[i], 0, 0);
+        ctx.restore();
+      }
+    }, 0);
+  }, []);
+
+  useEffect(() => {
+    generateCaptcha();
+  }, [generateCaptcha]);
+
   const validate = () => {
     const errors = {};
     if (!username.trim()) {
@@ -38,7 +107,15 @@ export default function LoginPage() {
     if (!password) {
       errors.password = "Password is required.";
     }
+    if (!userCaptcha.trim()) {
+      errors.captcha = "CAPTCHA code is required.";
+    } else if (userCaptcha.trim().toUpperCase() !== captchaCode.toUpperCase()) {
+      errors.captcha = "Invalid CAPTCHA code. Please try again.";
+    }
     setFieldErrors(errors);
+    if (errors.captcha) {
+      generateCaptcha();
+    }
     return Object.keys(errors).length === 0;
   };
 
@@ -50,10 +127,11 @@ export default function LoginPage() {
 
     setIsSubmitting(true);
     try {
-      await login(username.trim(), password);
+      await login(username.trim(), password, userCaptcha.trim());
       navigate(from, { replace: true });
     } catch (err) {
       setError(err.message || "Invalid username or password.");
+      generateCaptcha();
     } finally {
       setIsSubmitting(false);
     }
@@ -168,10 +246,181 @@ export default function LoginPage() {
 
         .form-group:nth-child(1) { animation-delay: 0.1s; }
         .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
 
         @keyframes fieldFadeIn {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+
+        .captcha-container {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          background: #F8FAFC;
+          padding: 8px 12px;
+          border: 1px solid #E2E8F0;
+          border-radius: 8px;
+          margin-bottom: 8px;
+        }
+
+        .captcha-canvas {
+          border-radius: 6px;
+          border: 1px dashed #CBD5E1;
+          user-select: none;
+        }
+
+        .captcha-refresh-btn {
+          background: #FFFFFF;
+          border: 1px solid #CBD5E1;
+          border-radius: 6px;
+          width: 38px;
+          height: 38px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          color: #123B5D;
+          font-size: 16px;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .captcha-refresh-btn:hover:not(:disabled) {
+          background-color: #F1F5F9;
+          border-color: #123B5D;
+          transform: rotate(45deg);
+        }
+
+        .captcha-refresh-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .forgot-password-link {
+          background: none;
+          border: none;
+          padding: 0;
+          font-size: 12.5px;
+          font-weight: 600;
+          color: #123B5D;
+          cursor: pointer;
+          transition: color 0.2s ease;
+          text-decoration: none;
+        }
+
+        .forgot-password-link:hover {
+          color: #F28C28;
+          text-decoration: underline;
+        }
+
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(11, 34, 57, 0.65);
+          backdrop-filter: blur(4px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+          padding: 20px;
+          animation: modalOverlayFade 0.25s ease-out;
+        }
+
+        @keyframes modalOverlayFade {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+
+        .forgot-modal-card {
+          width: 100%;
+          max-width: 440px;
+          background: #FFFFFF;
+          border-radius: 14px;
+          border: 1px solid #CBD5E1;
+          box-shadow: 0 25px 50px -12px rgba(11, 34, 57, 0.35);
+          padding: 28px 24px;
+          box-sizing: border-box;
+          animation: modalZoomIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalZoomIn {
+          from { opacity: 0; transform: scale(0.94); }
+          to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header-flex {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 16px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid #F1F5F9;
+        }
+
+        .modal-title-flex {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          color: #123B5D;
+          font-size: 18px;
+          font-weight: 700;
+        }
+
+        .btn-close-modal {
+          background: none;
+          border: none;
+          font-size: 20px;
+          color: #94A3B8;
+          cursor: pointer;
+          padding: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 6px;
+          transition: color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .btn-close-modal:hover {
+          color: #172B3A;
+          background-color: #F1F5F9;
+        }
+
+        .modal-body-text {
+          font-size: 14px;
+          color: #475569;
+          line-height: 1.6;
+          margin-bottom: 16px;
+        }
+
+        .modal-info-box {
+          background-color: #F8FAFC;
+          border-left: 4px solid #F28C28;
+          padding: 12px 14px;
+          border-radius: 6px;
+          font-size: 13px;
+          color: #172B3A;
+          line-height: 1.5;
+          margin-bottom: 24px;
+        }
+
+        .btn-modal-dismiss {
+          width: 100%;
+          padding: 11px 16px;
+          background-color: #123B5D;
+          color: #FFFFFF;
+          font-size: 14px;
+          font-weight: 600;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: background-color 0.2s ease;
+        }
+
+        .btn-modal-dismiss:hover {
+          background-color: #0D2D46;
         }
 
         .form-label {
@@ -379,9 +628,19 @@ export default function LoginPage() {
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="password-input">
-              Password
-            </label>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+              <label className="form-label" htmlFor="password-input" style={{ marginBottom: 0 }}>
+                Password
+              </label>
+              <button
+                type="button"
+                className="forgot-password-link"
+                onClick={() => setShowForgotPasswordModal(true)}
+                tabIndex="0"
+              >
+                Forgot password?
+              </button>
+            </div>
             <div className="input-wrapper">
               <FiLock className="input-icon" />
               <input
@@ -408,8 +667,52 @@ export default function LoginPage() {
                 {showPassword ? <FiEyeOff /> : <FiEye />}
               </button>
             </div>
-            {fieldErrors.password && (
-              <div className="field-error-text">{fieldErrors.password}</div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="captcha-input">
+              CAPTCHA Verification
+            </label>
+            <div className="captcha-container">
+              <canvas
+                ref={canvasRef}
+                width="140"
+                height="38"
+                className="captcha-canvas"
+                title="CAPTCHA Challenge Code"
+              />
+              <button
+                type="button"
+                className="captcha-refresh-btn"
+                onClick={generateCaptcha}
+                title="Generate new CAPTCHA"
+                aria-label="Refresh CAPTCHA code"
+                disabled={isSubmitting}
+              >
+                <FiRefreshCw />
+              </button>
+            </div>
+            <div className="input-wrapper">
+              <FiShield className="input-icon" />
+              <input
+                id="captcha-input"
+                type="text"
+                className={`login-input ${fieldErrors.captcha ? "has-error" : ""}`}
+                placeholder="Enter CAPTCHA code"
+                value={userCaptcha}
+                onChange={(e) => {
+                  setUserCaptcha(e.target.value);
+                  if (fieldErrors.captcha) {
+                    setFieldErrors((prev) => ({ ...prev, captcha: null }));
+                  }
+                }}
+                disabled={isSubmitting}
+                maxLength={8}
+                autoComplete="off"
+              />
+            </div>
+            {fieldErrors.captcha && (
+              <div className="field-error-text">{fieldErrors.captcha}</div>
             )}
           </div>
 
@@ -433,6 +736,45 @@ export default function LoginPage() {
           Enterprise Login
         </div>
       </div>
+
+      {showForgotPasswordModal && (
+        <div className="modal-overlay" onClick={() => setShowForgotPasswordModal(false)}>
+          <div className="forgot-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header-flex">
+              <div className="modal-title-flex">
+                <FiKey style={{ color: "#F28C28", fontSize: "20px" }} />
+                <span>Password Reset Assistance</span>
+              </div>
+              <button
+                type="button"
+                className="btn-close-modal"
+                onClick={() => setShowForgotPasswordModal(false)}
+                aria-label="Close modal"
+              >
+                <FiX />
+              </button>
+            </div>
+
+            <div className="modal-body-text">
+              For enterprise security compliance in Swagat ERP, self-service automated password reset links are restricted.
+            </div>
+
+            <div className="modal-info-box">
+              <strong>Need to reset your password?</strong>
+              <br />
+              Please contact your <strong>System Administrator</strong> to update user credentials, or modify the <code>ADMIN_PASSWORD</code> environment setting in your backend configuration.
+            </div>
+
+            <button
+              type="button"
+              className="btn-modal-dismiss"
+              onClick={() => setShowForgotPasswordModal(false)}
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

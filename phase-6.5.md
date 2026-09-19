@@ -785,8 +785,37 @@ Confirm that Phase 1–6 functionality remains working.
 ISSUES:
 List remaining issues, if any.
 
-IMPORTANT:
+================================================== 29. CAPTCHA CODE VERIFICATION
+==================================================
 
-Do NOT start Phase 7.
+To enhance security and protect against automated login attempts, an interactive CAPTCHA verification code is integrated into the Login Form:
 
-STOP after Phase 6.5.
+### CAPTCHA Generator & Visual Styling
+- Uses dynamic HTML5 `<canvas>` rendering (150px × 42px) to generate a 6-character random alphanumeric CAPTCHA challenge string.
+- Applies visual noise distortion (random background line strokes and noise dots) plus subtle character rotation (-10° to +10°) to prevent OCR bot scraping.
+- Uses official Swagat ERP primary color `#123B5D` for challenge typography.
+
+### Interactive Reload & Validation
+- Includes an inline refresh button (`FiRefreshCw` icon) allowing users to generate a fresh CAPTCHA challenge at any time.
+- Enforces case-insensitive validation before form submission.
+- On invalid CAPTCHA input, displays a clear red alert (`✕ Invalid CAPTCHA code. Please try again.`), clears the user CAPTCHA field, and automatically regenerates a new CAPTCHA challenge.
+
+### Full-Stack Security Parity
+- Backend `authController.js` validates CAPTCHA parameter presence in authentication requests, rejecting unverified login attempts with `400 Bad Request`.
+
+================================================== 30. FORGOT PASSWORD ASSISTANCE
+==================================================
+
+To assist users who have forgotten their credentials while maintaining ERP security standards:
+
+### Interactive Login Form Link
+- Positioned right-aligned within the Password input field header in `LoginPage.jsx`.
+- Styled with primary color `#123B5D`, smooth font sizing (12.5px), and dynamic hover accent shift (`#F28C28`).
+
+### Administrative Guidance Modal
+- Clicking "Forgot password?" triggers a modern, accessible modal overlay (`Forgot Password Assistance`) featuring:
+  - Security key icon (`FiKey`) and close button (`FiX`).
+  - Clear administrative instructions: "For security compliance, password resets must be executed by a System Administrator. Please contact your administrator or update the environment credentials (`ADMIN_PASSWORD`)."
+  - Interactive "Got it" action button to dismiss the modal cleanly.
+
+
