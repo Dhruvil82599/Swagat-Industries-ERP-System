@@ -50,6 +50,10 @@ The authentication and access control module features enterprise Swagat Industri
 *Real-time validation badges displaying error alerts for invalid credentials or incorrect CAPTCHA code.*
 ![Login Validation](./FE/public/screenshots/01-auth/login-validation.png)
 
+#### Forgot Password & OTP Recovery Modal
+*Self-service password recovery wizard with username/email input, 6-digit OTP verification code, and secure password updating.*
+![Forgot Password Modal](./FE/public/screenshots/01-auth/forgot-password-modal.png)
+
 ---
 
 ### 📊 2. Executive Dashboard (`02-dashboard/`)
