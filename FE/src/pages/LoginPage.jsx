@@ -939,6 +939,15 @@ export default function LoginPage() {
                     )}
                   </button>
                 </div>
+
+                {/* Admin Recovery Assistance Box */}
+                <div style={{ marginTop: "20px", padding: "12px 14px", backgroundColor: "#F8FAFC", border: "1px solid #E2E8F0", borderRadius: "8px", fontSize: "12.5px", color: "#475569", lineHeight: "1.5" }}>
+                  <div style={{ fontWeight: "700", color: "#123B5D", marginBottom: "4px", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <FiShield style={{ color: "#F28C28" }} />
+                    <span>Forgot both Username & Email?</span>
+                  </div>
+                  Contact your <strong>Swagat ERP Administrator</strong> to look up your account profile or reset your credentials directly in <strong>User Management (`/users`)</strong>.
+                </div>
               </form>
             )}
 

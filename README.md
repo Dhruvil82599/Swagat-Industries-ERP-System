@@ -52,6 +52,7 @@ The authentication module features enterprise Swagat Industries branding, JWT to
 #### Features & Capabilities
 - **Streamlined Fast Login**: High-performance login interface with instant dashboard navigation.
 - **Forgot Password & OTP Recovery**: Integrated email notification system dispatching 6-digit OTP verification codes via SMTP with 15-minute expiration timers. Accepts both registered Username and Email ID.
+- **Admin Recovery Assistance Box**: Embedded guidance card within the Forgot Password modal assisting users who forgot both credentials to contact their ERP Administrator for User Management lookup (`/users`).
 - **Invite Code Registration**: Self-registration modal for invited users using their email and 6-digit invitation code.
 - **Always-Redirect Dashboard Navigation**: Preserved state navigation routing users directly to the Executive Dashboard upon successful authentication.
 
@@ -64,8 +65,12 @@ The authentication module features enterprise Swagat Industries branding, JWT to
 ![Login Validation](./FE/public/screenshots/01-auth/login-validation.png)
 
 #### Forgot Password & OTP Recovery Modal
-*Self-service 3-step password recovery wizard with username/email input, 6-digit OTP verification code, and secure password updating with real-time match indicators.*
+*Self-service 3-step password recovery wizard with username/email input, 6-digit OTP verification code, secure password updating, and embedded Admin Recovery Assistance Card.*
 ![Forgot Password Modal](./FE/public/screenshots/01-auth/forgot-password-modal.png)
+
+#### Invite Code Self-Registration Modal
+*Self-service account registration modal allowing invited team members to verify their 6-digit invitation code and complete account setup.*
+![Invite Registration Modal](./FE/public/screenshots/01-auth/invite-modal.png)
 
 ---
 
@@ -79,6 +84,10 @@ Centralized user directory accessible via the top-right profile dropdown menu (`
 - **Edit User Modal**: Update user full name, email, username, or change password with live visibility toggles.
 - **Cancel Invite**: Manage and revoke pending invitation codes.
 - **Top-Right Profile Pill**: Navbar profile button displaying user's Full Name on top and `@username` underneath.
+
+#### User Management Directory View
+*Searchable user table displaying account details, formatted created dates (`DD/MM/YYYY`), pending invitations list, top-right navbar profile display, and user action buttons.*
+![Users List](./FE/public/screenshots/02-users/users-list.png)
 
 ---
 
@@ -348,6 +357,15 @@ Swagat-Industries-ERP-System/
 │   ├── public/                     # Static Assets & Screenshots
 │   │   ├── logo.png                # Brand Logo
 │   │   └── screenshots/            # Showcase UI Screenshots
+│   │       ├── 01-auth/            # Login, Forgot Password & Invite Screenshots
+│   │       ├── 02-users/           # User Directory & Invite Modal Screenshots
+│   │       ├── 03-dashboard/       # Executive Dashboard Screenshot
+│   │       ├── 04-customers/       # Customer CRM Screenshots
+│   │       ├── 05-sites/           # Installation Sites Screenshots
+│   │       ├── 06-shutters/        # Shutters Catalog Screenshots
+│   │       ├── 07-quotations/      # Quotation Engine Screenshots
+│   │       ├── 08-payments/        # Payment Ledger & Voucher Screenshots
+│   │       └── 10-pdf/             # Printable PDF Preview Screenshots
 │   ├── src/
 │   │   ├── components/             # Layout (Navbar, Sidebar), Auth, Payment Receipt Slip Modal, UI Modals
 │   │   ├── context/                # AuthContext & ToastContext Providers
