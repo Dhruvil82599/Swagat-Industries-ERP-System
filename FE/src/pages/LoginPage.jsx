@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { authAPI } from "../services/api";
 import {
@@ -36,6 +36,7 @@ export default function LoginPage() {
   const [forgotConfirmPass, setForgotConfirmPass] = useState("");
   const [forgotShowPass, setForgotShowPass] = useState(false);
   const [forgotMaskedEmail, setForgotMaskedEmail] = useState("");
+  const [forgotDevOtp, setForgotDevOtp] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotError, setForgotError] = useState("");
   const [forgotSuccess, setForgotSuccess] = useState("");
@@ -65,6 +66,7 @@ export default function LoginPage() {
     setForgotConfirmPass("");
     setForgotError("");
     setForgotSuccess("");
+    setForgotDevOtp("");
     setResendTimer(0);
   };
 
@@ -83,6 +85,9 @@ export default function LoginPage() {
       setForgotLoading(true);
       const res = await authAPI.forgotPassword({ identifier: forgotIdentifier.trim() });
       setForgotMaskedEmail(res.emailMasked || "your registered email");
+      if (res.devOtp) {
+        setForgotDevOtp(res.devOtp);
+      }
       setForgotStep(2);
       setForgotSuccess("Verification OTP code has been sent to your email.");
       setResendTimer(60);
@@ -151,9 +156,7 @@ export default function LoginPage() {
 
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const from = location.state?.from?.pathname || "/customers";
+  const from = "/dashboard";
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -960,6 +963,23 @@ export default function LoginPage() {
                 <p className="modal-body-text">
                   A 6-digit verification code has been sent to <strong>{forgotMaskedEmail}</strong>. Please enter the code below:
                 </p>
+
+                {/* Development Mode Helper Card */}
+                {forgotDevOtp && (
+                  <div style={{ backgroundColor: "#EFF6FF", border: "1px solid #93C5FD", borderRadius: "8px", padding: "12px 14px", marginBottom: "16px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px" }}>
+                    <div>
+                      <span style={{ fontSize: "11px", color: "#1D4ED8", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", display: "block" }}>⚡ Dev Mode OTP:</span>
+                      <span style={{ fontFamily: "monospace", fontSize: "20px", fontWeight: "800", color: "#1E40AF", letterSpacing: "3px" }}>{forgotDevOtp}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setForgotOtp(forgotDevOtp)}
+                      style={{ backgroundColor: "#1D4ED8", color: "#FFFFFF", border: "none", borderRadius: "6px", padding: "7px 12px", fontSize: "12px", fontWeight: "700", cursor: "pointer", whiteSpace: "nowrap" }}
+                    >
+                      Auto-Fill OTP
+                    </button>
+                  </div>
+                )}
 
                 <div className="form-group" style={{ marginBottom: "16px" }}>
                   <label className="form-label">6-Digit Verification OTP Code</label>

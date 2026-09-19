@@ -36,28 +36,52 @@ export function getGstValidationStatus(value) {
 
 /**
  * Real-time Mobile Number validation status reporter
+ * Supports 10-digit mobile numbers with optional country prefix (+91 / 0), spaces, and hyphens.
  * @param {string} value 
  * @param {boolean} isOptional 
  * @returns {{ isValid: boolean | null, message: string }}
  */
 export function getMobileValidationStatus(value, isOptional = false) {
-  if (!value || value.trim() === '') {
+  if (!value || String(value).trim() === '') {
     if (isOptional) return { isValid: null, message: '' };
     return { isValid: false, message: '✕ Mobile number is required' };
   }
-  const clean = value.trim();
-  if (clean.length < 10) {
+
+  const raw = String(value).trim();
+
+  // Check if string contains alphabetic letters
+  if (/[a-zA-Z]/.test(raw)) {
     return {
       isValid: false,
-      message: `✕ Enter 10-digit mobile number (${clean.length}/10)`
+      message: '✕ Mobile number cannot contain letters'
     };
   }
-  if (!MOBILE_REGEX.test(clean)) {
+
+  // Extract digits only
+  const digitsOnly = raw.replace(/\D/g, '');
+  let mobileDigits = digitsOnly;
+
+  // Handle standard prefixes: +91 / 91 (12 digits) or leading 0 (11 digits)
+  if (mobileDigits.length === 12 && mobileDigits.startsWith('91')) {
+    mobileDigits = mobileDigits.slice(2);
+  } else if (mobileDigits.length === 11 && mobileDigits.startsWith('0')) {
+    mobileDigits = mobileDigits.slice(1);
+  }
+
+  if (mobileDigits.length < 10) {
     return {
       isValid: false,
-      message: '✕ Mobile number must contain exactly 10 digits'
+      message: `✕ Enter 10-digit mobile number (${mobileDigits.length}/10)`
     };
   }
+
+  if (mobileDigits.length > 10) {
+    return {
+      isValid: false,
+      message: `✕ Mobile number must contain 10 digits (${mobileDigits.length}/10)`
+    };
+  }
+
   return {
     isValid: true,
     message: '✓ Valid 10-digit mobile number'

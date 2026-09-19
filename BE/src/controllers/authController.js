@@ -202,7 +202,13 @@ const forgotPassword = async (req, res) => {
       }
     });
 
-    const targetEmail = user.email || `${user.username}@swagatindustries.com`;
+    // Get company settings email as fallback if user has no email set
+    const companySetting = await prisma.companySetting.findFirst();
+    const fallbackEmail = (companySetting && companySetting.email && companySetting.email.trim())
+      ? companySetting.email.trim()
+      : `${user.username}@swagatindustries.com`;
+
+    const targetEmail = user.email || fallbackEmail;
 
     // Send email via mailer utility
     const mailResult = await sendOtpEmail(targetEmail, user.username, otp);
@@ -212,7 +218,8 @@ const forgotPassword = async (req, res) => {
       {
         username: user.username,
         emailMasked: targetEmail.replace(/(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => gp2 + '*'.repeat(gp3.length)),
-        devSimulated: mailResult.simulated || false
+        devSimulated: mailResult.simulated || false,
+        devOtp: process.env.NODE_ENV !== 'production' ? otp : undefined
       },
       'Verification OTP code sent successfully to registered email.'
     );

@@ -11,7 +11,14 @@ const sendOtpEmail = async (toEmail, username, otp) => {
   const smtpPort = process.env.SMTP_PORT || 587;
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
-  const smtpFrom = process.env.SMTP_FROM || '"Swagat Industries ERP" <no-reply@swagatindustries.com>';
+  let smtpFrom = process.env.SMTP_FROM || '"Swagat Industries ERP" <no-reply@swagatindustries.com>';
+  if (!smtpFrom.includes('<')) {
+    const cleanName = smtpFrom.replace(/"/g, '').trim() || 'Swagat Industries ERP';
+    const senderEmail = (process.env.SMTP_USER && process.env.SMTP_USER.includes('@'))
+      ? process.env.SMTP_USER
+      : 'no-reply@swagatindustries.com';
+    smtpFrom = `"${cleanName}" <${senderEmail}>`;
+  }
 
   const subject = `Swagat ERP - Password Reset Verification Code: ${otp}`;
   const htmlContent = `

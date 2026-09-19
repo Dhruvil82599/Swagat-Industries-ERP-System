@@ -117,6 +117,9 @@ export default function CompanySettingsPage() {
     let { name, value } = e.target;
     if (name === 'gstNo') {
       value = value.toUpperCase();
+    } else if (name === 'mobile' || name === 'altMobile') {
+      // Strip alphabetic letters and non-phone characters automatically
+      value = value.replace(/[^\d+\-\s()]/g, '');
     }
     setSettingsData((prev) => ({ ...prev, [name]: value }));
   };
@@ -131,9 +134,23 @@ export default function CompanySettingsPage() {
       showToast("Company Address is required", "error");
       return;
     }
-    if (!settingsData.mobile.trim()) {
+    if (!settingsData.mobile || !settingsData.mobile.trim()) {
       showToast("Mobile Number is required", "error");
       return;
+    }
+
+    const mobStat = getMobileValidationStatus(settingsData.mobile, false);
+    if (mobStat.isValid === false) {
+      showToast(mobStat.message ? mobStat.message.replace('✕ ', '') : "Invalid Mobile Number", "error");
+      return;
+    }
+
+    if (settingsData.altMobile && settingsData.altMobile.trim() !== '') {
+      const altStat = getMobileValidationStatus(settingsData.altMobile, true);
+      if (altStat.isValid === false) {
+        showToast(altStat.message ? altStat.message.replace('✕ ', '') : "Invalid Alternate Mobile Number", "error");
+        return;
+      }
     }
 
     if (settingsData.gstNo && settingsData.gstNo.trim() !== '') {
