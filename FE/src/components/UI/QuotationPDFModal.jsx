@@ -49,14 +49,14 @@ export default function QuotationPDFModal({ quotationId, onClose }) {
         };
         setCompanySettings(finalCompanySettings);
 
-        // Prioritize snapshot terms saved on the quotation for historical consistency
+        // Prioritize active configurable quotation terms from Company Settings so changes apply dynamically to existing quotations as well
         let finalTerms = [];
-        if (Array.isArray(quotData?.quotationTerms) && quotData.quotationTerms.length > 0) {
-          finalTerms = quotData.quotationTerms.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-        } else if (Array.isArray(termsData)) {
+        if (Array.isArray(termsData) && termsData.length > 0) {
           finalTerms = termsData
             .filter((t) => t.isActive !== false)
             .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+        } else if (Array.isArray(quotData?.quotationTerms) && quotData.quotationTerms.length > 0) {
+          finalTerms = quotData.quotationTerms.sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
         }
         setTerms(finalTerms);
       } catch (err) {

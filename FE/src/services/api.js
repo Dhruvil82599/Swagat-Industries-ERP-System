@@ -54,6 +54,13 @@ export const authAPI = {
       method: "POST",
       headers: getAuthHeaders(),
     }).then(handleResponse),
+
+  changePassword: (data) =>
+    fetch(`${BASE_URL}/auth/change-password`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
 };
 
 export const api = {

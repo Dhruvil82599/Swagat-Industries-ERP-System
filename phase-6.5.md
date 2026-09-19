@@ -818,4 +818,25 @@ To assist users who have forgotten their credentials while maintaining ERP secur
   - Clear administrative instructions: "For security compliance, password resets must be executed by a System Administrator. Please contact your administrator or update the environment credentials (`ADMIN_PASSWORD`)."
   - Interactive "Got it" action button to dismiss the modal cleanly.
 
+================================================== 31. HEADER PROFILE DROPDOWN & CHANGE PASSWORD
+==================================================
+
+To streamline application navigation and security management across the top header bar:
+
+### Unified Header Profile Section Trigger
+- Replaces individual top-right buttons in `Navbar.jsx` with a single, elegant User Profile Section trigger (`.profile-menu-trigger`).
+- Renders the active user avatar (initial letter in `#123B5D` badge), username, role (`ADMIN`), and an animated dropdown arrow (`FiChevronDown`).
+- Includes outside-click detection to automatically close the dropdown menu when clicking elsewhere.
+
+### Dropdown Menu Options
+Clicking the profile trigger opens a smooth dropdown menu containing:
+1. ⚙️ **Company Settings** (`FiSettings` icon) — Direct navigation shortcut to `/company-settings`.
+2. 🔑 **Change Password** (`FiKey` icon) — Triggers the interactive Change Password modal overlay.
+3. 🚪 **Log Out** (`FiLogOut` icon) — Red-highlighted action triggering the session logout confirmation modal.
+
+### Change Password Modal & Backend API
+- **Modal Overlay**: Features Current Password, New Password (minimum 6 characters), and Confirm New Password input fields with eye-icon visibility toggles (`FiEye`/`FiEyeOff`).
+- **Backend Security Controller (`POST /api/auth/change-password`)**: Protected with `authMiddleware`. Verifies the user's current password against the stored bcrypt hash in PostgreSQL, hashes the new password, and updates the user record via Prisma.
+
+
 

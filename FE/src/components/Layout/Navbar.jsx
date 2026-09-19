@@ -1,20 +1,45 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { api } from "../../services/api";
+import { api, authAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../context/ToastContext";
 import {
   FiCheckCircle,
   FiAlertCircle,
   FiUser,
   FiLogOut,
   FiSettings,
+  FiChevronDown,
+  FiKey,
+  FiEye,
+  FiEyeOff,
+  FiX,
 } from "react-icons/fi";
 
 export default function Navbar({ title = "Master Data" }) {
   const navigate = useNavigate();
-  const [dbStatus, setDbStatus] = useState({ connected: false, loading: true });
+  const { showToast } = useToast();
   const { user, logout } = useAuth();
+  
+  const [dbStatus, setDbStatus] = useState({ connected: false, loading: true });
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  
+  // Change Password state
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [changePasswordData, setChangePasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [changePasswordLoading, setChangePasswordLoading] = useState(false);
+  const [showPassState, setShowPassState] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
+
+  const profileRef = useRef(null);
 
   useEffect(() => {
     api
@@ -27,12 +52,61 @@ export default function Navbar({ title = "Master Data" }) {
       });
   }, []);
 
+  // Close profile dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleLogout = () => {
     logout();
   };
 
+  const handleChangePasswordSubmit = async (e) => {
+    e.preventDefault();
+    if (!changePasswordData.currentPassword) {
+      showToast("Current Password is required", "error");
+      return;
+    }
+    if (!changePasswordData.newPassword || changePasswordData.newPassword.length < 6) {
+      showToast("New Password must be at least 6 characters long", "error");
+      return;
+    }
+    if (changePasswordData.newPassword !== changePasswordData.confirmPassword) {
+      showToast("New Password and Confirm Password do not match", "error");
+      return;
+    }
+
+    try {
+      setChangePasswordLoading(true);
+      await authAPI.changePassword({
+        currentPassword: changePasswordData.currentPassword,
+        newPassword: changePasswordData.newPassword,
+      });
+      showToast("Password updated successfully!", "success");
+      setShowChangePasswordModal(false);
+      setChangePasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    } catch (err) {
+      showToast(err.message || "Failed to update password", "error");
+    } finally {
+      setChangePasswordLoading(false);
+    }
+  };
+
   return (
     <header className="app-navbar">
+      <style>{`
+        @keyframes dropdownFadeIn {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+
       <div className="nav-title">
         <h1>{title}</h1>
       </div>
@@ -65,104 +139,328 @@ export default function Navbar({ title = "Master Data" }) {
           )}
         </div>
 
-        {/* User Profile Badge */}
+        {/* Header Profile Section Dropdown */}
         {user && (
+          <div ref={profileRef} style={{ position: "relative" }}>
+            <button
+              type="button"
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: "5px 14px 5px 8px",
+                backgroundColor: isProfileOpen ? "#F1F5F9" : "#FFFFFF",
+                border: "1px solid #CBD5E1",
+                borderRadius: "24px",
+                cursor: "pointer",
+                transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+                outline: "none",
+                boxShadow: isProfileOpen
+                  ? "0 0 0 3px rgba(18, 59, 93, 0.12)"
+                  : "0 1px 3px rgba(0,0,0,0.06)",
+              }}
+            >
+              <div
+                style={{
+                  width: "30px",
+                  height: "30px",
+                  borderRadius: "50%",
+                  backgroundColor: "#123B5D",
+                  color: "#FFFFFF",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "13px",
+                  fontWeight: "700",
+                }}
+              >
+                {user?.username ? user.username.charAt(0).toUpperCase() : <FiUser />}
+              </div>
+              <div style={{ textAlign: "left", display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: "13.5px", fontWeight: "700", color: "#172B3A", lineHeight: 1.2 }}>
+                  {user?.username || "Administrator"}
+                </span>
+                <span style={{ fontSize: "11px", color: "#64748B", fontWeight: "500" }}>
+                  {user?.role || "ADMIN"}
+                </span>
+              </div>
+              <FiChevronDown
+                style={{
+                  fontSize: "16px",
+                  color: "#64748B",
+                  transition: "transform 0.2s ease",
+                  transform: isProfileOpen ? "rotate(180deg)" : "rotate(0deg)",
+                }}
+              />
+            </button>
+
+            {/* Profile Dropdown Menu */}
+            {isProfileOpen && (
+              <div
+                style={{
+                  position: "absolute",
+                  right: 0,
+                  top: "calc(100% + 8px)",
+                  width: "230px",
+                  backgroundColor: "#FFFFFF",
+                  borderRadius: "12px",
+                  border: "1px solid #E2E8F0",
+                  boxShadow: "0 20px 30px -10px rgba(18, 59, 93, 0.22), 0 4px 12px rgba(0,0,0,0.06)",
+                  zIndex: 1000,
+                  overflow: "hidden",
+                  animation: "dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+                }}
+              >
+                <div style={{ padding: "14px 16px", backgroundColor: "#F8FAFC", borderBottom: "1px solid #F1F5F9" }}>
+                  <div style={{ fontSize: "13.5px", fontWeight: 700, color: "#123B5D" }}>
+                    {user?.fullName || "Swagat Administrator"}
+                  </div>
+                  <div style={{ fontSize: "11.5px", color: "#64748B", marginTop: "2px" }}>
+                    System Administrator
+                  </div>
+                </div>
+
+                <div style={{ padding: "6px" }}>
+                  {/* Company Settings Option */}
+                  <button
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      navigate("/company-settings");
+                    }}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "10px 12px",
+                      border: "none",
+                      backgroundColor: "transparent",
+                      color: "#172B3A",
+                      fontSize: "13.5px",
+                      fontWeight: "600",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      transition: "all 0.15s ease",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F1F5F9")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                  >
+                    <FiSettings style={{ color: "#123B5D", fontSize: "16px" }} />
+                    <span>Company Settings</span>
+                  </button>
+
+                  {/* Change Password Option */}
+                  <button
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      setShowChangePasswordModal(true);
+                    }}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "10px 12px",
+                      border: "none",
+                      backgroundColor: "transparent",
+                      color: "#172B3A",
+                      fontSize: "13.5px",
+                      fontWeight: "600",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      transition: "all 0.15s ease",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F1F5F9")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                  >
+                    <FiKey style={{ color: "#F28C28", fontSize: "16px" }} />
+                    <span>Change Password</span>
+                  </button>
+                </div>
+
+                <div style={{ borderTop: "1px solid #F1F5F9", padding: "6px" }}>
+                  {/* Log Out Option */}
+                  <button
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      setShowLogoutConfirm(true);
+                    }}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "10px 12px",
+                      border: "none",
+                      backgroundColor: "transparent",
+                      color: "#DC2626",
+                      fontSize: "13.5px",
+                      fontWeight: "600",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      transition: "all 0.15s ease",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#FEF2F2")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                  >
+                    <FiLogOut style={{ fontSize: "16px" }} />
+                    <span>Log Out</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Change Password Modal */}
+      {showChangePasswordModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(11, 34, 57, 0.65)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            padding: "20px",
+          }}
+        >
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "4px 12px 4px 6px",
-              backgroundColor: "#F1F5F9",
-              borderRadius: "20px",
-              border: "1px solid #E2E8F0",
-              fontSize: "13px",
-              fontWeight: "600",
-              color: "#172B3A",
+              backgroundColor: "#FFFFFF",
+              borderRadius: "14px",
+              padding: "28px",
+              maxWidth: "420px",
+              width: "100%",
+              boxShadow: "0 25px 50px -12px rgba(11, 34, 57, 0.35)",
+              border: "1px solid #CBD5E1",
             }}
           >
             <div
               style={{
-                width: "26px",
-                height: "26px",
-                borderRadius: "50%",
-                backgroundColor: "#123B5D",
-                color: "#FFFFFF",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                fontSize: "12px",
+                justifyContent: "space-between",
+                marginBottom: "20px",
+                paddingBottom: "12px",
+                borderBottom: "1px solid #F1F5F9",
               }}
             >
-              <FiUser />
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "18px", fontWeight: "700", color: "#123B5D" }}>
+                <FiKey style={{ color: "#F28C28" }} />
+                <span>Change Password</span>
+              </div>
+              <button
+                onClick={() => setShowChangePasswordModal(false)}
+                style={{ background: "none", border: "none", fontSize: "20px", color: "#94A3B8", cursor: "pointer" }}
+              >
+                <FiX />
+              </button>
             </div>
-            <span>{user.username}</span>
+
+            <form onSubmit={handleChangePasswordSubmit}>
+              {/* Current Password */}
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#172B3A", marginBottom: "6px" }}>
+                  Current Password
+                </label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type={showPassState.current ? "text" : "password"}
+                    className="form-control-swagat"
+                    value={changePasswordData.currentPassword}
+                    onChange={(e) => setChangePasswordData({ ...changePasswordData, currentPassword: e.target.value })}
+                    placeholder="Enter current password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassState((prev) => ({ ...prev, current: !prev.current }))}
+                    style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#94A3B8", cursor: "pointer" }}
+                  >
+                    {showPassState.current ? <FiEyeOff /> : <FiEye />}
+                  </button>
+                </div>
+              </div>
+
+              {/* New Password */}
+              <div style={{ marginBottom: "16px" }}>
+                <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#172B3A", marginBottom: "6px" }}>
+                  New Password
+                </label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type={showPassState.new ? "text" : "password"}
+                    className="form-control-swagat"
+                    value={changePasswordData.newPassword}
+                    onChange={(e) => setChangePasswordData({ ...changePasswordData, newPassword: e.target.value })}
+                    placeholder="Enter new password (min. 6 chars)"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassState((prev) => ({ ...prev, new: !prev.new }))}
+                    style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#94A3B8", cursor: "pointer" }}
+                  >
+                    {showPassState.new ? <FiEyeOff /> : <FiEye />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm New Password */}
+              <div style={{ marginBottom: "24px" }}>
+                <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#172B3A", marginBottom: "6px" }}>
+                  Confirm New Password
+                </label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type={showPassState.confirm ? "text" : "password"}
+                    className="form-control-swagat"
+                    value={changePasswordData.confirmPassword}
+                    onChange={(e) => setChangePasswordData({ ...changePasswordData, confirmPassword: e.target.value })}
+                    placeholder="Re-enter new password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassState((prev) => ({ ...prev, confirm: !prev.confirm }))}
+                    style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#94A3B8", cursor: "pointer" }}
+                  >
+                    {showPassState.confirm ? <FiEyeOff /> : <FiEye />}
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                <button
+                  type="button"
+                  className="btn-outline-swagat"
+                  onClick={() => setShowChangePasswordModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary-swagat"
+                  disabled={changePasswordLoading}
+                >
+                  {changePasswordLoading ? "Updating..." : "Update Password"}
+                </button>
+              </div>
+            </form>
           </div>
-        )}
-
-        {/* Admin Settings Button */}
-        <button
-          onClick={() => navigate("/settings")}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "6px 14px",
-            borderRadius: "6px",
-            border: "1px solid #1E3A8A",
-            backgroundColor: "#1E3A8A",
-            color: "#FFFFFF",
-            fontSize: "13px",
-            fontWeight: "600",
-            cursor: "pointer",
-            transition: "all 0.2s ease",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "#2563EB";
-            e.currentTarget.style.borderColor = "#2563EB";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "#1E3A8A";
-            e.currentTarget.style.borderColor = "#1E3A8A";
-          }}
-          title="Company Settings & Quotation Terms"
-        >
-          <FiSettings />
-          <span>Admin Settings</span>
-        </button>
-
-        {/* Logout Button */}
-        <button
-          onClick={() => setShowLogoutConfirm(true)}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "6px 14px",
-            borderRadius: "6px",
-            border: "1px solid #E2E8F0",
-            backgroundColor: "#FFFFFF",
-            color: "#DC2626",
-            fontSize: "13px",
-            fontWeight: "600",
-            cursor: "pointer",
-            transition: "all 0.2s ease",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "#FEF2F2";
-            e.currentTarget.style.borderColor = "#FECACA";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "#FFFFFF";
-            e.currentTarget.style.borderColor = "#E2E8F0";
-          }}
-          title="Log out of Swagat ERP"
-        >
-          <FiLogOut />
-          <span>Logout</span>
-        </button>
-      </div>
+        </div>
+      )}
 
       {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (

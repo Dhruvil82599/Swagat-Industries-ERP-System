@@ -100,6 +100,14 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/company-settings"
+              element={
+                <ProtectedRoute>
+                  <CompanySettingsPage />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Catch-all fallback */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />

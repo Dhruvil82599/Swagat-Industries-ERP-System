@@ -92,8 +92,47 @@ const logout = async (req, res) => {
   return successResponse(res, null, 'Logged out successfully');
 };
 
+const changePassword = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword) {
+      return errorResponse(res, 'Current password is required.', 400);
+    }
+    if (!newPassword || newPassword.length < 6) {
+      return errorResponse(res, 'New password must be at least 6 characters long.', 400);
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      return errorResponse(res, 'User profile not found.', 404);
+    }
+
+    const isCurrentValid = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isCurrentValid) {
+      return errorResponse(res, 'Current password is incorrect.', 400);
+    }
+
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash: newPasswordHash }
+    });
+
+    return successResponse(res, null, 'Password updated successfully');
+  } catch (error) {
+    console.error('changePassword error:', error);
+    return errorResponse(res, 'Failed to update password.', 500);
+  }
+};
+
 module.exports = {
   login,
   getMe,
-  logout
+  logout,
+  changePassword
 };
