@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 
 const login = async (req, res) => {
   try {
-    const { username, password, captcha } = req.body;
+    const { username, password } = req.body;
 
     if (!username || !username.trim()) {
       return errorResponse(res, 'Username is required.', 400);
@@ -16,11 +16,9 @@ const login = async (req, res) => {
     if (!password) {
       return errorResponse(res, 'Password is required.', 400);
     }
-    if (!captcha || !captcha.trim()) {
-      return errorResponse(res, 'CAPTCHA verification code is required.', 400);
-    }
 
     const trimmedUsername = username.trim();
+
 
     // Find user
     const user = await prisma.user.findUnique({
@@ -183,10 +181,11 @@ const forgotPassword = async (req, res) => {
     if (!user) {
       return errorResponse(
         res,
-        `No registered account found for "${searchStr}". Please check your username or email.`,
+        'Account not found. Please check entered username or email ID.',
         404
       );
     }
+
 
     // Generate 6-digit random numeric OTP code
     const otp = Math.floor(100000 + Math.random() * 900000).toString();

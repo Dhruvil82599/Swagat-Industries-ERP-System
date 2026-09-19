@@ -47,8 +47,9 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  const login = async (username, password, captcha) => {
-    const data = await authAPI.login({ username, password, captcha });
+  const login = async (username, password) => {
+    const data = await authAPI.login({ username, password });
+
     const { token: newToken, user: userData } = data;
 
     localStorage.setItem("swagat_erp_token", newToken);

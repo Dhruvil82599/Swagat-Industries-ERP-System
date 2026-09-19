@@ -22,8 +22,6 @@ export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [captchaCode, setCaptchaCode] = useState("");
-  const [userCaptcha, setUserCaptcha] = useState("");
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -133,8 +131,6 @@ export default function LoginPage() {
     }
   };
 
-
-  const canvasRef = useRef(null);
   const resendIntervalRef = useRef(null);
 
   // Resend Countdown Timer
@@ -256,66 +252,6 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, navigate, from]);
 
-  const generateCaptcha = useCallback(() => {
-    const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
-    let code = "";
-    for (let i = 0; i < 6; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    setCaptchaCode(code);
-    setUserCaptcha("");
-
-    setTimeout(() => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-
-      // Fill background
-      ctx.fillStyle = "#F1F5F9";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Draw random noise lines
-      for (let i = 0; i < 4; i++) {
-        ctx.strokeStyle = `rgba(18, 59, 93, ${0.15 + Math.random() * 0.2})`;
-        ctx.beginPath();
-        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
-        ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
-        ctx.stroke();
-      }
-
-      // Draw random noise dots
-      for (let i = 0; i < 25; i++) {
-        ctx.fillStyle = `rgba(18, 59, 93, ${0.2 + Math.random() * 0.25})`;
-        ctx.beginPath();
-        ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1.2, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // Draw text characters with subtle random rotation
-      ctx.font = "bold 20px 'Segoe UI', Arial, sans-serif";
-      ctx.textBaseline = "middle";
-      const letterSpacing = canvas.width / (code.length + 1);
-
-      for (let i = 0; i < code.length; i++) {
-        ctx.save();
-        const x = (i + 1) * letterSpacing - 4;
-        const y = canvas.height / 2 + (Math.random() * 4 - 2);
-        const angle = (Math.random() - 0.5) * 0.35; // -10 deg to +10 deg
-
-        ctx.translate(x, y);
-        ctx.rotate(angle);
-        ctx.fillStyle = "#123B5D";
-        ctx.fillText(code[i], 0, 0);
-        ctx.restore();
-      }
-    }, 0);
-  }, []);
-
-  useEffect(() => {
-    generateCaptcha();
-  }, [generateCaptcha]);
-
   const validate = () => {
     const errors = {};
     if (!username.trim()) {
@@ -324,15 +260,7 @@ export default function LoginPage() {
     if (!password) {
       errors.password = "Password is required.";
     }
-    if (!userCaptcha.trim()) {
-      errors.captcha = "CAPTCHA code is required.";
-    } else if (userCaptcha.trim().toUpperCase() !== captchaCode.toUpperCase()) {
-      errors.captcha = "Invalid CAPTCHA code. Please try again.";
-    }
     setFieldErrors(errors);
-    if (errors.captcha) {
-      generateCaptcha();
-    }
     return Object.keys(errors).length === 0;
   };
 
@@ -344,11 +272,10 @@ export default function LoginPage() {
 
     setIsSubmitting(true);
     try {
-      await login(username.trim(), password, userCaptcha.trim());
+      await login(username.trim(), password);
       navigate(from, { replace: true });
     } catch (err) {
       setError(err.message || "Invalid username or password.");
-      generateCaptcha();
     } finally {
       setIsSubmitting(false);
     }
@@ -884,53 +811,6 @@ export default function LoginPage() {
                 {showPassword ? <FiEyeOff /> : <FiEye />}
               </button>
             </div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label" htmlFor="captcha-input">
-              CAPTCHA Verification
-            </label>
-            <div className="captcha-container">
-              <canvas
-                ref={canvasRef}
-                width="140"
-                height="38"
-                className="captcha-canvas"
-                title="CAPTCHA Challenge Code"
-              />
-              <button
-                type="button"
-                className="captcha-refresh-btn"
-                onClick={generateCaptcha}
-                title="Generate new CAPTCHA"
-                aria-label="Refresh CAPTCHA code"
-                disabled={isSubmitting}
-              >
-                <FiRefreshCw />
-              </button>
-            </div>
-            <div className="input-wrapper">
-              <FiShield className="input-icon" />
-              <input
-                id="captcha-input"
-                type="text"
-                className={`login-input ${fieldErrors.captcha ? "has-error" : ""}`}
-                placeholder="Enter CAPTCHA code"
-                value={userCaptcha}
-                onChange={(e) => {
-                  setUserCaptcha(e.target.value);
-                  if (fieldErrors.captcha) {
-                    setFieldErrors((prev) => ({ ...prev, captcha: null }));
-                  }
-                }}
-                disabled={isSubmitting}
-                maxLength={8}
-                autoComplete="off"
-              />
-            </div>
-            {fieldErrors.captcha && (
-              <div className="field-error-text">{fieldErrors.captcha}</div>
-            )}
           </div>
 
           <button type="submit" className="btn-submit" disabled={isSubmitting}>
