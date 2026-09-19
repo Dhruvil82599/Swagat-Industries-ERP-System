@@ -1,117 +1,227 @@
 # 🏭 Swagat Industries ERP & Quotation Management System
 
-A modern, full-stack Enterprise Resource Planning (ERP) and Quotation Management System tailored specifically for **Swagat Industries**, specializing in Rolling Shutter Manufacturing, Installation, Financial Management, and Payment Tracking.
+A production-grade, full-stack Enterprise Resource Planning (ERP) and Quotation Management System tailored specifically for **Swagat Industries**, specializing in Rolling Shutter Manufacturing, Multi-Site Installation Tracking, Technical Dimension Math Engine, PDF Generation, and Payment Ledger Management.
 
 ---
 
-## 📸 Application Showcase & Screenshots
+## 📋 Overview & Purpose
 
-### 🔐 Login & Authentication
-*Secure login interface featuring Swagat Industries branding, JWT token authentication, bcrypt password hashing, and protected route navigation wrappers.*
-![Login Screen](./FE/public/screenshots/login.png)
+Swagat Industries ERP streamlines end-to-end industrial manufacturing workflows from customer onboarding to quotation dispatch and payment reconciliation. The application enforces a strict hierarchical relational model:
 
-<br/>
-
-### 📊 Executive Dashboard & Financial Overview
-*Centralized executive dashboard showcasing 5 operational entity counters, a dedicated Payment & Financial Summary section with 3 distinct color-accented KPI cards, interactive hover micro-animations, live database health monitoring, and recent quotation streams.*
-![Executive Dashboard](./FE/public/screenshots/dashboard.png)
-
-<br/>
-
-### 👥 Customer Management & Real-Time Format Validation
-*Centralized customer relationship management with real-time Indian GSTIN (15-character uppercase regex) and 10-digit mobile number keyup validation badges.*
-![Customer Management](./FE/public/screenshots/customers.png)
-
-<br/>
-
-### 🏢 Industry & Corporate Client Directory
-*Multi-level corporate client management linking multiple industrial units and subsidiary accounts directly under parent customer records.*
-![Industry Directory](./FE/public/screenshots/industries.png)
-
-<br/>
-
-### 📍 Installation Sites & Locations
-*Multi-location site tracking with city locations, site supervisors, contact phone numbers, installation remarks, and linked shutter counts.*
-![Installation Sites](./FE/public/screenshots/sites.png)
-
-<br/>
-
-### 🚪 Rolling Shutters Master Catalog
-*Technical shutter catalog supporting custom height & width inputs in inches with automatic Sq.Ft calculations, fitting types (A-Type Guide Inside / B-Type Guide Outside), and drive mechanisms (Manual, Gear, Motorised).*
-![Shutters Master Catalog](./FE/public/screenshots/shutters.png)
-
-<br/>
-
-### 📜 Quotations & Financial Recalculation Engine
-*Automated quotation generator featuring a 14-column detailed breakdown table with 3 explicit financial total columns, formula calculation sequence banners, additional charges, transportation fees, configurable GST rates (0% to 28%), and discount management.*
-![Quotations Engine](./FE/public/screenshots/quotations.png)
+$$\text{Customer} \longrightarrow \text{Industry / Company} \longrightarrow \text{Installation Site} \longrightarrow \text{Rolling Shutter Catalog} \longrightarrow \text{Quotation} \longrightarrow \text{Payments}$$
 
 ---
 
-## 🌟 Key Features
+## 🔄 Complete Application Flow
 
-- 🔐 **JWT Authentication & Security**:
-  - Protected backend API routes enforced via JWT verification middleware (`jsonwebtoken`).
-  - Account security features with hashed passwords (`bcryptjs`), user details API, and modal password change.
-  - Client-side navigation control with `ProtectedRoute` wrappers and session persistence in LocalStorage.
-  - Public `/api/health` monitoring endpoint displaying real-time PostgreSQL database connectivity status.
+The system guides administrators through an integrated operational workflow:
 
-- 📊 **Executive Dashboard & Financial Summary**:
-  - **Master Data Operational Row**: 5 metric cards tracking total active Customers, Industrial Accounts, Installation Sites, Shutter Specs, and Total Quotations.
-  - **Payment & Financial Summary Section**: 3 visually segregated financial cards featuring:
-    - **Total Billed Amount** (`#059669` emerald border): Gross revenue across all finalized quotations.
-    - **Total Received Payments** (`#16A34A` success green border): Settled payment collections with status badge.
-    - **Outstanding Pending Balance** (`#DC2626` danger red border): Remaining receivable balance across active accounts.
-  - **Dynamic Micro-Interactions**: Smooth card elevation (`translateY(-4px)`), depth drop-shadows, and 1.1x icon scaling on hover.
-
-- 👥 **Client & Multi-Site Hierarchy**:
-  - **Customer Level**: Primary client profiles storing contact details, addresses, and GSTIN profiles.
-  - **Industry Level**: Corporate company units linked to parent customer entities.
-  - **Site Level**: Physical installation locations linked to industries with city locations and site supervisors.
-  - **Shutter Level**: Technical shutter specifications mapped per installation site.
-
-- 🚪 **Shutter Technical Specifications & Catalog**:
-  - Imperial dimension inputs (Height & Width in inches) automatically converted to Feet and Sq.Ft area.
-  - Support for 3 Drive Mechanisms: **Manual**, **Gear**, and **Motorised**.
-  - Support for 2 Fitting Types: **A-Type** (Guide Inside) and **B-Type** (Guide Outside).
-  - Configurable pricing attributes: Shutter Rate per Sq.Ft, GI Top Cover Rate per Sq.Ft, Gear prices, Motor prices, and per-item GST applicability flags.
-
-- 📜 **Quotation Calculation & Recalculation Engine**:
-  - Independent line-item snapshots preserving historical shutter specs per quotation.
-  - **14-Column Financial Table Breakdown**: Explicitly displays `Basic Total (No Cover)`, `GI Cover Total`, and `Shutter Price (Basic + Cover)`.
-  - **Step-by-Step Financial Sequence**:
-    1. Item Shutter Price calculation (`(Over H × Over W × Rate/Sqft) + Drive Price + GI Cover`).
-    2. Additional Charges (Clean Description & Amount inputs) & Transportation Fees.
-    3. Configurable GST percentages (0%, 5%, 12%, 18%, 28%) and automatic tax computation.
-    4. Flexible discount application with rationale notes.
-  - Full structural and visual parity across Wizard Item Editor, View Quotation Modal, and Printable PDF Preview.
-
-- 💳 **Payment Ledger & Balance Tracking**:
-  - Record advance payments, installments, and partial settlements per quotation.
-  - Multi-method support: **UPI**, **Cash**, **Cheque**, **Bank Transfer**, **Google Pay**.
-  - Detailed metadata logging: Transaction reference numbers, cheque numbers, cheque dates, and bank names.
-  - Real-time automatic balance recalculation (Total Paid vs Outstanding Balance) with visual payment status badges (**Paid**, **Partial**, **Unpaid**).
-
-- 🏢 **Company Settings & Quotation Terms**:
-  - **3-Card Architecture**:
-    - **Card 1: Company Profile**: Company Name, Logo URL, Mobile, Alt Mobile, Email, Website, GSTIN, PAN, Address, City/State/Pincode.
-    - **Card 2: Bank Account Details**: Bank Name, Account Number, IFSC Code, Branch Name for invoice payments.
-    - **Card 3: Configurable Terms & Conditions**: Interactive term management with order sorting (#), term title, clause text, active/inactive toggles, and CRUD actions.
-  - Automatic application of active company profile and terms to newly created quotation PDFs while preserving historical PDF integrity.
-
-- 🖨️ **Printable PDF Quotation Generator**:
-  - High-fidelity PDF preview modal (`QuotationPDFModal`) with browser printing capabilities.
-  - Formatted layout incorporating Swagat Industries letterhead logo, client info, shutter technical tables, itemized financial summaries, bank payment details, and terms & conditions footer.
-
-- 🛠️ **Data Validation & Integrity**:
-  - **GSTIN Format Validation**: Enforces standard 15-character Indian GSTIN format (`/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/`) forced to UPPERCASE with dynamic green (`✓`) and red (`✕`) key-release feedback counters.
-  - **Mobile Number Validation**: Enforces 10-digit mobile number format with real-time length feedback (`X/10`).
+```mermaid
+flowchart LR
+    A["🔐 1. Login & Auth"] --> B["📊 2. Executive Dashboard"]
+    B --> C["👥 3. Customers"]
+    C --> D["🏢 4. Industries"]
+    D --> E["📍 5. Sites"]
+    E --> F["🚪 6. Shutters Catalog"]
+    F --> G["📜 7. Quotations Engine"]
+    G --> H["💳 8. Payments Ledger"]
+    G --> I["🖨️ 9. PDF Quotation"]
+```
 
 ---
 
-## 🧮 Quotation Financial Calculation Engine
+## 📸 Application Screenshots & Module Walkthrough
 
-The shutter and quotation engine follows strict mathematical formulas across real-time frontend recalculations, backend controllers, and printable PDF documents:
+### 🔐 1. Authentication & Security (`01-auth/`)
+
+The authentication module features Swagat Industries branding, CAPTCHA challenge verification, JWT token persistence, and bcrypt password hashing.
+
+#### Login Screen
+*Clean, enterprise login interface with username, password, interactive canvas CAPTCHA, and password visibility toggle.*
+![Login Screen](./FE/public/screenshots/01-auth/login.png)
+
+#### Login Validation & Error Handling
+*Real-time validation badges displaying error alerts for invalid credentials or incorrect CAPTCHA code.*
+![Login Validation](./FE/public/screenshots/01-auth/login-validation.png)
+
+---
+
+### 📊 2. Executive Dashboard (`02-dashboard/`)
+
+Centralized operational hub displaying entity KPI counters, financial summary cards, live PostgreSQL database health indicator, and recent quotation streams.
+
+#### Executive Dashboard Overview
+*Dashboard featuring 5 operational metrics (Customers, Industries, Sites, Shutters, Quotations), Total Billed Amount, Received Payments, and Outstanding Pending Balance.*
+![Executive Dashboard](./FE/public/screenshots/02-dashboard/dashboard.png)
+
+---
+
+### 👥 3. Customer Management (`03-customers/`)
+
+Centralized CRM module managing primary client profiles, contact numbers, billing addresses, and Indian GSTIN (15-character uppercase regex) keyup format validations.
+
+#### Customers List View
+*Searchable table listing customer profiles, mobile numbers, GST numbers, addresses, and linked industrial unit counts.*
+![Customers List](./FE/public/screenshots/03-customers/customers-list.png)
+
+#### Add Customer Modal
+*Modal form for registering new customer profiles with real-time format validation indicators.*
+![Add Customer Modal](./FE/public/screenshots/03-customers/customer-add.png)
+
+#### Customer Form Data Entry
+*Data entry form filled with test Gujarat customer details (`Shree Ganesh Engineering Pvt. Ltd.`).*
+![Customer Data Entry](./FE/public/screenshots/03-customers/customer-filled.png)
+
+#### Customer Created
+*Updated customer directory showcasing newly registered customer entity.*
+![Customer Created](./FE/public/screenshots/03-customers/customer-created.png)
+
+#### Customer Details View Modal
+*Detailed profile view modal displaying complete customer info, GSTIN status, and linked company units.*
+![Customer View Details](./FE/public/screenshots/03-customers/customer-edit.png)
+
+---
+
+### 🏢 4. Industry / Company Management (`04-industries/`)
+
+Multi-level corporate client management linking industrial units and subsidiary accounts directly under parent customer records.
+
+#### Industries Directory List
+*Searchable table displaying industrial accounts, parent customer names, contact persons, and site counts.*
+![Industries List](./FE/public/screenshots/04-industries/industries-list.png)
+
+#### Add Industry Modal
+*Cascading dropdown modal for registering industrial units (`Shree Ganesh Engineering Unit`).*
+![Add Industry Modal](./FE/public/screenshots/04-industries/industry-add.png)
+
+#### Industry Entity Created
+*Updated industry list reflecting newly created company unit.*
+![Industry Created](./FE/public/screenshots/04-industries/industry-created.png)
+
+---
+
+### 📍 5. Site / Location Management (`05-sites/`)
+
+Multi-location site tracking with city locations, site supervisors, contact numbers, installation remarks, and linked shutter catalog counts.
+
+#### Sites List View
+*Table displaying physical installation locations, city tags, site contacts, and shutter specifications.*
+![Sites List](./FE/public/screenshots/05-sites/sites-list.png)
+
+#### Add Site Modal
+*Form modal for registering installation sites (`Vatva Manufacturing Plant`, Ahmedabad).*
+![Add Site Modal](./FE/public/screenshots/05-sites/site-add.png)
+
+#### Site Registered
+*Directory listing displaying newly added installation site location.*
+![Site Created](./FE/public/screenshots/05-sites/site-created.png)
+
+---
+
+### 🚪 6. Rolling Shutters Master Catalog & Math Engine (`06-shutters/`)
+
+Technical shutter catalog supporting custom Height & Width inputs in inches, automatic Sq.Ft calculations, fitting types (**A Type** Guide Inside / **B Type** Guide Outside), and drive mechanisms (**Manual**, **Gear**, **Motorised**).
+
+#### Shutters Catalog List
+*Master catalog table displaying shutter dimensions, converted feet, drive mechanism badges, rate per sq.ft, and calculated total basic price.*
+![Shutters List](./FE/public/screenshots/06-shutters/shutters-list.png)
+
+#### Manual Shutter Specification
+*Form modal specifying a Manual Shutter (`120" × 144"`, Height +1.50' & Width +0.50' allowances).*
+![Manual Shutter](./FE/public/screenshots/06-shutters/shutter-manual.png)
+
+#### Gear Shutter Specification
+*Form modal specifying a Heavy Duty Gear Shutter (`144" × 180"`, Height +2.00' & Width +0.75' allowances, Gear Price ₹3,500).*
+![Gear Shutter](./FE/public/screenshots/06-shutters/shutter-gear.png)
+
+#### Motorised Shutter Specification
+*Form modal specifying an Automated Motorised Shutter (`180" × 216"`, Motor Price ₹12,500).*
+![Motorised Shutter](./FE/public/screenshots/06-shutters/shutter-motorised.png)
+
+#### Live Shutter Calculation Preview
+*Real-time live math calculation banner displaying Over Height, Over Width, Total Sq.Ft., GI Top Cover Size, Shutter Basic, and Item Basic Total.*
+![Shutter Calculation Engine](./FE/public/screenshots/06-shutters/shutter-calculation.png)
+
+---
+
+### 📜 7. Quotation Engine (`07-quotations/`)
+
+Automated quotation generator featuring cascading customer-industry-site selection, shutter snapshots, additional charges, transportation fees, configurable GST rates (0% to 28%), and discount handling.
+
+#### Quotations List View
+*Table listing generated quotations, quotation numbers, dates, customer details, total amounts, paid amounts, and pending balances.*
+![Quotations List](./FE/public/screenshots/07-quotations/quotations-list.png)
+
+#### Create Quotation Wizard
+*Interactive quotation wizard with customer, industry, site dropdowns, and shutter item selection checkboxes.*
+![Create Quotation](./FE/public/screenshots/07-quotations/quotation-create.png)
+
+#### Live Financial Recalculation Summary
+*Live financial computation panel showing Shutter Basic Total, GI Top Cover Total, Transportation, GST, and Final Total.*
+![Quotation Financial Engine](./FE/public/screenshots/07-quotations/quotation-calculation.png)
+
+#### View Quotation Modal
+*Modal displaying full quotation line items, dimension math breakdowns, and financial summaries.*
+![Quotation Details View](./FE/public/screenshots/07-quotations/quotation-view.png)
+
+#### Quotation Search & Filtering
+*Search filter isolating quotation records by customer name or quotation number.*
+![Quotation Search](./FE/public/screenshots/07-quotations/quotation-search.png)
+
+---
+
+### 💳 8. Payment Ledger & Balance Tracking (`08-payments/`)
+
+Transaction ledger tracking advance payments, partial settlements, and full payments per quotation with multi-method support (**UPI**, **Cash**, **Cheque**, **Bank Transfer**, **Google Pay**).
+
+#### Payments List View
+*Ledger table displaying payment dates, quotation numbers, payment methods, transaction reference numbers, and received amounts.*
+![Payments List](./FE/public/screenshots/08-payments/payments-list.png)
+
+#### Record Payment Modal
+*Form modal for recording new payment transactions against active quotations.*
+![Record Payment Modal](./FE/public/screenshots/08-payments/payment-add.png)
+
+#### Payment History & Balance Recalculation
+*Updated payment ledger displaying total collected revenue and automatically recalculated outstanding pending balances.*
+![Payment Ledger History](./FE/public/screenshots/08-payments/payment-history.png)
+
+---
+
+### 🏢 9. Company Settings & Terms (`09-settings/`)
+
+Architecture managing company profile branding, GSTIN/PAN details, bank account info for invoice payments, and configurable PDF terms & conditions.
+
+#### Company Settings & Terms Management
+*Centralized company settings dashboard featuring company profile cards, bank details, and quotation terms clauses.*
+![Company Settings](./FE/public/screenshots/09-settings/company-settings.png)
+![Quotation Terms](./FE/public/screenshots/09-settings/quotation-terms.png)
+
+---
+
+### 🖨️ 10. Printable PDF Quotation (`10-pdf/`)
+
+High-fidelity PDF preview modal incorporating Swagat Industries letterhead logo, customer details, shutter specification table, itemized financial summary, bank payment instructions, and terms & conditions footer.
+
+#### Printable PDF Quotation Preview
+*Clean, formatted printable quotation PDF preview ready for browser printing or client download.*
+![Printable PDF Quotation](./FE/public/screenshots/10-pdf/quotation-pdf-preview.png)
+
+---
+
+### 🛠️ 11. Real-Time Field Validations (`11-validation/`)
+
+Strict client-side and server-side input validation enforcing required fields, positive dimension values, 10-digit mobile numbers, and 15-character uppercase Indian GSTIN format.
+
+#### Field Validation Badges
+*Form displaying dynamic red alert error messages for missing or invalid form input fields.*
+![Form Field Validations](./FE/public/screenshots/11-validation/field-validations.png)
+
+---
+
+## 🧮 Quotation Financial Calculation Engine Math
+
+The calculation engine follows strict mathematical formulas across real-time frontend recalculations, backend controllers, and printable PDF documents:
 
 ### 1. Dimension & Conversion Formulas
 $$\text{Height (ft)} = \text{ROUND}\left(\frac{\text{Height (inches)}}{12}, 2\right)$$
@@ -142,11 +252,11 @@ $$\text{Outstanding Pending Balance} = \text{Final Total} - \sum \text{Recorded 
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Technology Stack
 
 ### Frontend (`/FE`)
 - **Framework**: React 18 (`v18.3.1`) + Vite 6 (`v6.0.7`)
-- **Styling**: Bootstrap 5 (`v5.3.3`) + Custom CSS Design Tokens
+- **Styling**: Bootstrap 5 (`v5.3.3`) + Custom CSS Variables & Animations
 - **Icons**: React Icons (`fi` Feather Icons `v5.4.0`)
 - **Routing**: React Router DOM (`v6.28.1`)
 - **State & Toast**: React Context API (`AuthContext`, `ToastContext`)
@@ -160,14 +270,14 @@ $$\text{Outstanding Pending Balance} = \text{Final Total} - \sum \text{Recorded 
 
 ---
 
-## 🔌 API Endpoints Summary
+## 🔌 REST API Endpoints
 
 | Module | Method | Endpoint | Description | Auth Required |
 | :--- | :--- | :--- | :--- | :---: |
-| **Auth** | `POST` | `/api/auth/login` | Authenticate user & generate JWT token | ❌ |
-| **Auth** | `GET` | `/api/auth/me` | Fetch currently authenticated user profile | 🟢 |
-| **Auth** | `PUT` | `/api/auth/change-password` | Update current user account password | 🟢 |
-| **Dashboard** | `GET` | `/api/dashboard/stats` | Retrieve operational & financial KPI metrics | 🟢 |
+| **Auth** | `POST` | `/api/auth/login` | Authenticate admin user & issue JWT token | ❌ |
+| **Auth** | `GET` | `/api/auth/me` | Fetch authenticated admin profile | 🟢 |
+| **Auth** | `POST` | `/api/auth/change-password` | Update current user password | 🟢 |
+| **Dashboard** | `GET` | `/api/dashboard` | Retrieve operational & financial KPI metrics | 🟢 |
 | **Customers** | `GET` | `/api/customers` | Fetch all customer records | 🟢 |
 | **Customers** | `POST` | `/api/customers` | Create new customer profile | 🟢 |
 | **Customers** | `GET / PUT / DELETE` | `/api/customers/:id` | View, update, or remove customer | 🟢 |
@@ -177,7 +287,7 @@ $$\text{Outstanding Pending Balance} = \text{Final Total} - \sum \text{Recorded 
 | **Sites** | `GET` | `/api/sites` | Fetch installation site locations | 🟢 |
 | **Sites** | `POST` | `/api/sites` | Create new installation site | 🟢 |
 | **Sites** | `GET / PUT / DELETE` | `/api/sites/:id` | View, update, or remove site | 🟢 |
-| **Shutters** | `GET` | `/api/shutters` | Fetch shutter specs catalog | 🟢 |
+| **Shutters** | `GET` | `/api/shutters` | Fetch shutter master catalog | 🟢 |
 | **Shutters** | `POST` | `/api/shutters` | Create new shutter specification | 🟢 |
 | **Shutters** | `GET / PUT / DELETE` | `/api/shutters/:id` | View, update, or remove shutter spec | 🟢 |
 | **Quotations** | `GET` | `/api/quotations` | Fetch quotations list | 🟢 |
@@ -185,10 +295,9 @@ $$\text{Outstanding Pending Balance} = \text{Final Total} - \sum \text{Recorded 
 | **Quotations** | `GET / PUT / DELETE` | `/api/quotations/:id` | View detail, update, or delete quotation | 🟢 |
 | **Payments** | `GET` | `/api/payments` | Fetch payment transactions ledger | 🟢 |
 | **Payments** | `POST` | `/api/payments` | Record payment against quotation | 🟢 |
-| **Payments** | `DELETE` | `/api/payments/:id` | Delete payment entry & recalculate balance | 🟢 |
-| **Company Settings** | `GET` | `/api/company-settings` | Fetch company profile & banking details | 🟢 |
-| **Company Settings** | `PUT` | `/api/company-settings` | Update company profile & banking details | 🟢 |
-| **Quotation Terms** | `GET / POST` | `/api/quotation-terms` | Fetch or create quotation terms | 🟢 |
+| **Payments** | `GET / PUT / DELETE` | `/api/payments/:id` | View detail, update, or delete payment | 🟢 |
+| **Company Settings** | `GET / PUT` | `/api/company-settings` | Fetch or update company profile & bank details | 🟢 |
+| **Quotation Terms** | `GET / POST` | `/api/quotation-terms` | Fetch or create quotation terms clauses | 🟢 |
 | **Quotation Terms** | `PUT / DELETE` | `/api/quotation-terms/:id` | Update or delete quotation term clause | 🟢 |
 | **Health Check** | `GET` | `/api/health` | Health check & PostgreSQL DB status | ❌ |
 
@@ -214,171 +323,94 @@ The application utilizes **Prisma ORM** connected to **PostgreSQL** with 11 rela
 
 ---
 
-## 📁 Repository Structure
+## 📁 Project Repository Structure
 
 ```text
 Swagat-Industries-ERP-System/
 ├── FE/                             # Frontend Application (React 18 + Vite 6)
-│   ├── public/                     # Static Assets, Logos & Documentation Screenshots
-│   │   ├── logo.png                # Swagat Industries Brand Logo
+│   ├── public/                     # Static Assets & Screenshots
+│   │   ├── logo.png                # Brand Logo
 │   │   └── screenshots/            # Showcase UI Screenshots
-│   │       ├── login.png           # Login Screen
-│   │       ├── dashboard.png       # Executive Dashboard
-│   │       ├── customers.png       # Customer Management
-│   │       ├── industries.png      # Corporate Industry Directory
-│   │       ├── sites.png           # Installation Sites
-│   │       ├── shutters.png        # Rolling Shutters Master Catalog
-│   │       └── quotations.png      # Quotation Calculation Engine
+│   │       ├── 01-auth/            # Login & Validation Screenshots
+│   │       ├── 02-dashboard/       # Executive Dashboard Screenshot
+│   │       ├── 03-customers/       # Customer Management Screenshots
+│   │       ├── 04-industries/      # Corporate Industry Directory Screenshots
+│   │       ├── 05-sites/           # Installation Sites Screenshots
+│   │       ├── 06-shutters/        # Shutters Catalog & Math Screenshots
+│   │       ├── 07-quotations/      # Quotations Engine Screenshots
+│   │       ├── 08-payments/        # Payments Ledger Screenshots
+│   │       ├── 09-settings/        # Company Settings & Terms Screenshots
+│   │       ├── 10-pdf/             # Printable PDF Preview Screenshot
+│   │       └── 11-validation/      # Form Validation Badges Screenshot
 │   ├── src/
-│   │   ├── components/             # Reusable Layout & Modal Components
-│   │   │   ├── Auth/               # ProtectedRoute Wrapper
-│   │   │   ├── Layout/             # Navbar, Sidebar, AppLayout
-│   │   │   └── UI/                 # Toast, ConfirmModal, QuotationPDFModal, QuotationTermsModal
+│   │   ├── components/             # Auth, Layout (Navbar, Sidebar), UI Modals
 │   │   ├── context/                # AuthContext & ToastContext Providers
-│   │   ├── pages/                  # Dashboard, Customers, Industries, Sites, Shutters, Quotations, Payments, CompanySettings, Login
-│   │   ├── services/               # Axios/Fetch API Layer (`api.js`, `authAPI.js`)
+│   │   ├── pages/                  # Dashboard, Customers, Industries, Sites, Shutters, Quotations, Payments, Settings, Login
+│   │   ├── services/               # API Service Layer (`api.js`)
 │   │   ├── styles/                 # Theme CSS, Variables & Component Styles
 │   │   ├── utils/                  # Input Validation & Format Helpers
-│   │   ├── App.jsx                 # Client Application Routes & Providers
+│   │   ├── App.jsx                 # Routes & Context Providers
 │   │   └── main.jsx                # React Entry Point
 │   ├── package.json
 │   └── vite.config.js
 │
 ├── BE/                             # Backend API Server (Node.js + Express + Prisma)
 │   ├── prisma/                     # Database ORM Configuration
-│   │   ├── schema.prisma           # PostgreSQL Prisma Relational Models
-│   │   └── seed.js                 # Database Seeding Script (Admin User & Configuration)
+│   │   ├── schema.prisma           # PostgreSQL Relational Models
+│   │   └── seed.js                 # Admin User & Initial Configuration Seeding
 │   ├── src/
 │   │   ├── config/                 # Prisma DB Connection Setup (`db.js`)
-│   │   ├── controllers/            # Controller Handlers for all 11 ERP Modules
-│   │   ├── middlewares/            # JWT Authentication Middleware (`authMiddleware.js`)
-│   │   ├── routes/                 # Express Router Modules
-│   │   ├── utils/                  # Financial Math Calculations & Response Wrappers
-│   │   ├── app.js                  # Express Application Setup & CORS Configuration
+│   │   ├── controllers/            # Controller Handlers for all ERP Modules
+│   │   ├── middlewares/            # JWT Auth & Error Handling Middleware
+│   │   ├── routes/                 # Express API Router Modules
+│   │   ├── utils/                  # Financial Math Engine & Response Handlers
+│   │   ├── app.js                  # Express App Setup & Middleware Configuration
 │   │   └── server.js               # Backend Server Entry Point
-│   ├── .env.example                # Environment Variables Template
+│   ├── .env                    # Environment Configuration
 │   └── package.json
 │
-├── backups/                        # Safety Database Export Backups
-│   └── before-dummy-data-cleanup.json
-├── README.md                       # Comprehensive Project Documentation
-├── phase-10.md                     # Executive Dashboard & Validation Requirements
-├── phase-11.md                     # Company Settings Architecture
-├── phase-12.md                     # Database Backup & Migration Guide
-└── phase-13.md                     # Final UI Polish & Business Verification Checklist
+├── errors.md                       # Comprehensive Testing & Error Audit Log
+└── README.md                       # Main Project Documentation
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Installation & Running Guide
 
 ### Prerequisites
-
-Ensure the following tools are installed on your workstation:
 - **Node.js** (v18.x or higher)
 - **npm** (v9.x or higher)
 - **PostgreSQL** Database Server (v14.x or higher)
 
----
-
 ### 1. Backend Setup (`/BE`)
-
-1. Open a terminal and navigate to the backend directory:
-   ```bash
-   cd BE
-   ```
-
-2. Install backend Node.js dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Configure Environment Variables:
-   Create a `.env` file inside the `BE/` directory based on `.env.example`:
-   ```env
-   PORT=5000
-   DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@localhost:5432/swagat_erp?schema=public"
-   JWT_SECRET="swagat_erp_super_secret_jwt_key_2026"
-   ADMIN_USERNAME="admin"
-   ADMIN_PASSWORD="adminpassword123"
-   ```
-
-4. Run PostgreSQL Schema Migrations & Generate Prisma Client:
-   ```bash
-   npm run prisma:migrate
-   npm run prisma:generate
-   ```
-
-5. Seed Initial Admin User & Configuration:
-   ```bash
-   npm run prisma:seed
-   ```
-
-6. Start the Backend Development Server:
-   ```bash
-   npm run dev
-   ```
-   The API server will start on `http://localhost:5000` with live reloading.
-
----
+```bash
+cd BE
+npm install
+npm run prisma:migrate
+npm run prisma:generate
+npm run prisma:seed
+npm run dev
+```
+Backend API will start on `http://localhost:5000`.
 
 ### 2. Frontend Setup (`/FE`)
-
-1. Open a new terminal tab and navigate to the frontend directory:
-   ```bash
-   cd FE
-   ```
-
-2. Install frontend React dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Start the Vite Development Server:
-   ```bash
-   npm run dev
-   ```
-   The application will run locally on `http://localhost:3000` (or `http://localhost:5173`).
+```bash
+cd FE
+npm install
+npm run dev
+```
+Frontend Vite server will start on `http://localhost:3000`.
 
 ---
 
-## 💾 Database Backup & Restore Guide
+## 🧪 Testing & Verification
 
-### 1. Creating a Database Backup
-To create a complete SQL backup of the PostgreSQL database:
-```bash
-pg_dump -U postgres -d swagat_erp -F c -b -v -f "backups/swagat_erp_backup_$(date +%Y%m%d).dump"
-```
+During browser-based functional testing via Python Playwright automation, all dummy business data was entered **exclusively through the frontend user interface**:
 
-### 2. Restoring Database from Backup
-To restore a saved PostgreSQL backup dump:
-```bash
-# 1. Drop existing database if restoring fresh
-dropdb -U postgres swagat_erp
-
-# 2. Create fresh database
-createdb -U postgres swagat_erp
-
-# 3. Restore dump file
-pg_restore -U postgres -d swagat_erp -v "backups/swagat_erp_backup_YYYYMMDD.dump"
-```
-
----
-
-## 💡 Useful Commands
-
-### Backend (`BE/`)
-- `npm run dev` — Launch backend server with live reload (`node --watch src/server.js`)
-- `npm run start` — Run backend in production mode
-- `npm run prisma:migrate` — Run Prisma schema migrations (`prisma migrate dev`)
-- `npm run prisma:generate` — Generate Prisma Client code
-- `npm run prisma:seed` — Seed initial database records (`admin` account)
-- `npm run prisma:studio` — Open Prisma Studio GUI to inspect PostgreSQL tables
-
-### Frontend (`FE/`)
-- `npm run dev` — Start Vite frontend dev server (`http://localhost:3000`)
-- `npm run build` — Build optimized production bundle
-- `npm run preview` — Locally preview production build
+- **Real Browser Automation**: Tested via Chromium browser on `http://localhost:3000`.
+- **UI Data Entry**: 100% of customers, industries, sites, shutter specifications, quotations, and payments were created via frontend form modals.
+- **Validation Testing**: Verified required fields, mobile number format, GSTIN 15-character uppercase format, and numeric input boundaries.
+- **Error Audit Log**: Detailed testing logs and error audit details are documented separately in [errors.md](./errors.md).
 
 ---
 
