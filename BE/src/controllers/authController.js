@@ -215,9 +215,7 @@ const forgotPassword = async (req, res) => {
       res,
       {
         username: user.username,
-        emailMasked: targetEmail.replace(/(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => gp2 + '*'.repeat(gp3.length)),
-        devSimulated: mailResult.simulated || false,
-        devOtp: process.env.NODE_ENV !== 'production' ? otp : undefined
+        emailMasked: targetEmail.replace(/(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => gp2 + '*'.repeat(gp3.length))
       },
       `Verification OTP code sent successfully to registered email (${targetEmail.replace(/(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => gp2 + '*'.repeat(gp3.length))}).`
     );
