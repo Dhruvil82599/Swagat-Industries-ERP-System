@@ -2,7 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
-import { FiCheckCircle, FiAlertCircle, FiUser, FiLogOut, FiSettings } from "react-icons/fi";
+import {
+  FiCheckCircle,
+  FiAlertCircle,
+  FiUser,
+  FiLogOut,
+  FiSettings,
+} from "react-icons/fi";
 
 export default function Navbar({ title = "Master Data" }) {
   const navigate = useNavigate();
@@ -182,7 +188,8 @@ export default function Navbar({ title = "Master Data" }) {
               padding: "24px",
               maxWidth: "380px",
               width: "90%",
-              boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+              boxShadow:
+                "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
               border: "1px solid #E2E8F0",
             }}
           >
@@ -204,9 +211,16 @@ export default function Navbar({ title = "Master Data" }) {
                 lineHeight: "1.4",
               }}
             >
-              Are you sure you want to log out? You will need to enter your credentials again to access the system.
+              Are you sure you want to log out? You will need to enter your
+              credentials again to access the system.
             </p>
-            <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                justifyContent: "flex-end",
+              }}
+            >
               <button
                 onClick={() => setShowLogoutConfirm(false)}
                 style={{

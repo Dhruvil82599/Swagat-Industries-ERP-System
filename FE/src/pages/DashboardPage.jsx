@@ -132,443 +132,528 @@ export default function DashboardPage() {
         </div>
       ) : (
         <>
-          {/* 8 Summary Cards Grid */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-              gap: "18px",
-              marginBottom: "28px",
-            }}
-          >
-            {/* Card 1: Total Customers */}
-            <div
-              className="erp-card"
+          {/* Section 1: Master Data Operations Grid */}
+          <div style={{ marginBottom: "28px" }}>
+            <h2
               style={{
-                padding: "20px",
+                fontSize: "14px",
+                fontWeight: 700,
+                color: "var(--text-secondary)",
+                textTransform: "uppercase",
+                letterSpacing: "0.8px",
+                marginBottom: "14px",
                 display: "flex",
                 alignItems: "center",
-                gap: "16px",
-                cursor: "pointer",
-                transition: "transform 0.15s ease, box-shadow 0.15s ease",
+                gap: "8px",
               }}
-              onClick={() => navigate("/customers")}
             >
+              <FiLayers style={{ color: "var(--primary)" }} /> Master Data & Operational Entities
+            </h2>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                gap: "16px",
+              }}
+            >
+              {/* Card 1: Total Customers */}
               <div
+                className="erp-card dashboard-stat-card"
                 style={{
-                  width: "50px",
-                  height: "50px",
-                  borderRadius: "12px",
-                  backgroundColor: "rgba(37, 99, 235, 0.1)",
-                  color: "#2563EB",
+                  padding: "18px",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "24px",
-                  flexShrink: 0,
+                  gap: "14px",
+                  cursor: "pointer",
+                  marginBottom: 0,
                 }}
+                onClick={() => navigate("/customers")}
               >
-                <FiUsers />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
                 <div
+                  className="stat-icon-wrapper"
                   style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    color: "var(--text-secondary)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.5px",
+                    width: "46px",
+                    height: "46px",
+                    borderRadius: "10px",
+                    backgroundColor: "rgba(37, 99, 235, 0.1)",
+                    color: "#2563EB",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "22px",
+                    flexShrink: 0,
                   }}
                 >
-                  Total Customers
+                  <FiUsers />
                 </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      color: "var(--text-secondary)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    Customers
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "22px",
+                      fontWeight: 800,
+                      color: "var(--text-primary)",
+                      marginTop: "2px",
+                    }}
+                  >
+                    {stats?.totalCustomers || 0}
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: Total Industries */}
+              <div
+                className="erp-card dashboard-stat-card"
+                style={{
+                  padding: "18px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "14px",
+                  cursor: "pointer",
+                  marginBottom: 0,
+                }}
+                onClick={() => navigate("/industries")}
+              >
                 <div
+                  className="stat-icon-wrapper"
                   style={{
-                    fontSize: "24px",
-                    fontWeight: 800,
-                    color: "var(--text-primary)",
-                    marginTop: "2px",
+                    width: "46px",
+                    height: "46px",
+                    borderRadius: "10px",
+                    backgroundColor: "rgba(147, 51, 234, 0.1)",
+                    color: "#9333EA",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "22px",
+                    flexShrink: 0,
                   }}
                 >
-                  {stats?.totalCustomers || 0}
+                  <FiBriefcase />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      color: "var(--text-secondary)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    Industries / Units
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "22px",
+                      fontWeight: 800,
+                      color: "var(--text-primary)",
+                      marginTop: "2px",
+                    }}
+                  >
+                    {stats?.totalIndustries || 0}
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3: Total Sites */}
+              <div
+                className="erp-card dashboard-stat-card"
+                style={{
+                  padding: "18px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "14px",
+                  cursor: "pointer",
+                  marginBottom: 0,
+                }}
+                onClick={() => navigate("/sites")}
+              >
+                <div
+                  className="stat-icon-wrapper"
+                  style={{
+                    width: "46px",
+                    height: "46px",
+                    borderRadius: "10px",
+                    backgroundColor: "rgba(13, 148, 136, 0.1)",
+                    color: "#0D9488",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "22px",
+                    flexShrink: 0,
+                  }}
+                >
+                  <FiMapPin />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      color: "var(--text-secondary)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    Sites / Locations
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "22px",
+                      fontWeight: 800,
+                      color: "var(--text-primary)",
+                      marginTop: "2px",
+                    }}
+                  >
+                    {stats?.totalSites || 0}
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 4: Total Shutters */}
+              <div
+                className="erp-card dashboard-stat-card"
+                style={{
+                  padding: "18px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "14px",
+                  cursor: "pointer",
+                  marginBottom: 0,
+                }}
+                onClick={() => navigate("/shutters")}
+              >
+                <div
+                  className="stat-icon-wrapper"
+                  style={{
+                    width: "46px",
+                    height: "46px",
+                    borderRadius: "10px",
+                    backgroundColor: "rgba(217, 119, 6, 0.1)",
+                    color: "#D97706",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "22px",
+                    flexShrink: 0,
+                  }}
+                >
+                  <FiLayers />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      color: "var(--text-secondary)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    Shutters Master
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "22px",
+                      fontWeight: 800,
+                      color: "var(--text-primary)",
+                      marginTop: "2px",
+                    }}
+                  >
+                    {stats?.totalShutters || 0}
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 5: Total Quotations */}
+              <div
+                className="erp-card dashboard-stat-card"
+                style={{
+                  padding: "18px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "14px",
+                  cursor: "pointer",
+                  marginBottom: 0,
+                }}
+                onClick={() => navigate("/quotations")}
+              >
+                <div
+                  className="stat-icon-wrapper"
+                  style={{
+                    width: "46px",
+                    height: "46px",
+                    borderRadius: "10px",
+                    backgroundColor: "rgba(79, 70, 229, 0.1)",
+                    color: "#4F46E5",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "22px",
+                    flexShrink: 0,
+                  }}
+                >
+                  <FiFileText />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      fontWeight: 600,
+                      color: "var(--text-secondary)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    Quotations Created
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "22px",
+                      fontWeight: 800,
+                      color: "var(--text-primary)",
+                      marginTop: "2px",
+                    }}
+                  >
+                    {stats?.totalQuotations || 0}
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Card 2: Total Industries */}
+          {/* Section 2: Dedicated Payment & Financial Metrics Cards */}
+          <div style={{ marginBottom: "28px" }}>
             <div
-              className="erp-card"
               style={{
-                padding: "20px",
                 display: "flex",
+                justifyContent: "space-between",
                 alignItems: "center",
-                gap: "16px",
-                cursor: "pointer",
-                transition: "transform 0.15s ease, box-shadow 0.15s ease",
+                marginBottom: "14px",
               }}
-              onClick={() => navigate("/industries")}
             >
-              <div
-                style={{
-                  width: "50px",
-                  height: "50px",
-                  borderRadius: "12px",
-                  backgroundColor: "rgba(147, 51, 234, 0.1)",
-                  color: "#9333EA",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "24px",
-                  flexShrink: 0,
-                }}
-              >
-                <FiBriefcase />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
+              <div>
+                <h2
                   style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
+                    fontSize: "14px",
+                    fontWeight: 700,
                     color: "var(--text-secondary)",
                     textTransform: "uppercase",
-                    letterSpacing: "0.5px",
+                    letterSpacing: "0.8px",
+                    margin: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
                   }}
                 >
-                  Industries / Units
-                </div>
-                <div
-                  style={{
-                    fontSize: "24px",
-                    fontWeight: 800,
-                    color: "var(--text-primary)",
-                    marginTop: "2px",
-                  }}
-                >
-                  {stats?.totalIndustries || 0}
-                </div>
+                  <FiCreditCard style={{ color: "#059669" }} /> Payment & Financial Summary
+                </h2>
               </div>
+              <button
+                className="btn-outline-swagat"
+                style={{ padding: "4px 12px", fontSize: "12px" }}
+                onClick={() => navigate("/payments")}
+              >
+                Manage Payments <FiArrowRight />
+              </button>
             </div>
 
-            {/* Card 3: Total Sites */}
             <div
-              className="erp-card"
               style={{
-                padding: "20px",
-                display: "flex",
-                alignItems: "center",
-                gap: "16px",
-                cursor: "pointer",
-                transition: "transform 0.15s ease, box-shadow 0.15s ease",
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+                gap: "18px",
               }}
-              onClick={() => navigate("/sites")}
             >
+              {/* Payment Card 1: Total Quotation Amount */}
               <div
+                className="erp-card dashboard-stat-card"
                 style={{
-                  width: "50px",
-                  height: "50px",
-                  borderRadius: "12px",
-                  backgroundColor: "rgba(13, 148, 136, 0.1)",
-                  color: "#0D9488",
+                  padding: "22px",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "24px",
-                  flexShrink: 0,
+                  gap: "18px",
+                  cursor: "pointer",
+                  borderLeft: "5px solid #059669",
+                  marginBottom: 0,
+                  backgroundColor: "#FFFFFF",
                 }}
+                onClick={() => navigate("/quotations")}
               >
-                <FiMapPin />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
                 <div
+                  className="stat-icon-wrapper"
                   style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    color: "var(--text-secondary)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.5px",
-                  }}
-                >
-                  Total Sites
-                </div>
-                <div
-                  style={{
-                    fontSize: "24px",
-                    fontWeight: 800,
-                    color: "var(--text-primary)",
-                    marginTop: "2px",
-                  }}
-                >
-                  {stats?.totalSites || 0}
-                </div>
-              </div>
-            </div>
-
-            {/* Card 4: Total Shutters */}
-            <div
-              className="erp-card"
-              style={{
-                padding: "20px",
-                display: "flex",
-                alignItems: "center",
-                gap: "16px",
-                cursor: "pointer",
-                transition: "transform 0.15s ease, box-shadow 0.15s ease",
-              }}
-              onClick={() => navigate("/shutters")}
-            >
-              <div
-                style={{
-                  width: "50px",
-                  height: "50px",
-                  borderRadius: "12px",
-                  backgroundColor: "rgba(217, 119, 6, 0.1)",
-                  color: "#D97706",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "24px",
-                  flexShrink: 0,
-                }}
-              >
-                <FiLayers />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    color: "var(--text-secondary)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.5px",
-                  }}
-                >
-                  Total Shutters
-                </div>
-                <div
-                  style={{
-                    fontSize: "24px",
-                    fontWeight: 800,
-                    color: "var(--text-primary)",
-                    marginTop: "2px",
-                  }}
-                >
-                  {stats?.totalShutters || 0}
-                </div>
-              </div>
-            </div>
-
-            {/* Card 5: Total Quotations */}
-            <div
-              className="erp-card"
-              style={{
-                padding: "20px",
-                display: "flex",
-                alignItems: "center",
-                gap: "16px",
-                cursor: "pointer",
-                transition: "transform 0.15s ease, box-shadow 0.15s ease",
-              }}
-              onClick={() => navigate("/quotations")}
-            >
-              <div
-                style={{
-                  width: "50px",
-                  height: "50px",
-                  borderRadius: "12px",
-                  backgroundColor: "rgba(79, 70, 229, 0.1)",
-                  color: "#4F46E5",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "24px",
-                  flexShrink: 0,
-                }}
-              >
-                <FiFileText />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    color: "var(--text-secondary)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.5px",
-                  }}
-                >
-                  Total Quotations
-                </div>
-                <div
-                  style={{
-                    fontSize: "24px",
-                    fontWeight: 800,
-                    color: "var(--text-primary)",
-                    marginTop: "2px",
-                  }}
-                >
-                  {stats?.totalQuotations || 0}
-                </div>
-              </div>
-            </div>
-
-            {/* Card 6: Total Quotation Amount */}
-            <div
-              className="erp-card"
-              style={{
-                padding: "20px",
-                display: "flex",
-                alignItems: "center",
-                gap: "16px",
-                cursor: "pointer",
-                borderLeft: "4px solid #059669",
-              }}
-              onClick={() => navigate("/quotations")}
-            >
-              <div
-                style={{
-                  width: "50px",
-                  height: "50px",
-                  borderRadius: "12px",
-                  backgroundColor: "rgba(5, 150, 105, 0.1)",
-                  color: "#059669",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "24px",
-                  flexShrink: 0,
-                }}
-              >
-                <FiTrendingUp />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    color: "var(--text-secondary)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.5px",
-                  }}
-                >
-                  Total Quotation Amount
-                </div>
-                <div
-                  style={{
-                    fontSize: "20px",
-                    fontWeight: 800,
+                    width: "54px",
+                    height: "54px",
+                    borderRadius: "14px",
+                    backgroundColor: "rgba(5, 150, 105, 0.12)",
                     color: "#059669",
-                    marginTop: "2px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "26px",
+                    flexShrink: 0,
                   }}
                 >
-                  {formatCurrency(stats?.totalQuotationAmount)}
+                  <FiTrendingUp />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "var(--text-secondary)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    Total Quotation Value
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "22px",
+                      fontWeight: 800,
+                      color: "#059669",
+                      marginTop: "4px",
+                    }}
+                  >
+                    {formatCurrency(stats?.totalQuotationAmount)}
+                  </div>
+                  <div style={{ fontSize: "11px", color: "var(--text-secondary)", marginTop: "3px" }}>
+                    Gross billed across {stats?.totalQuotations || 0} quotations
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Card 7: Total Paid */}
-            <div
-              className="erp-card"
-              style={{
-                padding: "20px",
-                display: "flex",
-                alignItems: "center",
-                gap: "16px",
-                cursor: "pointer",
-                borderLeft: "4px solid #16A34A",
-              }}
-              onClick={() => navigate("/payments")}
-            >
+              {/* Payment Card 2: Total Payments Collected / Paid */}
               <div
+                className="erp-card dashboard-stat-card"
                 style={{
-                  width: "50px",
-                  height: "50px",
-                  borderRadius: "12px",
-                  backgroundColor: "rgba(22, 163, 74, 0.1)",
-                  color: "#16A34A",
+                  padding: "22px",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "24px",
-                  flexShrink: 0,
+                  gap: "18px",
+                  cursor: "pointer",
+                  borderLeft: "5px solid #16A34A",
+                  marginBottom: 0,
+                  backgroundColor: "#FFFFFF",
                 }}
+                onClick={() => navigate("/payments")}
               >
-                <FiCheckCircle />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
                 <div
+                  className="stat-icon-wrapper"
                   style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    color: "var(--text-secondary)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.5px",
-                  }}
-                >
-                  Total Paid
-                </div>
-                <div
-                  style={{
-                    fontSize: "20px",
-                    fontWeight: 800,
+                    width: "54px",
+                    height: "54px",
+                    borderRadius: "14px",
+                    backgroundColor: "rgba(22, 163, 74, 0.12)",
                     color: "#16A34A",
-                    marginTop: "2px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "26px",
+                    flexShrink: 0,
                   }}
                 >
-                  {formatCurrency(stats?.totalPaid)}
+                  <FiCheckCircle />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "var(--text-secondary)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    Total Received Payments
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "22px",
+                      fontWeight: 800,
+                      color: "#16A34A",
+                      marginTop: "4px",
+                    }}
+                  >
+                    {formatCurrency(stats?.totalPaid)}
+                  </div>
+                  <div style={{ fontSize: "11px", color: "#15803D", marginTop: "3px", fontWeight: 500 }}>
+                    ✓ Collected & recorded in system
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Card 8: Total Pending */}
-            <div
-              className="erp-card"
-              style={{
-                padding: "20px",
-                display: "flex",
-                alignItems: "center",
-                gap: "16px",
-                cursor: "pointer",
-                borderLeft: "4px solid #DC2626",
-              }}
-              onClick={() => navigate("/payments")}
-            >
+              {/* Payment Card 3: Total Pending Balance */}
               <div
+                className="erp-card dashboard-stat-card"
                 style={{
-                  width: "50px",
-                  height: "50px",
-                  borderRadius: "12px",
-                  backgroundColor: "rgba(220, 38, 38, 0.1)",
-                  color: "#DC2626",
+                  padding: "22px",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "24px",
-                  flexShrink: 0,
+                  gap: "18px",
+                  cursor: "pointer",
+                  borderLeft: "5px solid #DC2626",
+                  marginBottom: 0,
+                  backgroundColor: "#FFFFFF",
                 }}
+                onClick={() => navigate("/payments")}
               >
-                <FiClock />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
                 <div
+                  className="stat-icon-wrapper"
                   style={{
-                    fontSize: "12px",
-                    fontWeight: 600,
-                    color: "var(--text-secondary)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.5px",
-                  }}
-                >
-                  Total Pending
-                </div>
-                <div
-                  style={{
-                    fontSize: "20px",
-                    fontWeight: 800,
+                    width: "54px",
+                    height: "54px",
+                    borderRadius: "14px",
+                    backgroundColor: "rgba(220, 38, 38, 0.12)",
                     color: "#DC2626",
-                    marginTop: "2px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "26px",
+                    flexShrink: 0,
                   }}
                 >
-                  {formatCurrency(stats?.totalPending)}
+                  <FiClock />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "var(--text-secondary)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    Outstanding Pending Balance
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "22px",
+                      fontWeight: 800,
+                      color: "#DC2626",
+                      marginTop: "4px",
+                    }}
+                  >
+                    {formatCurrency(stats?.totalPending)}
+                  </div>
+                  <div style={{ fontSize: "11px", color: "#B91C1C", marginTop: "3px", fontWeight: 500 }}>
+                    ⚠ Remaining receivable balance
+                  </div>
                 </div>
               </div>
             </div>

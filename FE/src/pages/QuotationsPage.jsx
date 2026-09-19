@@ -725,7 +725,7 @@ export default function QuotationsPage() {
     const transportation = round2(
       parseFloat(formData.transportation_charges) || 0,
     );
-    const discount = round2(parseFloat(formData.discount_amount) || 0);
+    const discount = 0;
 
     let addlTotal = 0;
     formData.additional_charges.forEach((chg) => {
@@ -790,8 +790,8 @@ export default function QuotationsPage() {
           charge_type: chg.charge_type || chg.chargeType || "Quotation-wise",
           remark: chg.remark ? chg.remark.trim() : "",
         })),
-        discount_amount: parseFloat(formData.discount_amount) || 0,
-        discount_reason: formData.discount_reason,
+        discount_amount: 0,
+        discount_reason: "",
         gst_applicable: Boolean(formData.gst_applicable),
         gst_percent: parseFloat(formData.gst_percent) || 18,
         remark: formData.remark,
@@ -1815,7 +1815,7 @@ export default function QuotationsPage() {
                     <div
                       style={{
                         display: "grid",
-                        gridTemplateColumns: "1.2fr 1fr 1.8fr 1fr",
+                        gridTemplateColumns: "1fr 1fr",
                         gap: "16px",
                         marginBottom: "16px",
                       }}
@@ -1841,51 +1841,6 @@ export default function QuotationsPage() {
                             setFormData({
                               ...formData,
                               transportation_charges: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-
-                      {/* Discount Amount */}
-                      <div>
-                        <label className="form-label-swagat">
-                          Discount / Adjustment (₹)
-                        </label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          className="form-control-swagat"
-                          placeholder="e.g. 500"
-                          value={formData.discount_amount}
-                          onWheel={(e) => e.target.blur()}
-                          onKeyDown={(e) =>
-                            (e.key === "ArrowUp" || e.key === "ArrowDown") &&
-                            e.preventDefault()
-                          }
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              discount_amount: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-
-                      {/* Discount Reason */}
-                      <div>
-                        <label className="form-label-swagat">
-                          Discount Reason / Remark (Optional)
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control-swagat"
-                          placeholder="e.g. Special Festival Discount"
-                          value={formData.discount_reason || ""}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              discount_reason: e.target.value,
                             })
                           }
                         />

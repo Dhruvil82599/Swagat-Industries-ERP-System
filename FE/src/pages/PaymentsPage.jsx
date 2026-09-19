@@ -41,7 +41,8 @@ export default function PaymentsPage() {
   const [selectedPayment, setSelectedPayment] = useState(null);
 
   // Add/Edit Form states
-  const [selectedQuotationId, setSelectedQuotationId] = useState(initialQuotationId);
+  const [selectedQuotationId, setSelectedQuotationId] =
+    useState(initialQuotationId);
   const [formData, setFormData] = useState({
     quotation_id: initialQuotationId,
     payment_date: new Date().toISOString().split("T")[0],
@@ -79,12 +80,17 @@ export default function PaymentsPage() {
 
   // Handle opening add modal
   const openAddModal = (qid = "") => {
-    const targetQid = qid || initialQuotationId || (quotations[0]?.id ? String(quotations[0].id) : "");
+    const targetQid =
+      qid ||
+      initialQuotationId ||
+      (quotations[0]?.id ? String(quotations[0].id) : "");
     setSelectedPayment(null);
     setSelectedQuotationId(targetQid);
 
     // Calculate default payment amount as remaining pending amount if available
-    const selectedQ = quotations.find((q) => String(q.id) === String(targetQid));
+    const selectedQ = quotations.find(
+      (q) => String(q.id) === String(targetQid),
+    );
     const defaultAmount = selectedQ ? selectedQ.pendingAmount : "";
 
     setFormData({
@@ -108,12 +114,16 @@ export default function PaymentsPage() {
     setSelectedQuotationId(String(pay.quotationId));
     setFormData({
       quotation_id: String(pay.quotationId),
-      payment_date: pay.paymentDate ? new Date(pay.paymentDate).toISOString().split("T")[0] : new Date().toISOString().split("T")[0],
+      payment_date: pay.paymentDate
+        ? new Date(pay.paymentDate).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
       payment_amount: String(pay.paymentAmount),
       payment_method: pay.paymentMethod || "Cash",
       transaction_no: pay.transactionNo || "",
       cheque_no: pay.chequeNo || "",
-      cheque_date: pay.chequeDate ? new Date(pay.chequeDate).toISOString().split("T")[0] : "",
+      cheque_date: pay.chequeDate
+        ? new Date(pay.chequeDate).toISOString().split("T")[0]
+        : "",
       bank_name: pay.bankName || "",
       remark: pay.remark || "",
     });
@@ -134,13 +144,16 @@ export default function PaymentsPage() {
     setFormData((prev) => ({
       ...prev,
       quotation_id: qid,
-      payment_amount: selQ && !selectedPayment ? String(selQ.pendingAmount) : prev.payment_amount,
+      payment_amount:
+        selQ && !selectedPayment
+          ? String(selQ.pendingAmount)
+          : prev.payment_amount,
     }));
   };
 
   // Get current selected quotation object in form modal
   const currentSelectedQuotation = quotations.find(
-    (q) => String(q.id) === String(selectedQuotationId)
+    (q) => String(q.id) === String(selectedQuotationId),
   );
 
   // Form validation
@@ -156,7 +169,8 @@ export default function PaymentsPage() {
     } else if (currentSelectedQuotation) {
       // Calculate allowed max pending balance
       const totalPaidOthers = selectedPayment
-        ? currentSelectedQuotation.totalPaid - Number(selectedPayment.paymentAmount)
+        ? currentSelectedQuotation.totalPaid -
+          Number(selectedPayment.paymentAmount)
         : currentSelectedQuotation.totalPaid;
       const allowedMax = currentSelectedQuotation.finalTotal - totalPaidOthers;
       if (amt > allowedMax + 0.01) {
@@ -169,7 +183,8 @@ export default function PaymentsPage() {
     }
 
     if (
-      (formData.payment_method === "UPI" || formData.payment_method === "Google Pay") &&
+      (formData.payment_method === "UPI" ||
+        formData.payment_method === "Google Pay") &&
       (!formData.transaction_no || formData.transaction_no.trim() === "")
     ) {
       errors.transaction_no = `Transaction number is required for ${formData.payment_method}`;
@@ -265,10 +280,13 @@ export default function PaymentsPage() {
   });
 
   // Calculate KPIs
-  const totalCollected = payments.reduce((acc, p) => acc + Number(p.paymentAmount), 0);
+  const totalCollected = payments.reduce(
+    (acc, p) => acc + Number(p.paymentAmount),
+    0,
+  );
   const totalPendingAcrossQuotations = quotations.reduce(
     (acc, q) => acc + Number(q.pendingAmount || 0),
-    0
+    0,
   );
 
   const getMethodBadgeStyle = (method) => {
@@ -323,11 +341,26 @@ export default function PaymentsPage() {
             <FiCheckCircle />
           </div>
           <div>
-            <div style={{ fontSize: "13px", color: "var(--text-secondary)", fontWeight: 500 }}>
+            <div
+              style={{
+                fontSize: "13px",
+                color: "var(--text-secondary)",
+                fontWeight: 500,
+              }}
+            >
               Total Payments Received
             </div>
-            <div style={{ fontSize: "22px", fontWeight: 700, color: "var(--text-main)" }}>
-              ₹{totalCollected.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            <div
+              style={{
+                fontSize: "22px",
+                fontWeight: 700,
+                color: "var(--text-main)",
+              }}
+            >
+              ₹
+              {totalCollected.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })}
             </div>
           </div>
         </div>
@@ -358,11 +391,22 @@ export default function PaymentsPage() {
             <FiAlertCircle />
           </div>
           <div>
-            <div style={{ fontSize: "13px", color: "var(--text-secondary)", fontWeight: 500 }}>
+            <div
+              style={{
+                fontSize: "13px",
+                color: "var(--text-secondary)",
+                fontWeight: 500,
+              }}
+            >
               Total Pending Balance
             </div>
-            <div style={{ fontSize: "22px", fontWeight: 700, color: "#D97706" }}>
-              ₹{totalPendingAcrossQuotations.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            <div
+              style={{ fontSize: "22px", fontWeight: 700, color: "#D97706" }}
+            >
+              ₹
+              {totalPendingAcrossQuotations.toLocaleString("en-IN", {
+                minimumFractionDigits: 2,
+              })}
             </div>
           </div>
         </div>
@@ -393,10 +437,22 @@ export default function PaymentsPage() {
             <FiCreditCard />
           </div>
           <div>
-            <div style={{ fontSize: "13px", color: "var(--text-secondary)", fontWeight: 500 }}>
+            <div
+              style={{
+                fontSize: "13px",
+                color: "var(--text-secondary)",
+                fontWeight: 500,
+              }}
+            >
               Total Transactions
             </div>
-            <div style={{ fontSize: "22px", fontWeight: 700, color: "var(--text-main)" }}>
+            <div
+              style={{
+                fontSize: "22px",
+                fontWeight: 700,
+                color: "var(--text-main)",
+              }}
+            >
               {payments.length} Payments
             </div>
           </div>
@@ -405,8 +461,18 @@ export default function PaymentsPage() {
 
       {/* Main Table Card */}
       <div className="erp-card">
-        <div className="erp-card-header" style={{ flexWrap: "wrap", gap: "12px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
+        <div
+          className="erp-card-header"
+          style={{ flexWrap: "wrap", gap: "12px" }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "16px",
+              flexWrap: "wrap",
+            }}
+          >
             <h2 className="erp-card-title">
               <FiCreditCard style={{ color: "var(--primary)" }} />
               Payment History ({filteredPayments.length})
@@ -426,7 +492,9 @@ export default function PaymentsPage() {
 
             {/* Method Filter */}
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <FiFilter style={{ color: "var(--text-secondary)", fontSize: "14px" }} />
+              <FiFilter
+                style={{ color: "var(--text-secondary)", fontSize: "14px" }}
+              />
               <select
                 className="form-control-swagat"
                 style={{ padding: "6px 12px", fontSize: "13px" }}
@@ -450,11 +518,23 @@ export default function PaymentsPage() {
         {/* Table View */}
         <div style={{ overflowX: "auto" }}>
           {loading ? (
-            <div style={{ padding: "40px", textAlign: "center", color: "var(--text-secondary)" }}>
+            <div
+              style={{
+                padding: "40px",
+                textAlign: "center",
+                color: "var(--text-secondary)",
+              }}
+            >
               Loading payment records...
             </div>
           ) : filteredPayments.length === 0 ? (
-            <div style={{ padding: "40px", textAlign: "center", color: "var(--text-secondary)" }}>
+            <div
+              style={{
+                padding: "40px",
+                textAlign: "center",
+                color: "var(--text-secondary)",
+              }}
+            >
               {search || methodFilter !== "All"
                 ? "No payments found matching your filter criteria."
                 : 'No payments recorded yet. Click "Record Payment" to record a payment.'}
@@ -471,7 +551,9 @@ export default function PaymentsPage() {
                   <th>Payment Method</th>
                   <th>Ref / Transaction No.</th>
                   <th style={{ textAlign: "right" }}>Amount (₹)</th>
-                  <th style={{ width: "120px", textAlign: "right" }}>Actions</th>
+                  <th style={{ width: "120px", textAlign: "right" }}>
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -482,7 +564,11 @@ export default function PaymentsPage() {
                       <td>{idx + 1}</td>
                       <td>
                         <span style={{ fontSize: "13px", fontWeight: 500 }}>
-                          {pay.paymentDate ? new Date(pay.paymentDate).toLocaleDateString("en-IN") : "N/A"}
+                          {pay.paymentDate
+                            ? new Date(pay.paymentDate).toLocaleDateString(
+                                "en-IN",
+                              )
+                            : "N/A"}
                         </span>
                       </td>
                       <td>
@@ -502,18 +588,33 @@ export default function PaymentsPage() {
                           #{pay.quotation?.quotationNo || "N/A"}
                         </button>
                       </td>
-                      <td style={{ fontWeight: 600, color: "var(--text-main)" }}>
+                      <td
+                        style={{ fontWeight: 600, color: "var(--text-main)" }}
+                      >
                         {pay.quotation?.customer?.customerName || "N/A"}
                         {pay.quotation?.customer?.mobileNumber && (
-                          <div style={{ fontSize: "11px", color: "var(--text-secondary)" }}>
+                          <div
+                            style={{
+                              fontSize: "11px",
+                              color: "var(--text-secondary)",
+                            }}
+                          >
                             {pay.quotation.customer.mobileNumber}
                           </div>
                         )}
                       </td>
                       <td style={{ fontSize: "13px" }}>
-                        <div>{pay.quotation?.industry?.industryName || "Direct Site"}</div>
+                        <div>
+                          {pay.quotation?.industry?.industryName ||
+                            "Direct Site"}
+                        </div>
                         {pay.quotation?.site?.siteName && (
-                          <div style={{ fontSize: "11px", color: "var(--text-secondary)" }}>
+                          <div
+                            style={{
+                              fontSize: "11px",
+                              color: "var(--text-secondary)",
+                            }}
+                          >
                             📍 {pay.quotation.site.siteName}
                           </div>
                         )}
@@ -536,26 +637,58 @@ export default function PaymentsPage() {
                       </td>
                       <td style={{ fontSize: "13px" }}>
                         {pay.transactionNo ? (
-                          <code style={{ fontSize: "12px", backgroundColor: "#F1F5F9", padding: "2px 6px", borderRadius: "4px" }}>
+                          <code
+                            style={{
+                              fontSize: "12px",
+                              backgroundColor: "#F1F5F9",
+                              padding: "2px 6px",
+                              borderRadius: "4px",
+                            }}
+                          >
                             {pay.transactionNo}
                           </code>
                         ) : pay.chequeNo ? (
                           <div>
-                            <code style={{ fontSize: "12px", backgroundColor: "#FEF3C7", padding: "2px 6px", borderRadius: "4px", color: "#92400E" }}>
+                            <code
+                              style={{
+                                fontSize: "12px",
+                                backgroundColor: "#FEF3C7",
+                                padding: "2px 6px",
+                                borderRadius: "4px",
+                                color: "#92400E",
+                              }}
+                            >
                               Chq: {pay.chequeNo}
                             </code>
                             {pay.bankName && (
-                              <div style={{ fontSize: "11px", color: "var(--text-secondary)" }}>
+                              <div
+                                style={{
+                                  fontSize: "11px",
+                                  color: "var(--text-secondary)",
+                                }}
+                              >
                                 {pay.bankName}
                               </div>
                             )}
                           </div>
                         ) : (
-                          <span style={{ color: "var(--text-secondary)" }}>—</span>
+                          <span style={{ color: "var(--text-secondary)" }}>
+                            —
+                          </span>
                         )}
                       </td>
-                      <td style={{ textAlign: "right", fontWeight: 700, color: "#059669", fontSize: "15px" }}>
-                        ₹{Number(pay.paymentAmount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                      <td
+                        style={{
+                          textAlign: "right",
+                          fontWeight: 700,
+                          color: "#059669",
+                          fontSize: "15px",
+                        }}
+                      >
+                        ₹
+                        {Number(pay.paymentAmount).toLocaleString("en-IN", {
+                          minimumFractionDigits: 2,
+                        })}
                       </td>
                       <td style={{ textAlign: "right" }}>
                         <div style={{ display: "inline-flex", gap: "6px" }}>
@@ -590,10 +723,15 @@ export default function PaymentsPage() {
           <div className="modal-content-swagat" style={{ maxWidth: "600px" }}>
             <div className="modal-header-swagat">
               <h3>
-                <FiCreditCard style={{ marginRight: "8px", color: "var(--primary)" }} />
+                <FiCreditCard
+                  style={{ marginRight: "8px", color: "var(--primary)" }}
+                />
                 {selectedPayment ? "Edit Payment Record" : "Record New Payment"}
               </h3>
-              <button className="modal-close-btn" onClick={() => setIsFormOpen(false)}>
+              <button
+                className="modal-close-btn"
+                onClick={() => setIsFormOpen(false)}
+              >
                 <FiX />
               </button>
             </div>
@@ -603,7 +741,8 @@ export default function PaymentsPage() {
                   {/* Select Quotation */}
                   <div>
                     <label className="form-label-swagat">
-                      Select Quotation No. <span style={{ color: "var(--danger)" }}>*</span>
+                      Select Quotation No.{" "}
+                      <span style={{ color: "var(--danger)" }}>*</span>
                     </label>
                     <select
                       className="form-control-swagat"
@@ -614,13 +753,21 @@ export default function PaymentsPage() {
                       <option value="">-- Choose Quotation --</option>
                       {quotations.map((q) => (
                         <option key={q.id} value={q.id}>
-                          #{q.quotationNo} — {q.customer?.customerName || "Customer"} (Pending: ₹
+                          #{q.quotationNo} —{" "}
+                          {q.customer?.customerName || "Customer"} (Pending: ₹
                           {Number(q.pendingAmount).toFixed(2)})
                         </option>
                       ))}
                     </select>
                     {formErrors.quotation_id && (
-                      <span style={{ fontSize: "12px", color: "var(--danger)", marginTop: "4px", display: "block" }}>
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          color: "var(--danger)",
+                          marginTop: "4px",
+                          display: "block",
+                        }}
+                      >
                         {formErrors.quotation_id}
                       </span>
                     )}
@@ -641,27 +788,72 @@ export default function PaymentsPage() {
                       }}
                     >
                       <div>
-                        <div style={{ fontSize: "11px", color: "var(--text-secondary)" }}>Final Payable</div>
-                        <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--primary)" }}>
-                          ₹{Number(currentSelectedQuotation.finalTotal).toFixed(2)}
+                        <div
+                          style={{
+                            fontSize: "11px",
+                            color: "var(--text-secondary)",
+                          }}
+                        >
+                          Final Payable
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "14px",
+                            fontWeight: 700,
+                            color: "var(--primary)",
+                          }}
+                        >
+                          ₹
+                          {Number(currentSelectedQuotation.finalTotal).toFixed(
+                            2,
+                          )}
                         </div>
                       </div>
                       <div>
-                        <div style={{ fontSize: "11px", color: "var(--text-secondary)" }}>Total Paid So Far</div>
-                        <div style={{ fontSize: "14px", fontWeight: 700, color: "#10B981" }}>
+                        <div
+                          style={{
+                            fontSize: "11px",
+                            color: "var(--text-secondary)",
+                          }}
+                        >
+                          Total Paid So Far
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "14px",
+                            fontWeight: 700,
+                            color: "#10B981",
+                          }}
+                        >
                           ₹
                           {(selectedPayment
-                            ? currentSelectedQuotation.totalPaid - Number(selectedPayment.paymentAmount)
+                            ? currentSelectedQuotation.totalPaid -
+                              Number(selectedPayment.paymentAmount)
                             : currentSelectedQuotation.totalPaid
                           ).toFixed(2)}
                         </div>
                       </div>
                       <div>
-                        <div style={{ fontSize: "11px", color: "var(--text-secondary)" }}>Current Pending</div>
-                        <div style={{ fontSize: "14px", fontWeight: 700, color: "#D97706" }}>
+                        <div
+                          style={{
+                            fontSize: "11px",
+                            color: "var(--text-secondary)",
+                          }}
+                        >
+                          Current Pending
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "14px",
+                            fontWeight: 700,
+                            color: "#D97706",
+                          }}
+                        >
                           ₹
                           {(selectedPayment
-                            ? currentSelectedQuotation.finalTotal - (currentSelectedQuotation.totalPaid - Number(selectedPayment.paymentAmount))
+                            ? currentSelectedQuotation.finalTotal -
+                              (currentSelectedQuotation.totalPaid -
+                                Number(selectedPayment.paymentAmount))
                             : currentSelectedQuotation.pendingAmount
                           ).toFixed(2)}
                         </div>
@@ -670,10 +862,17 @@ export default function PaymentsPage() {
                   )}
 
                   {/* Payment Amount & Payment Date */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: "16px",
+                    }}
+                  >
                     <div>
                       <label className="form-label-swagat">
-                        Payment Amount (₹) <span style={{ color: "var(--danger)" }}>*</span>
+                        Payment Amount (₹){" "}
+                        <span style={{ color: "var(--danger)" }}>*</span>
                       </label>
                       <input
                         type="number"
@@ -682,10 +881,22 @@ export default function PaymentsPage() {
                         className="form-control-swagat"
                         placeholder="e.g. 5000"
                         value={formData.payment_amount}
-                        onChange={(e) => setFormData({ ...formData, payment_amount: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            payment_amount: e.target.value,
+                          })
+                        }
                       />
                       {formErrors.payment_amount && (
-                        <span style={{ fontSize: "12px", color: "var(--danger)", marginTop: "4px", display: "block" }}>
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            color: "var(--danger)",
+                            marginTop: "4px",
+                            display: "block",
+                          }}
+                        >
                           {formErrors.payment_amount}
                         </span>
                       )}
@@ -693,13 +904,19 @@ export default function PaymentsPage() {
 
                     <div>
                       <label className="form-label-swagat">
-                        Payment Date <span style={{ color: "var(--danger)" }}>*</span>
+                        Payment Date{" "}
+                        <span style={{ color: "var(--danger)" }}>*</span>
                       </label>
                       <input
                         type="date"
                         className="form-control-swagat"
                         value={formData.payment_date}
-                        onChange={(e) => setFormData({ ...formData, payment_date: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            payment_date: e.target.value,
+                          })
+                        }
                       />
                     </div>
                   </div>
@@ -707,9 +924,16 @@ export default function PaymentsPage() {
                   {/* Payment Method */}
                   <div>
                     <label className="form-label-swagat">
-                      Payment Method <span style={{ color: "var(--danger)" }}>*</span>
+                      Payment Method{" "}
+                      <span style={{ color: "var(--danger)" }}>*</span>
                     </label>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px" }}>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(4, 1fr)",
+                        gap: "8px",
+                      }}
+                    >
                       {["Cash", "Google Pay", "UPI", "Cheque"].map((m) => (
                         <button
                           key={m}
@@ -718,14 +942,23 @@ export default function PaymentsPage() {
                             padding: "10px",
                             borderRadius: "6px",
                             border: `1px solid ${formData.payment_method === m ? "var(--primary)" : "var(--border)"}`,
-                            backgroundColor: formData.payment_method === m ? "rgba(10, 37, 64, 0.06)" : "#FFFFFF",
-                            color: formData.payment_method === m ? "var(--primary)" : "var(--text-main)",
-                            fontWeight: formData.payment_method === m ? 700 : 500,
+                            backgroundColor:
+                              formData.payment_method === m
+                                ? "rgba(10, 37, 64, 0.06)"
+                                : "#FFFFFF",
+                            color:
+                              formData.payment_method === m
+                                ? "var(--primary)"
+                                : "var(--text-main)",
+                            fontWeight:
+                              formData.payment_method === m ? 700 : 500,
                             cursor: "pointer",
                             fontSize: "13px",
                             transition: "all 0.2s ease",
                           }}
-                          onClick={() => setFormData({ ...formData, payment_method: m })}
+                          onClick={() =>
+                            setFormData({ ...formData, payment_method: m })
+                          }
                         >
                           {m}
                         </button>
@@ -734,20 +967,34 @@ export default function PaymentsPage() {
                   </div>
 
                   {/* Dynamic Fields based on Payment Method */}
-                  {(formData.payment_method === "UPI" || formData.payment_method === "Google Pay") && (
+                  {(formData.payment_method === "UPI" ||
+                    formData.payment_method === "Google Pay") && (
                     <div>
                       <label className="form-label-swagat">
-                        UPI / Reference Transaction No. <span style={{ color: "var(--danger)" }}>*</span>
+                        UPI / Reference Transaction No.{" "}
+                        <span style={{ color: "var(--danger)" }}>*</span>
                       </label>
                       <input
                         type="text"
                         className="form-control-swagat"
                         placeholder="e.g. UPI123456789012"
                         value={formData.transaction_no}
-                        onChange={(e) => setFormData({ ...formData, transaction_no: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            transaction_no: e.target.value,
+                          })
+                        }
                       />
                       {formErrors.transaction_no && (
-                        <span style={{ fontSize: "12px", color: "var(--danger)", marginTop: "4px", display: "block" }}>
+                        <span
+                          style={{
+                            fontSize: "12px",
+                            color: "var(--danger)",
+                            marginTop: "4px",
+                            display: "block",
+                          }}
+                        >
                           {formErrors.transaction_no}
                         </span>
                       )}
@@ -755,20 +1002,39 @@ export default function PaymentsPage() {
                   )}
 
                   {formData.payment_method === "Cheque" && (
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: "16px",
+                      }}
+                    >
                       <div>
                         <label className="form-label-swagat">
-                          Cheque No. <span style={{ color: "var(--danger)" }}>*</span>
+                          Cheque No.{" "}
+                          <span style={{ color: "var(--danger)" }}>*</span>
                         </label>
                         <input
                           type="text"
                           className="form-control-swagat"
                           placeholder="e.g. 000123"
                           value={formData.cheque_no}
-                          onChange={(e) => setFormData({ ...formData, cheque_no: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              cheque_no: e.target.value,
+                            })
+                          }
                         />
                         {formErrors.cheque_no && (
-                          <span style={{ fontSize: "12px", color: "var(--danger)", marginTop: "4px", display: "block" }}>
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              color: "var(--danger)",
+                              marginTop: "4px",
+                              display: "block",
+                            }}
+                          >
                             {formErrors.cheque_no}
                           </span>
                         )}
@@ -780,7 +1046,12 @@ export default function PaymentsPage() {
                           className="form-control-swagat"
                           placeholder="e.g. SBI, HDFC"
                           value={formData.bank_name}
-                          onChange={(e) => setFormData({ ...formData, bank_name: e.target.value })}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              bank_name: e.target.value,
+                            })
+                          }
                         />
                       </div>
                     </div>
@@ -788,43 +1059,52 @@ export default function PaymentsPage() {
 
                   {/* Remark */}
                   <div>
-                    <label className="form-label-swagat">Remark / Notes (Optional)</label>
+                    <label className="form-label-swagat">
+                      Remark / Notes (Optional)
+                    </label>
                     <textarea
                       rows="2"
                       className="form-control-swagat"
                       placeholder="e.g. Advance payment against purchase order..."
                       value={formData.remark}
-                      onChange={(e) => setFormData({ ...formData, remark: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, remark: e.target.value })
+                      }
                     />
                   </div>
 
                   {/* Calculated Remaining Balance Preview */}
-                  {currentSelectedQuotation && formData.payment_amount && !isNaN(parseFloat(formData.payment_amount)) && (
-                    <div
-                      style={{
-                        padding: "10px 14px",
-                        backgroundColor: "#ECFDF5",
-                        borderRadius: "6px",
-                        border: "1px solid #A7F3D0",
-                        color: "#065F46",
-                        fontSize: "13px",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <span>New Remaining Pending Balance:</span>
-                      <strong style={{ fontSize: "15px" }}>
-                        ₹
-                        {Math.max(
-                          0,
-                          (selectedPayment
-                            ? currentSelectedQuotation.finalTotal - (currentSelectedQuotation.totalPaid - Number(selectedPayment.paymentAmount))
-                            : currentSelectedQuotation.pendingAmount) - parseFloat(formData.payment_amount || 0)
-                        ).toFixed(2)}
-                      </strong>
-                    </div>
-                  )}
+                  {currentSelectedQuotation &&
+                    formData.payment_amount &&
+                    !isNaN(parseFloat(formData.payment_amount)) && (
+                      <div
+                        style={{
+                          padding: "10px 14px",
+                          backgroundColor: "#ECFDF5",
+                          borderRadius: "6px",
+                          border: "1px solid #A7F3D0",
+                          color: "#065F46",
+                          fontSize: "13px",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span>New Remaining Pending Balance:</span>
+                        <strong style={{ fontSize: "15px" }}>
+                          ₹
+                          {Math.max(
+                            0,
+                            (selectedPayment
+                              ? currentSelectedQuotation.finalTotal -
+                                (currentSelectedQuotation.totalPaid -
+                                  Number(selectedPayment.paymentAmount))
+                              : currentSelectedQuotation.pendingAmount) -
+                              parseFloat(formData.payment_amount || 0),
+                          ).toFixed(2)}
+                        </strong>
+                      </div>
+                    )}
                 </div>
               </div>
 
@@ -841,7 +1121,11 @@ export default function PaymentsPage() {
                   className="btn-primary-swagat"
                   disabled={submitting}
                 >
-                  {submitting ? "Saving..." : selectedPayment ? "Update Payment" : "Record Payment"}
+                  {submitting
+                    ? "Saving..."
+                    : selectedPayment
+                      ? "Update Payment"
+                      : "Record Payment"}
                 </button>
               </div>
             </form>
