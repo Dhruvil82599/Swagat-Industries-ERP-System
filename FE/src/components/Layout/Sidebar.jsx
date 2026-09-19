@@ -14,30 +14,76 @@ import {
 export default function Sidebar() {
   return (
     <aside className="app-sidebar">
-      <div className="sidebar-brand" style={{ padding: "16px 20px" }}>
+      <div className="sidebar-brand" style={{ padding: "16px 18px" }}>
         <div
           style={{
-            backgroundColor: "#FFFFFF",
-            borderRadius: "8px",
-            padding: "8px 14px",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
+            gap: "12px",
             width: "100%",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-            boxSizing: "border-box",
           }}
         >
-          <img
-            src="/logo.png"
-            alt="Swagat Industries Logo"
+          {/* Round Circle Logo Container */}
+          <div
             style={{
-              maxHeight: "38px",
-              maxWidth: "100%",
-              height: "auto",
-              objectFit: "contain",
+              width: "44px",
+              height: "44px",
+              borderRadius: "50%",
+              backgroundColor: "#FFFFFF",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)",
+              overflow: "hidden",
+              padding: "5px",
+              border: "2px solid rgba(61, 180, 179, 0.5)",
+              boxSizing: "border-box",
             }}
-          />
+          >
+            <img
+              src="/logo.png"
+              alt="Swagat Logo"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+              }}
+            />
+          </div>
+
+          {/* Brand Name Typography */}
+          <div className="brand-text" style={{ minWidth: 0 }}>
+            <h2
+              style={{
+                fontSize: "15px",
+                fontWeight: 800,
+                color: "#FFFFFF",
+                lineHeight: "1.2",
+                letterSpacing: "0.2px",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                margin: 0,
+              }}
+            >
+              Swagat Industries
+            </h2>
+            <span
+              style={{
+                fontSize: "11px",
+                color: "var(--accent)",
+                textTransform: "uppercase",
+                letterSpacing: "1.2px",
+                fontWeight: 700,
+                display: "block",
+                marginTop: "2px",
+                textAlign: "center",
+              }}
+            >
+              ERP System
+            </span>
+          </div>
         </div>
       </div>
 
