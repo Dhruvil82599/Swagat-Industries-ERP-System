@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import AppLayout, { useToast } from "../components/Layout/AppLayout";
 import { api } from "../services/api";
 import ConfirmModal from "../components/UI/ConfirmModal";
+import PaymentSlipModal from "../components/UI/PaymentSlipModal";
 import {
   FiPlus,
   FiSearch,
@@ -17,6 +18,7 @@ import {
   FiFileText,
   FiFilter,
   FiCalendar,
+  FiPrinter,
 } from "react-icons/fi";
 
 export default function PaymentsPage() {
@@ -39,6 +41,7 @@ export default function PaymentsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
+  const [printingPaymentId, setPrintingPaymentId] = useState(null);
 
   // Add/Edit Form states
   const [selectedQuotationId, setSelectedQuotationId] =
@@ -219,16 +222,20 @@ export default function PaymentsPage() {
         remark: formData.remark.trim() || null,
       };
 
+      let savedPay;
       if (selectedPayment) {
-        await api.updatePayment(selectedPayment.id, payload);
+        savedPay = await api.updatePayment(selectedPayment.id, payload);
         addToast("Payment updated successfully", "success");
       } else {
-        await api.createPayment(payload);
+        savedPay = await api.createPayment(payload);
         addToast("Payment recorded successfully", "success");
       }
 
       setIsFormOpen(false);
       loadData();
+      if (savedPay?.id) {
+        setPrintingPaymentId(savedPay.id);
+      }
     } catch (err) {
       if (err.errors && Array.isArray(err.errors)) {
         const errorMap = {};
@@ -694,6 +701,14 @@ export default function PaymentsPage() {
                         <div style={{ display: "inline-flex", gap: "6px" }}>
                           <button
                             className="btn-icon-action"
+                            title="Print Payment Slip"
+                            onClick={() => setPrintingPaymentId(pay.id)}
+                            style={{ color: "#059669" }}
+                          >
+                            <FiPrinter />
+                          </button>
+                          <button
+                            className="btn-icon-action"
                             title="Edit Payment"
                             onClick={() => openEditModal(pay)}
                           >
@@ -1141,6 +1156,14 @@ export default function PaymentsPage() {
         onConfirm={handleDelete}
         onCancel={() => setIsDeleteOpen(false)}
       />
+
+      {/* Payment Receipt Slip Modal */}
+      {printingPaymentId && (
+        <PaymentSlipModal
+          paymentId={printingPaymentId}
+          onClose={() => setPrintingPaymentId(null)}
+        />
+      )}
     </AppLayout>
   );
 }

@@ -132,7 +132,8 @@ async function getPaymentById(req, res, next) {
           include: {
             customer: true,
             industry: true,
-            site: true
+            site: true,
+            payments: true
           }
         }
       }

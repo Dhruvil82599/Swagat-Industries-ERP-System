@@ -26,14 +26,14 @@ All 11 relational database models synced seamlessly via Prisma ORM, and all UI v
 
 ## Testing Verification Matrix
 
-| Module | UI Access | Data Entry via Form | Dynamic Validations | Financial Calculation | PDF Generation | Status |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Authentication & CAPTCHA** | 🟢 | 🟢 | 🟢 | N/A | N/A | **PASS** |
-| **Executive Dashboard** | 🟢 | N/A | 🟢 | 🟢 | N/A | **PASS** |
-| **Customer Management** | 🟢 | 🟢 | 🟢 | N/A | N/A | **PASS** |
-| **Industry Directory** | 🟢 | 🟢 | 🟢 | N/A | N/A | **PASS** |
-| **Installation Sites** | 🟢 | 🟢 | 🟢 | N/A | N/A | **PASS** |
-| **Shutters Master Catalog** | 🟢 | 🟢 | 🟢 | 🟢 | N/A | **PASS** |
-| **Quotations Engine** | 🟢 | 🟢 | 🟢 | 🟢 | 🟢 | **PASS** |
-| **Payments Ledger** | 🟢 | 🟢 | 🟢 | 🟢 | N/A | **PASS** |
-| **Company Settings & Terms** | 🟢 | 🟢 | 🟢 | N/A | 🟢 | **PASS** |
+| Module                       | UI Access | Data Entry via Form | Dynamic Validations | Financial Calculation | PDF Generation |  Status  |
+| :--------------------------- | :-------: | :-----------------: | :-----------------: | :-------------------: | :------------: | :------: |
+| **Authentication & CAPTCHA** |    🟢     |         🟢          |         🟢          |          N/A          |      N/A       | **PASS** |
+| **Executive Dashboard**      |    🟢     |         N/A         |         🟢          |          🟢           |      N/A       | **PASS** |
+| **Customer Management**      |    🟢     |         🟢          |         🟢          |          N/A          |      N/A       | **PASS** |
+| **Industry Directory**       |    🟢     |         🟢          |         🟢          |          N/A          |      N/A       | **PASS** |
+| **Installation Sites**       |    🟢     |         🟢          |         🟢          |          N/A          |      N/A       | **PASS** |
+| **Shutters Master Catalog**  |    🟢     |         🟢          |         🟢          |          🟢           |      N/A       | **PASS** |
+| **Quotations Engine**        |    🟢     |         🟢          |         🟢          |          🟢           |       🟢       | **PASS** |
+| **Payments Ledger**          |    🟢     |         🟢          |         🟢          |          🟢           |      N/A       | **PASS** |
+| **Company Settings & Terms** |    🟢     |         🟢          |         🟢          |          N/A          |       🟢       | **PASS** |
