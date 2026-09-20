@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { api, authAPI } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
@@ -15,11 +15,14 @@ import {
   FiEyeOff,
   FiX,
   FiUsers,
+  FiGrid,
 } from "react-icons/fi";
 
 
 export default function Navbar({ title = "Master Data" }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isEmployeeModule = location.pathname.startsWith("/employee");
   const { showToast } = useToast();
   const { user, logout } = useAuth();
   
@@ -176,7 +179,33 @@ export default function Navbar({ title = "Master Data" }) {
         <h1>{title}</h1>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        {/* Active Module Indicator Badge */}
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            padding: "4px 10px",
+            borderRadius: "16px",
+            fontSize: "11.5px",
+            fontWeight: "700",
+            backgroundColor: isEmployeeModule ? "#FFF7ED" : "#EFF6FF",
+            color: isEmployeeModule ? "#C2410C" : "#1E40AF",
+            border: `1px solid ${isEmployeeModule ? "#FED7AA" : "#BFDBFE"}`,
+          }}
+        >
+          <span
+            style={{
+              width: "6px",
+              height: "6px",
+              borderRadius: "50%",
+              backgroundColor: isEmployeeModule ? "#F28C28" : "#2563EB",
+            }}
+          />
+          <span>{isEmployeeModule ? "Employee ERP" : "Client ERP"}</span>
+        </div>
+
         {/* Database Status Badge */}
         <div
           style={{
@@ -288,6 +317,35 @@ export default function Navbar({ title = "Master Data" }) {
 
 
                 <div style={{ padding: "6px" }}>
+                  {/* Switch Module Option */}
+                  <button
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      navigate("/modules");
+                    }}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      padding: "10px 12px",
+                      border: "none",
+                      backgroundColor: "transparent",
+                      color: "#172B3A",
+                      fontSize: "13.5px",
+                      fontWeight: "600",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      transition: "all 0.15s ease",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#F1F5F9")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                  >
+                    <FiGrid style={{ color: "#F28C28", fontSize: "16px" }} />
+                    <span>Switch ERP Module</span>
+                  </button>
+
                   {/* User Management Option */}
                   <button
                     onClick={() => {

@@ -121,7 +121,7 @@ export default function LoginPage() {
         localStorage.setItem("swagat_erp_token", res.token);
         localStorage.setItem("swagat_erp_user", JSON.stringify(res.user));
         window.dispatchEvent(new Event("swagat_auth_change"));
-        navigate("/dashboard", { replace: true });
+        navigate("/modules", { replace: true });
       }
     } catch (err) {
       setInviteError(err.message || "Failed to complete registration.");
@@ -239,7 +239,7 @@ export default function LoginPage() {
 
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const from = "/dashboard";
+  const from = "/modules";
 
   useEffect(() => {
     if (isAuthenticated) {
