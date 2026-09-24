@@ -28,7 +28,8 @@ export default function EmployeeDashboardPage() {
       desc: "Comprehensive employee records, personal details, designations, and contact info.",
       icon: <FiUsers />,
       accentColor: "#123B5D",
-      status: "Upcoming",
+      status: "Operational",
+      route: "/employee/master",
     },
     {
       id: "salary",
@@ -227,7 +228,7 @@ export default function EmployeeDashboardPage() {
       >
         <FiInfo style={{ fontSize: "18px", flexShrink: 0, marginTop: "2px", color: "#2563EB" }} />
         <div>
-          <b>Phase 2 Foundation Ready:</b> Module Selection and routing are operational. Next phase (Phase 3) will introduce the <b>Employee Master (CRUD)</b> directory.
+          <b>Phase 3 Active:</b> The <b>Employee Master (CRUD)</b> directory is fully operational. Access it from the sidebar or click the card below to manage employees.
         </div>
       </div>
 
@@ -236,7 +237,7 @@ export default function EmployeeDashboardPage() {
         <div className="erp-card-header">
           <h2 className="erp-card-title">
             <FiLayers style={{ color: "var(--primary)" }} />
-            Planned Employee Functional Architecture
+            Employee Module Architecture
           </h2>
           <span
             style={{
@@ -260,15 +261,17 @@ export default function EmployeeDashboardPage() {
             {employeeModules.map((m) => (
               <div
                 key={m.id}
+                onClick={() => m.route && navigate(m.route)}
                 style={{
-                  border: "1px solid #E2E8F0",
+                  border: m.route ? "1.5px solid rgba(18, 59, 93, 0.3)" : "1px solid #E2E8F0",
                   borderRadius: "10px",
                   padding: "20px",
                   backgroundColor: "#FFFFFF",
-                  boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
+                  boxShadow: m.route ? "0 2px 8px rgba(18, 59, 93, 0.08)" : "0 1px 3px rgba(0, 0, 0, 0.04)",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
+                  cursor: m.route ? "pointer" : "default",
                   transition: "transform 0.2s ease, box-shadow 0.2s ease",
                 }}
               >

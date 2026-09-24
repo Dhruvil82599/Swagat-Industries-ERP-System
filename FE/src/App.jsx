@@ -20,6 +20,7 @@ import PaymentsPage from "./pages/PaymentsPage";
 import CompanySettingsPage from "./pages/CompanySettingsPage";
 import UsersPage from "./pages/UsersPage";
 import EmployeeDashboardPage from "./pages/EmployeeDashboardPage";
+import EmployeeMasterPage from "./pages/EmployeeMasterPage";
 
 export default function App() {
   return (
@@ -150,6 +151,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <EmployeeDashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/employee/master"
+              element={
+                <ProtectedRoute>
+                  <EmployeeMasterPage />
                 </ProtectedRoute>
               }
             />

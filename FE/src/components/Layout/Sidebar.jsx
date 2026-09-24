@@ -115,34 +115,15 @@ export default function Sidebar() {
               Workforce Modules
             </div>
 
-            <div
-              className="sidebar-link"
-              style={{
-                opacity: 0.6,
-                cursor: "not-allowed",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-              title="Available in Phase 3"
+            <NavLink
+              to="/employee/master"
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? "active" : ""}`
+              }
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <FiUsers className="link-icon" />
-                <span>1. Employee Master</span>
-              </div>
-              <span
-                style={{
-                  fontSize: "9.5px",
-                  fontWeight: 700,
-                  background: "rgba(255, 255, 255, 0.12)",
-                  color: "#FDE68A",
-                  padding: "2px 6px",
-                  borderRadius: "4px",
-                }}
-              >
-                Phase 3
-              </span>
-            </div>
+              <FiUsers className="link-icon" />
+              <span>1. Employee Master</span>
+            </NavLink>
 
             <div
               className="sidebar-link"

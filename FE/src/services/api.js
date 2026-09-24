@@ -392,6 +392,60 @@ export const api = {
       headers: getAuthHeaders(),
     }).then(handleResponse),
 
+  // Employees (Phase 3: Employee Master)
+  getEmployees: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.search) query.append("search", params.search);
+    if (params.status) query.append("status", params.status);
+    if (params.department) query.append("department", params.department);
+    const queryString = query.toString() ? `?${query.toString()}` : "";
+    return fetch(`${BASE_URL}/employees${queryString}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse);
+  },
+  getNextEmployeeCode: () =>
+    fetch(`${BASE_URL}/employees/next-code`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+  getEmployeeById: (id) =>
+    fetch(`${BASE_URL}/employees/${id}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+  createEmployee: (data) =>
+    fetch(`${BASE_URL}/employees`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+  updateEmployee: (id, data) =>
+    fetch(`${BASE_URL}/employees/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+  uploadEmployeePhoto: (id, image) =>
+    fetch(`${BASE_URL}/employees/${id}/photo`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ image }),
+    }).then(handleResponse),
+  deleteEmployeePhoto: (id) =>
+    fetch(`${BASE_URL}/employees/${id}/photo`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+  toggleEmployeeStatus: (id, isActive) =>
+    fetch(`${BASE_URL}/employees/${id}/status`, {
+      method: "PATCH",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(isActive !== undefined ? { isActive } : {}),
+    }).then(handleResponse),
+  deleteEmployee: (id) =>
+    fetch(`${BASE_URL}/employees/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+
   // Health Check (Public)
   checkHealth: () => fetch(`${BASE_URL}/health`).then(handleResponse),
 };
