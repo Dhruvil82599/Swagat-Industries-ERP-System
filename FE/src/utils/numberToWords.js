@@ -118,3 +118,5 @@ export function numberToIndianWords(amount) {
 
   return `Rupees ${rupeesStr}${paiseStr} Only`;
 }
+
+export const numberToWords = numberToIndianWords;

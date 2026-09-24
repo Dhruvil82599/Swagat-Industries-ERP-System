@@ -155,34 +155,15 @@ export default function Sidebar() {
               <span>4. Employee Advance</span>
             </NavLink>
 
-            <div
-              className="sidebar-link"
-              style={{
-                opacity: 0.6,
-                cursor: "not-allowed",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-              title="Available in Phase 6"
+            <NavLink
+              to="/employee/salary"
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? "active" : ""}`
+              }
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <FiCreditCard className="link-icon" />
-                <span>5. Salary Calculation</span>
-              </div>
-              <span
-                style={{
-                  fontSize: "9.5px",
-                  fontWeight: 700,
-                  background: "rgba(255, 255, 255, 0.12)",
-                  color: "#FDE68A",
-                  padding: "2px 6px",
-                  borderRadius: "4px",
-                }}
-              >
-                Phase 6
-              </span>
-            </div>
+              <FiCreditCard className="link-icon" />
+              <span>5. Salary Calculation</span>
+            </NavLink>
 
             <div
               className="sidebar-link"
