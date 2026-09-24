@@ -309,10 +309,20 @@ model Employee {
   city             String?   @db.VarChar(100)
   emergencyContact String?   @map("emergency_contact") @db.VarChar(15)
   photoUrl         String?   @map("photo_url") @db.Text
+  // Salary Configuration Master Fields
+  baseSalary       Decimal   @default(0.00) @map("base_salary") @db.Decimal(12, 2)
+  salaryType       String    @default("MONTHLY") @map("salary_type") @db.VarChar(50) // MONTHLY, DAILY
+  overtimeRate     Decimal   @default(0.00) @map("overtime_rate") @db.Decimal(10, 2)
+  allowance        Decimal   @default(0.00) @map("allowance") @db.Decimal(12, 2)
+
   isActive         Boolean   @default(true) @map("is_active")
   remark           String?   @db.Text
   createdAt        DateTime  @default(now()) @map("created_at")
   updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  attendances      EmployeeAttendance[]
+  advances         EmployeeAdvance[]
+  salaries         EmployeeSalary[]
 
   @@index([employeeCode])
   @@index([fullName])
@@ -320,4 +330,99 @@ model Employee {
   @@index([isActive])
   @@map("employees")
 }
+
+// 14. EMPLOYEE ATTENDANCE (Daily Employee Attendance Management)
+model EmployeeAttendance {
+  id             Int               @id @default(autoincrement())
+  employeeId     Int               @map("employee_id")
+  attendanceDate DateTime          @map("attendance_date") @db.Date
+  status         String            @db.VarChar(50) // PRESENT, ABSENT, HALF DAY, LEAVE, HOLIDAY
+  checkIn        String?           @map("check_in") @db.VarChar(10) // e.g. "09:00"
+  checkOut       String?           @map("check_out") @db.VarChar(10) // e.g. "18:00"
+  regularHours   Decimal           @default(9.00) @map("regular_hours") @db.Decimal(5, 2)
+  overtimeHours  Decimal           @default(0.00) @map("overtime_hours") @db.Decimal(5, 2)
+  advanceAmount  Decimal           @default(0.00) @map("advance_amount") @db.Decimal(12, 2)
+  remarks        String?           @db.Text
+  createdBy      String?           @map("created_by") @db.VarChar(100)
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedBy      String?           @map("updated_by") @db.VarChar(100)
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+
+  employee       Employee          @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  advances       EmployeeAdvance[]
+
+  @@unique([employeeId, attendanceDate])
+  @@index([attendanceDate])
+  @@index([employeeId])
+  @@index([status])
+  @@map("employee_attendance")
+}
+
+// 15. EMPLOYEE ADVANCE / UPAD (Advances linked with Daily Attendance)
+model EmployeeAdvance {
+  id           Int                 @id @default(autoincrement())
+  employeeId   Int                 @map("employee_id")
+  attendanceId Int?                @map("attendance_id")
+  advanceDate  DateTime            @map("advance_date") @db.Date
+  amount       Decimal             @map("amount") @db.Decimal(12, 2)
+  paymentMode  String              @default("CASH") @map("payment_mode") @db.VarChar(50)
+  reason       String?             @db.VarChar(255)
+  remarks      String?             @db.Text
+  createdBy    String?             @map("created_by") @db.VarChar(100)
+  createdAt    DateTime            @default(now()) @map("created_at")
+  updatedBy    String?             @map("updated_by") @db.VarChar(100)
+  updatedAt    DateTime            @updatedAt @map("updated_at")
+
+  employee     Employee            @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  attendance   EmployeeAttendance? @relation(fields: [attendanceId], references: [id], onDelete: SetNull)
+
+  @@index([employeeId])
+  @@index([advanceDate])
+  @@index([attendanceId])
+  @@map("employee_advances")
+}
+
+// 16. EMPLOYEE SALARY (Monthly Salary Calculation & Payslip Ledger)
+model EmployeeSalary {
+  id               Int      @id @default(autoincrement())
+  employeeId       Int      @map("employee_id")
+  month            Int      @db.SmallInt // 1 to 12
+  year             Int      @db.SmallInt // e.g. 2026
+  salaryType       String   @default("MONTHLY") @map("salary_type") @db.VarChar(50) // MONTHLY, DAILY
+  baseSalary       Decimal  @default(0.00) @map("base_salary") @db.Decimal(12, 2)
+  dailyRate        Decimal  @default(0.00) @map("daily_rate") @db.Decimal(12, 2)
+  totalDaysInMonth Int      @default(30) @map("total_days_in_month")
+  presentDays      Decimal  @default(0.00) @map("present_days") @db.Decimal(5, 2)
+  halfDays         Int      @default(0) @map("half_days")
+  absentDays       Decimal  @default(0.00) @map("absent_days") @db.Decimal(5, 2)
+  leaveDays        Decimal  @default(0.00) @map("leave_days") @db.Decimal(5, 2)
+  holidayDays      Decimal  @default(0.00) @map("holiday_days") @db.Decimal(5, 2)
+  payableDays      Decimal  @default(0.00) @map("payable_days") @db.Decimal(5, 2)
+  earnedBasic      Decimal  @default(0.00) @map("earned_basic") @db.Decimal(12, 2)
+  overtimeHours    Decimal  @default(0.00) @map("overtime_hours") @db.Decimal(8, 2)
+  overtimeRate     Decimal  @default(0.00) @map("overtime_rate") @db.Decimal(10, 2)
+  overtimeAmount   Decimal  @default(0.00) @map("overtime_amount") @db.Decimal(12, 2)
+  allowances       Decimal  @default(0.00) @db.Decimal(12, 2)
+  grossSalary      Decimal  @default(0.00) @map("gross_salary") @db.Decimal(12, 2)
+  advanceDeduction Decimal  @default(0.00) @map("advance_deduction") @db.Decimal(12, 2)
+  otherDeductions  Decimal  @default(0.00) @map("other_deductions") @db.Decimal(12, 2)
+  totalDeductions  Decimal  @default(0.00) @map("total_deductions") @db.Decimal(12, 2)
+  netSalary        Decimal  @default(0.00) @map("net_salary") @db.Decimal(12, 2)
+  status           String   @default("GENERATED") @db.VarChar(50) // DRAFT, GENERATED, APPROVED, PAID
+  remarks          String?  @db.Text
+  createdBy        String?  @map("created_by") @db.VarChar(100)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedBy        String?  @map("updated_by") @db.VarChar(100)
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  employee         Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, month, year])
+  @@index([employeeId])
+  @@index([month, year])
+  @@index([status])
+  @@map("employee_salaries")
+}
+
+
 

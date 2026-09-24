@@ -21,6 +21,9 @@ import CompanySettingsPage from "./pages/CompanySettingsPage";
 import UsersPage from "./pages/UsersPage";
 import EmployeeDashboardPage from "./pages/EmployeeDashboardPage";
 import EmployeeMasterPage from "./pages/EmployeeMasterPage";
+import DailyAttendancePage from "./pages/DailyAttendancePage";
+import AttendanceRegisterPage from "./pages/AttendanceRegisterPage";
+import EmployeeAdvancePage from "./pages/EmployeeAdvancePage";
 
 export default function App() {
   return (
@@ -159,6 +162,30 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <EmployeeMasterPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/employee/attendance"
+              element={
+                <ProtectedRoute>
+                  <DailyAttendancePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/employee/attendance-register"
+              element={
+                <ProtectedRoute>
+                  <AttendanceRegisterPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/employee/advance"
+              element={
+                <ProtectedRoute>
+                  <EmployeeAdvancePage />
                 </ProtectedRoute>
               }
             />

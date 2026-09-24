@@ -342,6 +342,11 @@ async function createEmployee(req, res, next) {
       );
     }
 
+    const baseSalary = req.body.baseSalary !== undefined ? Math.max(0, parseFloat(req.body.baseSalary) || 0) : 0;
+    const salaryType = (req.body.salaryType || "MONTHLY").trim().toUpperCase();
+    const overtimeRate = req.body.overtimeRate !== undefined ? Math.max(0, parseFloat(req.body.overtimeRate) || 0) : 0;
+    const allowance = req.body.allowance !== undefined ? Math.max(0, parseFloat(req.body.allowance) || 0) : 0;
+
     const employee = await prisma.employee.create({
       data: {
         employeeCode,
@@ -355,6 +360,10 @@ async function createEmployee(req, res, next) {
         city,
         emergencyContact,
         photoUrl,
+        baseSalary,
+        salaryType,
+        overtimeRate,
+        allowance,
         isActive,
         remark,
       },
@@ -443,6 +452,22 @@ async function updateEmployee(req, res, next) {
     if (req.body.joiningDate !== undefined || req.body.joining_date !== undefined) {
       const rawDate = req.body.joiningDate !== undefined ? req.body.joiningDate : req.body.joining_date;
       updateData.joiningDate = rawDate ? new Date(rawDate) : null;
+    }
+
+    if (req.body.baseSalary !== undefined) {
+      updateData.baseSalary = Math.max(0, parseFloat(req.body.baseSalary) || 0);
+    }
+
+    if (req.body.salaryType !== undefined) {
+      updateData.salaryType = String(req.body.salaryType).trim().toUpperCase();
+    }
+
+    if (req.body.overtimeRate !== undefined) {
+      updateData.overtimeRate = Math.max(0, parseFloat(req.body.overtimeRate) || 0);
+    }
+
+    if (req.body.allowance !== undefined) {
+      updateData.allowance = Math.max(0, parseFloat(req.body.allowance) || 0);
     }
 
     if (req.body.isActive !== undefined) {

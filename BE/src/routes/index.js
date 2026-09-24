@@ -17,6 +17,9 @@ const quotationTermsRoutes = require("./quotationTermsRoutes");
 const dashboardRoutes = require("./dashboardRoutes");
 const userRoutes = require("./userRoutes");
 const employeeRoutes = require("./employeeRoutes");
+const attendanceRoutes = require("./attendanceRoutes");
+const advanceRoutes = require("./advanceRoutes");
+const salaryRoutes = require("./salaryRoutes");
 
 // Public authentication routes
 router.use("/auth", authRoutes);
@@ -33,6 +36,10 @@ router.use("/company-settings", authMiddleware, companySettingsRoutes);
 router.use("/quotation-terms", authMiddleware, quotationTermsRoutes);
 router.use("/users", userRoutes);
 router.use("/employees", authMiddleware, employeeRoutes);
+router.use("/attendance", authMiddleware, attendanceRoutes);
+router.use("/advances", authMiddleware, advanceRoutes);
+router.use("/salaries", authMiddleware, salaryRoutes);
+
 
 
 // Health check & database connection status (Public for monitoring/navbar check)

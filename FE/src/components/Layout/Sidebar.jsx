@@ -125,63 +125,35 @@ export default function Sidebar() {
               <span>1. Employee Master</span>
             </NavLink>
 
-            <div
-              className="sidebar-link"
-              style={{
-                opacity: 0.6,
-                cursor: "not-allowed",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-              title="Available in Phase 4"
+            <NavLink
+              to="/employee/attendance"
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? "active" : ""}`
+              }
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <FiDollarSign className="link-icon" />
-                <span>2. Salary Structure</span>
-              </div>
-              <span
-                style={{
-                  fontSize: "9.5px",
-                  fontWeight: 700,
-                  background: "rgba(255, 255, 255, 0.12)",
-                  color: "#FDE68A",
-                  padding: "2px 6px",
-                  borderRadius: "4px",
-                }}
-              >
-                Phase 4
-              </span>
-            </div>
+              <FiClock className="link-icon" />
+              <span>2. Daily Attendance</span>
+            </NavLink>
 
-            <div
-              className="sidebar-link"
-              style={{
-                opacity: 0.6,
-                cursor: "not-allowed",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-              title="Available in Phase 5"
+            <NavLink
+              to="/employee/attendance-register"
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? "active" : ""}`
+              }
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <FiCreditCard className="link-icon" />
-                <span>3. Salary Payments</span>
-              </div>
-              <span
-                style={{
-                  fontSize: "9.5px",
-                  fontWeight: 700,
-                  background: "rgba(255, 255, 255, 0.12)",
-                  color: "#FDE68A",
-                  padding: "2px 6px",
-                  borderRadius: "4px",
-                }}
-              >
-                Phase 5
-              </span>
-            </div>
+              <FiFileText className="link-icon" />
+              <span>3. Attendance Register</span>
+            </NavLink>
+
+            <NavLink
+              to="/employee/advance"
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? "active" : ""}`
+              }
+            >
+              <FiDollarSign className="link-icon" />
+              <span>4. Employee Advance</span>
+            </NavLink>
 
             <div
               className="sidebar-link"
@@ -195,8 +167,8 @@ export default function Sidebar() {
               title="Available in Phase 6"
             >
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <FiClock className="link-icon" />
-                <span>4. Overtime</span>
+                <FiCreditCard className="link-icon" />
+                <span>5. Salary Calculation</span>
               </div>
               <span
                 style={{
@@ -224,8 +196,8 @@ export default function Sidebar() {
               title="Available in Phase 7"
             >
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <FiFileText className="link-icon" />
-                <span>5. Documents</span>
+                <FiCreditCard className="link-icon" />
+                <span>6. Salary Payment</span>
               </div>
               <span
                 style={{
@@ -254,7 +226,7 @@ export default function Sidebar() {
             >
               <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <FiLayers className="link-icon" />
-                <span>6. Reports</span>
+                <span>7. Salary Reports</span>
               </div>
               <span
                 style={{
@@ -269,6 +241,7 @@ export default function Sidebar() {
                 Phase 8
               </span>
             </div>
+
           </>
         ) : (
           /* ================================================= */
