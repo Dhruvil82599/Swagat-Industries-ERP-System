@@ -34,6 +34,45 @@ const DEPARTMENT_OPTIONS = [
   "General Staff",
 ];
 
+function EmployeePhotoAvatar({ photoUrl, name, fontSize = "14px", backgroundColor = "rgba(18, 59, 93, 0.1)", textColor = "#123B5D" }) {
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [photoUrl]);
+
+  const initial = name ? name.charAt(0).toUpperCase() : "E";
+
+  if (photoUrl && !failed) {
+    return (
+      <img
+        src={photoUrl}
+        alt={name || "Employee"}
+        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        onError={() => setFailed(true)}
+      />
+    );
+  }
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        backgroundColor,
+        color: textColor,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontWeight: 700,
+        fontSize,
+      }}
+    >
+      {initial}
+    </div>
+  );
+}
+
 export default function EmployeeMasterPage() {
   const [employees, setEmployees] = useState([]);
   const [summary, setSummary] = useState({ total: 0 });
@@ -63,6 +102,10 @@ export default function EmployeeMasterPage() {
     city: "Ahmedabad",
     address: "",
     emergencyContact: "",
+    baseSalary: "",
+    salaryType: "MONTHLY",
+    overtimeRate: "",
+    allowance: "",
     photo: null,
     photoUrl: null,
     removePhoto: false,
@@ -124,6 +167,10 @@ export default function EmployeeMasterPage() {
       city: "Ahmedabad",
       address: "",
       emergencyContact: "",
+      baseSalary: "",
+      salaryType: "MONTHLY",
+      overtimeRate: "",
+      allowance: "",
       photo: null,
       photoUrl: null,
       removePhoto: false,
@@ -147,6 +194,10 @@ export default function EmployeeMasterPage() {
       city: emp.city || "",
       address: emp.address || "",
       emergencyContact: emp.emergencyContact || "",
+      baseSalary: emp.baseSalary !== undefined && emp.baseSalary !== null ? emp.baseSalary : "",
+      salaryType: emp.salaryType || "MONTHLY",
+      overtimeRate: emp.overtimeRate !== undefined && emp.overtimeRate !== null ? emp.overtimeRate : "",
+      allowance: emp.allowance !== undefined && emp.allowance !== null ? emp.allowance : "",
       photo: null,
       photoUrl: emp.photoUrl || null,
       removePhoto: false,
@@ -720,36 +771,7 @@ export default function EmployeeMasterPage() {
                         }}
                         title={`View profile of ${emp.fullName}`}
                       >
-                        {emp.photoUrl ? (
-                          <img
-                            src={emp.photoUrl}
-                            alt={emp.fullName}
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "cover",
-                            }}
-                            onError={(e) => {
-                              e.target.style.display = "none";
-                            }}
-                          />
-                        ) : (
-                          <div
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              backgroundColor: "rgba(18, 59, 93, 0.1)",
-                              color: "#123B5D",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              fontWeight: 700,
-                              fontSize: "14px",
-                            }}
-                          >
-                            {emp.fullName.charAt(0).toUpperCase()}
-                          </div>
-                        )}
+                        <EmployeePhotoAvatar photoUrl={emp.photoUrl} name={emp.fullName} fontSize="14px" />
                       </div>
                     </td>
 
@@ -1220,6 +1242,76 @@ export default function EmployeeMasterPage() {
                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                     />
                   </div>
+
+                  {/* Salary Structure Header Divider */}
+                  <div style={{ gridColumn: "span 2", marginTop: "10px", borderTop: "1px dashed #CBD5E1", paddingTop: "14px" }}>
+                    <div style={{ fontWeight: 700, color: "#123B5D", fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
+                      <span>💰 Salary & Pay Structure (Master Settings)</span>
+                    </div>
+                  </div>
+
+                  {/* Base Salary (₹) */}
+                  <div>
+                    <label className="form-label-swagat">
+                      Base Salary (₹)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      className="form-control"
+                      placeholder="e.g. 25000"
+                      value={formData.baseSalary}
+                      onChange={(e) => setFormData({ ...formData, baseSalary: e.target.value })}
+                    />
+                  </div>
+
+                  {/* Salary Type */}
+                  <div>
+                    <label className="form-label-swagat">
+                      Salary Basis / Type
+                    </label>
+                    <select
+                      className="form-control"
+                      value={formData.salaryType}
+                      onChange={(e) => setFormData({ ...formData, salaryType: e.target.value })}
+                    >
+                      <option value="MONTHLY">Monthly Fixed Salary</option>
+                      <option value="DAILY">Daily Wages</option>
+                    </select>
+                  </div>
+
+                  {/* Overtime Rate (₹/hr) */}
+                  <div>
+                    <label className="form-label-swagat">
+                      Overtime Rate (₹ / Hour)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      className="form-control"
+                      placeholder="e.g. 150 (Leave blank for auto)"
+                      value={formData.overtimeRate}
+                      onChange={(e) => setFormData({ ...formData, overtimeRate: e.target.value })}
+                    />
+                  </div>
+
+                  {/* Monthly Fixed Allowance (₹) */}
+                  <div>
+                    <label className="form-label-swagat">
+                      Fixed Monthly Allowance (₹)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      className="form-control"
+                      placeholder="e.g. 2000"
+                      value={formData.allowance}
+                      onChange={(e) => setFormData({ ...formData, allowance: e.target.value })}
+                    />
+                  </div>
                 </div>
               </form>
             </div>
@@ -1261,89 +1353,93 @@ export default function EmployeeMasterPage() {
             }}
           >
             {/* Modal Header Profile Banner */}
-            <div className="modal-header-swagat">
-              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                {/* Large Profile Photo Avatar */}
-                <div
-                  style={{
-                    width: "70px",
-                    height: "70px",
-                    borderRadius: "50%",
-                    overflow: "hidden",
-                    border: "3px solid #FFFFFF",
-                    boxShadow: "0 2px 10px rgba(0,0,0,0.15)",
-                    backgroundColor: "#F1F5F9",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  {selectedEmployee.photoUrl ? (
-                    <img
-                      src={selectedEmployee.photoUrl}
-                      alt={selectedEmployee.fullName}
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        backgroundColor: "#123B5D",
-                        color: "#FFFFFF",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontWeight: 800,
-                        fontSize: "26px",
-                      }}
-                    >
-                      {selectedEmployee.fullName.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                </div>
-
-                <div>
-                  <h2 style={{ fontSize: "19px", fontWeight: 800, color: "#0B2239", margin: "0 0 4px" }}>
-                    {selectedEmployee.fullName}
-                  </h2>
-                  <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
-                    <span
-                      style={{
-                        padding: "2px 8px",
-                        borderRadius: "4px",
-                        backgroundColor: "#F1F5F9",
-                        color: "#123B5D",
-                        fontSize: "12px",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {selectedEmployee.employeeCode}
-                    </span>
-                    <span
-                      style={{
-                        fontSize: "12px",
-                        padding: "2px 8px",
-                        borderRadius: "4px",
-                        backgroundColor: "#EFF6FF",
-                        color: "#1D4ED8",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {selectedEmployee.department || "Production"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
+            <div
+              className="modal-header-swagat"
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                textAlign: "center",
+                position: "relative",
+                padding: "24px 20px 20px",
+                borderBottom: "1px solid #E2E8F0",
+                backgroundColor: "#F8FAFC",
+              }}
+            >
+              {/* Top Right Close Button */}
               <button
                 type="button"
                 className="modal-close-btn"
                 onClick={() => setIsViewOpen(false)}
+                style={{
+                  position: "absolute",
+                  top: "16px",
+                  right: "16px",
+                }}
               >
                 <FiX />
               </button>
+
+              {/* Large Centered Profile Photo Avatar */}
+              <div
+                style={{
+                  width: "110px",
+                  height: "110px",
+                  borderRadius: "50%",
+                  overflow: "hidden",
+                  border: "4px solid #FFFFFF",
+                  boxShadow: "0 4px 14px rgba(18, 59, 93, 0.18)",
+                  backgroundColor: "#F1F5F9",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: "12px",
+                  flexShrink: 0,
+                }}
+              >
+                <EmployeePhotoAvatar
+                  photoUrl={selectedEmployee.photoUrl}
+                  name={selectedEmployee.fullName}
+                  fontSize="42px"
+                  backgroundColor="#123B5D"
+                  textColor="#FFFFFF"
+                />
+              </div>
+
+              {/* Centered Employee Name & Information Badges */}
+              <h2 style={{ fontSize: "20px", fontWeight: 800, color: "#0B2239", margin: "0 0 6px", textAlign: "center" }}>
+                {selectedEmployee.fullName}
+              </h2>
+
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexWrap: "wrap", gap: "8px" }}>
+                <span
+                  style={{
+                    padding: "3px 10px",
+                    borderRadius: "4px",
+                    backgroundColor: "#FFFFFF",
+                    color: "#123B5D",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    border: "1px solid #CBD5E1",
+                  }}
+                >
+                  {selectedEmployee.employeeCode}
+                </span>
+                <span
+                  style={{
+                    fontSize: "12px",
+                    padding: "3px 10px",
+                    borderRadius: "4px",
+                    backgroundColor: "#EFF6FF",
+                    color: "#1D4ED8",
+                    fontWeight: 600,
+                    border: "1px solid #BFDBFE",
+                  }}
+                >
+                  {selectedEmployee.department || "Production"}
+                </span>
+              </div>
             </div>
 
             {/* Profile Information Body */}
@@ -1410,6 +1506,15 @@ export default function EmployeeMasterPage() {
                   </div>
                   <div style={{ fontWeight: 600, color: "#1E293B" }}>
                     {selectedEmployee.email || "None"}
+                  </div>
+                </div>
+
+                <div>
+                  <div style={{ color: "#64748B", fontSize: "12px", fontWeight: 600, marginBottom: "2px" }}>
+                    Base Salary (Master Rate)
+                  </div>
+                  <div style={{ fontWeight: 800, color: "#16A34A" }}>
+                    ₹{parseFloat(selectedEmployee.baseSalary || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / {selectedEmployee.salaryType === "DAILY" ? "Day" : "Month"}
                   </div>
                 </div>
 

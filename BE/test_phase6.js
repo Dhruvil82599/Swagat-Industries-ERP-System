@@ -133,7 +133,7 @@ async function runPhase6Tests() {
     const attDate1 = `${datePrefix}-10`;
     const attDate2 = `${datePrefix}-11`;
 
-    await makeRequest(
+    const att1Res = await makeRequest(
       {
         hostname: "localhost",
         port: 5000,
@@ -142,11 +142,13 @@ async function runPhase6Tests() {
         headers: authHeaders,
       },
       {
-        attendanceDate: attDate1,
-        attendanceList: [
+        date: attDate1,
+        attendances: [
           {
             employeeId: targetEmployee.id,
             status: "PRESENT",
+            checkIn: "09:00",
+            checkOut: "22:00",
             overtimeHours: 6.0,
             remarks: "Phase 6 test OT",
           },
@@ -154,7 +156,7 @@ async function runPhase6Tests() {
       }
     );
 
-    await makeRequest(
+    const att2Res = await makeRequest(
       {
         hostname: "localhost",
         port: 5000,
@@ -163,8 +165,8 @@ async function runPhase6Tests() {
         headers: authHeaders,
       },
       {
-        attendanceDate: attDate2,
-        attendanceList: [
+        date: attDate2,
+        attendances: [
           {
             employeeId: targetEmployee.id,
             status: "HALF DAY",
@@ -174,7 +176,7 @@ async function runPhase6Tests() {
         ],
       }
     );
-    assert(true, "Saved test daily attendance & overtime records");
+    assert(att1Res.status === 200 && att2Res.status === 200, "Saved test daily attendance & overtime records");
 
     // Add Advance transaction for employee
     const advRes = await makeRequest(

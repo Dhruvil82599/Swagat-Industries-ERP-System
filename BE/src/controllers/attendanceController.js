@@ -338,10 +338,14 @@ async function saveDailyAttendance(req, res, next) {
         const checkOut = status === "PRESENT" ? (rec.checkOut || COMPANY_CONFIG.endTime) : null;
 
         // Auto-calculate regular & overtime hours if not explicitly provided
-        let regularHours = Number(rec.regularHours);
-        let overtimeHours = Number(rec.overtimeHours);
+        let regularHours = rec.regularHours !== undefined && rec.regularHours !== null && !isNaN(Number(rec.regularHours))
+          ? Number(rec.regularHours)
+          : COMPANY_CONFIG.regularHours;
+        let overtimeHours = rec.overtimeHours !== undefined && rec.overtimeHours !== null && !isNaN(Number(rec.overtimeHours))
+          ? Number(rec.overtimeHours)
+          : 0;
 
-        if (isNaN(regularHours) || isNaN(overtimeHours)) {
+        if (rec.regularHours === undefined && rec.overtimeHours === undefined && checkIn && checkOut) {
           const hoursCalc = calculateHours(status, checkIn, checkOut);
           regularHours = hoursCalc.regularHours;
           overtimeHours = hoursCalc.overtimeHours;
