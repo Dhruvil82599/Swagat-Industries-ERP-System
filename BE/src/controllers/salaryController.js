@@ -173,7 +173,6 @@ async function getSalaries(req, res, next) {
         OR: [
           { employeeCode: { contains: term, mode: "insensitive" } },
           { fullName: { contains: term, mode: "insensitive" } },
-          { department: { contains: term, mode: "insensitive" } },
         ],
       };
     }
@@ -186,7 +185,6 @@ async function getSalaries(req, res, next) {
             id: true,
             employeeCode: true,
             fullName: true,
-            department: true,
             mobileNumber: true,
             photoUrl: true,
           },
@@ -371,7 +369,6 @@ async function generateOrSaveSalary(req, res, next) {
             id: true,
             employeeCode: true,
             fullName: true,
-            department: true,
             mobileNumber: true,
           },
         },
@@ -595,7 +592,6 @@ async function updateSalary(req, res, next) {
             id: true,
             employeeCode: true,
             fullName: true,
-            department: true,
             mobileNumber: true,
           },
         },

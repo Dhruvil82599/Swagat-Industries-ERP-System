@@ -7,6 +7,7 @@ import {
   FiCalendar,
   FiDollarSign,
   FiCheckCircle,
+  FiShare2,
 } from "react-icons/fi";
 import { api } from "../../services/api";
 import { numberToIndianWords } from "../../utils/numberToWords";
@@ -306,10 +307,65 @@ export default function SalarySlipModal({ salaryId, onClose }) {
     );
   }
 
-  const monthName = MONTH_NAMES[(salary.month || 1) - 1];
-  const emp = salary.employee || {};
-  const netSalary = parseFloat(salary.netSalary) || 0;
+  const monthName = MONTH_NAMES[(salary?.month || 1) - 1];
+  const emp = salary?.employee || {};
+  const netSalary = parseFloat(salary?.netSalary) || 0;
   const amountInWords = numberToIndianWords(netSalary);
+
+  const handleWhatsAppShare = () => {
+    if (!salary) return;
+
+    const mobileNo = emp.mobileNumber || "";
+    const payslipNo = `SLIP-${emp.employeeCode || 'EMP'}-${salary.month || 1}-${salary.year || 2026}`;
+    const netSalaryStr = Number(salary.netSalary || 0).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+    });
+    const grossSalaryStr = Number(salary.grossSalary || 0).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+    });
+    const advanceStr = Number(salary.advanceDeduction || 0).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+    });
+    const overtimeStr = Number(salary.overtimeAmount || 0).toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+    });
+
+    const text = `*EMPLOYEE PAYSLIP STATEMENT - SWAGAT INDUSTRIES*
+Payslip No: ${payslipNo}
+Period: ${monthName} ${salary.year}
+
+*Employee Details:*
+Name: ${emp.fullName || 'N/A'} (${emp.employeeCode || ''})
+Mobile: ${mobileNo || 'N/A'}
+Salary Type: ${salary.salaryType || 'MONTHLY'}
+
+*Attendance & Payable Days:*
+Total Days in Month: ${salary.totalDaysInMonth || 30} Days
+Present Days: ${salary.presentDays || 0} | Half Days: ${salary.halfDays || 0}
+Absents: ${salary.absentDays || 0} | Paid Holidays: ${salary.holidayDays || 0}
+Payable Days: ${salary.payableDays || 0} Days
+${parseFloat(salary.overtimeHours) > 0 ? `Overtime: ${salary.overtimeHours} Hrs (₹${overtimeStr})\n` : ''}
+*Earnings Breakdown:*
+Earned Basic: ₹${Number(salary.earnedBasic || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+Gross Earnings: ₹${grossSalaryStr}
+Advance Deduction: ₹${advanceStr}
+
+*NET PAYABLE SALARY: ₹${netSalaryStr}*
+(${amountInWords})
+
+Swagat Industries - Official Monthly Salary Statement`;
+
+    const encodedText = encodeURIComponent(text);
+    const cleanMobile = mobileNo.replace(/\D/g, "");
+    const targetMobile =
+      cleanMobile.length === 10 ? `91${cleanMobile}` : cleanMobile;
+
+    const waUrl = targetMobile
+      ? `https://wa.me/${targetMobile}?text=${encodedText}`
+      : `https://wa.me/?text=${encodedText}`;
+
+    window.open(waUrl, "_blank");
+  };
 
   return (
     <div className="modal-overlay" style={{ zIndex: 1100 }}>
@@ -345,6 +401,25 @@ export default function SalarySlipModal({ salaryId, onClose }) {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <button
+              type="button"
+              className="btn-accent-swagat"
+              style={{
+                padding: "6px 14px",
+                fontSize: "13px",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                backgroundColor: "#25D366",
+                borderColor: "#25D366",
+                color: "#FFFFFF",
+                fontWeight: 600,
+              }}
+              onClick={handleWhatsAppShare}
+            >
+              <FiShare2 /> Share on WhatsApp
+            </button>
+
             <button
               type="button"
               className="btn-accent-swagat"
@@ -594,9 +669,6 @@ export default function SalarySlipModal({ salaryId, onClose }) {
                   <div className="info-box-title">Employee Details</div>
                   <div className="info-text-bold">
                     {emp.fullName} ({emp.employeeCode})
-                  </div>
-                  <div className="info-text">
-                    <strong>Department:</strong> {emp.department || "General"}
                   </div>
                   <div className="info-text">
                     <strong>Mobile:</strong> {emp.mobileNumber || "N/A"}

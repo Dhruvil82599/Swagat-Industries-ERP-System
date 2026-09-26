@@ -397,7 +397,6 @@ export const api = {
     const query = new URLSearchParams();
     if (params.search) query.append("search", params.search);
     if (params.status) query.append("status", params.status);
-    if (params.department) query.append("department", params.department);
     const queryString = query.toString() ? `?${query.toString()}` : "";
     return fetch(`${BASE_URL}/employees${queryString}`, {
       headers: getAuthHeaders(),
@@ -447,10 +446,9 @@ export const api = {
     }).then(handleResponse),
 
   // Employee Attendance (Phase 4)
-  getDailyAttendance: (date = "", department = "", search = "") => {
+  getDailyAttendance: (date = "", search = "") => {
     const params = new URLSearchParams();
     if (date) params.append("date", date);
-    if (department) params.append("department", department);
     if (search) params.append("search", search);
     const query = params.toString() ? `?${params.toString()}` : "";
     return fetch(`${BASE_URL}/attendance/daily${query}`, {
@@ -468,7 +466,6 @@ export const api = {
     if (params.fromDate) query.append("fromDate", params.fromDate);
     if (params.toDate) query.append("toDate", params.toDate);
     if (params.employeeId) query.append("employeeId", params.employeeId);
-    if (params.department) query.append("department", params.department);
     if (params.status) query.append("status", params.status);
     if (params.search) query.append("search", params.search);
     const queryString = query.toString() ? `?${query.toString()}` : "";
@@ -637,7 +634,6 @@ export const api = {
     if (params.fromDate) query.append("fromDate", params.fromDate);
     if (params.toDate) query.append("toDate", params.toDate);
     if (params.employeeId) query.append("employeeId", params.employeeId);
-    if (params.department) query.append("department", params.department);
     if (params.status) query.append("status", params.status);
     if (params.search) query.append("search", params.search);
     const queryString = query.toString() ? `?${query.toString()}` : "";
@@ -651,7 +647,6 @@ export const api = {
     if (params.month) query.append("month", params.month);
     if (params.year) query.append("year", params.year);
     if (params.employeeId) query.append("employeeId", params.employeeId);
-    if (params.department) query.append("department", params.department);
     if (params.search) query.append("search", params.search);
     const queryString = query.toString() ? `?${query.toString()}` : "";
     return fetch(`${BASE_URL}/reports/attendance-summary${queryString}`, {
@@ -677,7 +672,6 @@ export const api = {
     if (params.month) query.append("month", params.month);
     if (params.year) query.append("year", params.year);
     if (params.employeeId) query.append("employeeId", params.employeeId);
-    if (params.department) query.append("department", params.department);
     if (params.search) query.append("search", params.search);
     const queryString = query.toString() ? `?${query.toString()}` : "";
     return fetch(`${BASE_URL}/reports/overtime${queryString}`, {
@@ -690,7 +684,6 @@ export const api = {
     if (params.month) query.append("month", params.month);
     if (params.year) query.append("year", params.year);
     if (params.employeeId) query.append("employeeId", params.employeeId);
-    if (params.department) query.append("department", params.department);
     if (params.status) query.append("status", params.status);
     if (params.search) query.append("search", params.search);
     const queryString = query.toString() ? `?${query.toString()}` : "";

@@ -61,7 +61,6 @@ export default function EmployeeReportsPage() {
     new Date(currentYear, currentMonth, 0).toISOString().split("T")[0]
   );
   const [employeeId, setEmployeeId] = useState("");
-  const [department, setDepartment] = useState("ALL");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [paymentModeFilter, setPaymentModeFilter] = useState("ALL");
   const [searchTerm, setSearchTerm] = useState("");
@@ -86,7 +85,7 @@ export default function EmployeeReportsPage() {
   // Fetch report data whenever active tab or core filters change
   useEffect(() => {
     fetchReportData();
-  }, [activeTab, month, year, fromDate, toDate, employeeId, department, statusFilter, paymentModeFilter]);
+  }, [activeTab, month, year, fromDate, toDate, employeeId, statusFilter, paymentModeFilter]);
 
   const fetchEmployeesList = async () => {
     try {
@@ -106,7 +105,6 @@ export default function EmployeeReportsPage() {
           fromDate,
           toDate,
           employeeId,
-          department: department === "ALL" ? "" : department,
           status: statusFilter,
           search: searchTerm,
         });
@@ -116,7 +114,6 @@ export default function EmployeeReportsPage() {
           month,
           year,
           employeeId,
-          department: department === "ALL" ? "" : department,
           search: searchTerm,
         });
         setAttendanceSummaryData(data || { employees: [], summary: {} });
@@ -134,7 +131,6 @@ export default function EmployeeReportsPage() {
           month,
           year,
           employeeId,
-          department: department === "ALL" ? "" : department,
           search: searchTerm,
         });
         setOvertimeReportData(data || { overtimeRecords: [], summary: {} });
@@ -143,7 +139,6 @@ export default function EmployeeReportsPage() {
           month,
           year,
           employeeId,
-          department: department === "ALL" ? "" : department,
           status: statusFilter,
           search: searchTerm,
         });
@@ -182,7 +177,6 @@ export default function EmployeeReportsPage() {
         "Date",
         "Employee Code",
         "Employee Name",
-        "Department",
         "Status",
         "Check In",
         "Check Out",
@@ -195,7 +189,6 @@ export default function EmployeeReportsPage() {
         r.attendanceDate,
         r.employeeCode,
         r.fullName,
-        r.department,
         r.status,
         r.checkIn,
         r.checkOut,
@@ -209,7 +202,6 @@ export default function EmployeeReportsPage() {
       const headers = [
         "Employee Code",
         "Employee Name",
-        "Department",
         "Total Working Days",
         "Present Days",
         "Half Days",
@@ -223,7 +215,6 @@ export default function EmployeeReportsPage() {
       const rows = (attendanceSummaryData.employees || []).map((e) => [
         e.employeeCode,
         e.fullName,
-        e.department,
         e.totalWorkingDays,
         e.presentDays,
         e.halfDays,
@@ -240,7 +231,6 @@ export default function EmployeeReportsPage() {
         "Date",
         "Employee Code",
         "Employee Name",
-        "Department",
         "Amount (₹)",
         "Payment Mode",
         "Reason",
@@ -251,7 +241,6 @@ export default function EmployeeReportsPage() {
         a.advanceDate,
         a.employeeCode,
         a.fullName,
-        a.department,
         a.amount,
         a.paymentMode,
         a.reason,
@@ -263,7 +252,6 @@ export default function EmployeeReportsPage() {
       const headers = [
         "Employee Code",
         "Employee Name",
-        "Department",
         "Regular Hours",
         "Overtime Hours",
         "Hourly OT Rate (₹)",
@@ -273,7 +261,6 @@ export default function EmployeeReportsPage() {
       const rows = (overtimeReportData.overtimeRecords || []).map((o) => [
         o.employeeCode,
         o.fullName,
-        o.department,
         o.regularHours,
         o.overtimeHours,
         o.hourlyRate,
@@ -285,7 +272,6 @@ export default function EmployeeReportsPage() {
       const headers = [
         "Employee Code",
         "Employee Name",
-        "Department",
         "Base Salary (₹)",
         "Present Days",
         "Half Days",
@@ -303,7 +289,6 @@ export default function EmployeeReportsPage() {
       const rows = (salaryReportData.salaries || []).map((s) => [
         s.employeeCode,
         s.fullName,
-        s.department,
         s.baseSalary,
         s.presentDays,
         s.halfDays,
@@ -324,7 +309,6 @@ export default function EmployeeReportsPage() {
       const rows = [
         ["Employee Profile", "Employee Code", ledgerData.employee.employeeCode],
         ["Employee Profile", "Full Name", ledgerData.employee.fullName],
-        ["Employee Profile", "Department", ledgerData.employee.department],
         ["Salary Structure", "Base Salary", `₹${ledgerData.employee.baseSalary}`],
         ["Salary Structure", "Salary Type", ledgerData.employee.salaryType],
         ["Salary Structure", "OT Hourly Rate", `₹${ledgerData.employee.overtimeRate}`],
@@ -760,22 +744,7 @@ export default function EmployeeReportsPage() {
                 </select>
               </div>
 
-              {/* Department Filter */}
-              {activeTab !== "advance" && activeTab !== "salary-ledger" && (
-                <div>
-                  <label style={{ fontSize: "12px", fontWeight: 700, color: "#334155", marginBottom: "6px", display: "block" }}>
-                    Department
-                  </label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="e.g. Sales, Works"
-                    value={department === "ALL" ? "" : department}
-                    onChange={(e) => setDepartment(e.target.value || "ALL")}
-                    style={{ fontSize: "13px", height: "38px" }}
-                  />
-                </div>
-              )}
+
 
               {/* Status Filter for Attendance Log */}
               {activeTab === "attendance-log" && (
@@ -866,7 +835,6 @@ export default function EmployeeReportsPage() {
                   className="btn-outline-swagat"
                   onClick={() => {
                     setSearchTerm("");
-                    setDepartment("ALL");
                     setStatusFilter("ALL");
                     setPaymentModeFilter("ALL");
                     setEmployeeId("");
@@ -1089,7 +1057,6 @@ export default function EmployeeReportsPage() {
                           <tr>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700 }}>Date</th>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700 }}>Employee</th>
-                            <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700 }}>Department</th>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700, textAlign: "center" }}>Status</th>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700 }}>Check In</th>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700 }}>Check Out</th>
@@ -1114,7 +1081,6 @@ export default function EmployeeReportsPage() {
                                   <div style={{ fontWeight: 700, color: "#123B5D" }}>{r.fullName}</div>
                                   <div style={{ fontSize: "11px", color: "#64748B" }}>{r.employeeCode}</div>
                                 </td>
-                                <td style={{ padding: "12px 16px" }}>{r.department}</td>
                                 <td style={{ padding: "12px 16px", textAlign: "center" }}>
                                   {renderStatusBadge(r.status)}
                                 </td>
@@ -1166,7 +1132,6 @@ export default function EmployeeReportsPage() {
                         <thead style={{ backgroundColor: "#F8FAFC", borderBottom: "2px solid #E2E8F0" }}>
                           <tr>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700 }}>Employee</th>
-                            <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700 }}>Department</th>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700, textAlign: "center" }}>Working Days</th>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700, textAlign: "center" }}>Present</th>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700, textAlign: "center" }}>Half Days</th>
@@ -1191,7 +1156,6 @@ export default function EmployeeReportsPage() {
                                   <div style={{ fontWeight: 700, color: "#123B5D" }}>{e.fullName}</div>
                                   <div style={{ fontSize: "11px", color: "#64748B" }}>{e.employeeCode}</div>
                                 </td>
-                                <td style={{ padding: "12px 16px" }}>{e.department}</td>
                                 <td style={{ padding: "12px 16px", textAlign: "center", fontWeight: 600 }}>{e.totalWorkingDays}</td>
                                 <td style={{ padding: "12px 16px", textAlign: "center", color: "#16A34A", fontWeight: 700 }}>{e.presentDays}</td>
                                 <td style={{ padding: "12px 16px", textAlign: "center", color: "#D96F0B", fontWeight: 600 }}>{e.halfDays}</td>
@@ -1322,7 +1286,6 @@ export default function EmployeeReportsPage() {
                           <tr>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700 }}>Date</th>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700 }}>Employee</th>
-                            <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700 }}>Department</th>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700, textAlign: "right" }}>Amount (₹)</th>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700 }}>Payment Mode</th>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700 }}>Reason</th>
@@ -1345,7 +1308,6 @@ export default function EmployeeReportsPage() {
                                   <div style={{ fontWeight: 700, color: "#123B5D" }}>{a.fullName}</div>
                                   <div style={{ fontSize: "11px", color: "#64748B" }}>{a.employeeCode}</div>
                                 </td>
-                                <td style={{ padding: "12px 16px" }}>{a.department}</td>
                                 <td style={{ padding: "12px 16px", textAlign: "right", fontWeight: 800, color: "#D96F0B" }}>
                                   ₹{a.amount.toLocaleString("en-IN")}
                                 </td>
@@ -1478,7 +1440,6 @@ export default function EmployeeReportsPage() {
                         <thead style={{ backgroundColor: "#F8FAFC", borderBottom: "2px solid #E2E8F0" }}>
                           <tr>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700 }}>Employee</th>
-                            <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700 }}>Department</th>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700, textAlign: "right" }}>Regular Hrs</th>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700, textAlign: "right" }}>Overtime Hrs</th>
                             <th style={{ padding: "12px 16px", color: "#1E293B", fontWeight: 700, textAlign: "right" }}>Hourly OT Rate (₹)</th>
@@ -1500,7 +1461,6 @@ export default function EmployeeReportsPage() {
                                   <div style={{ fontWeight: 700, color: "#123B5D" }}>{o.fullName}</div>
                                   <div style={{ fontSize: "11px", color: "#64748B" }}>{o.employeeCode}</div>
                                 </td>
-                                <td style={{ padding: "12px 16px" }}>{o.department}</td>
                                 <td style={{ padding: "12px 16px", textAlign: "right" }}>{o.regularHours}</td>
                                 <td style={{ padding: "12px 16px", textAlign: "right", fontWeight: 700, color: "#2563EB" }}>{o.overtimeHours}</td>
                                 <td style={{ padding: "12px 16px", textAlign: "right" }}>₹{o.hourlyRate}/hr</td>
@@ -1767,7 +1727,7 @@ export default function EmployeeReportsPage() {
                               <tr key={s.id}>
                                 <td style={{ padding: "12px 16px" }}>
                                   <div style={{ fontWeight: 700, color: "#123B5D" }}>{s.fullName}</div>
-                                  <div style={{ fontSize: "11px", color: "#64748B" }}>{s.employeeCode} ({s.department})</div>
+                                  <div style={{ fontSize: "11px", color: "#64748B" }}>{s.employeeCode}</div>
                                 </td>
                                 <td style={{ padding: "12px 16px", textAlign: "right" }}>₹{s.baseSalary.toLocaleString("en-IN")}</td>
                                 <td style={{ padding: "12px 16px", textAlign: "center", fontSize: "12px" }}>
@@ -1837,7 +1797,7 @@ export default function EmployeeReportsPage() {
                               {ledgerData.employee.fullName} ({ledgerData.employee.employeeCode})
                             </h2>
                             <div style={{ fontSize: "13px", color: "#64748B" }}>
-                              Department: <strong style={{ color: "#0F172A" }}>{ledgerData.employee.department}</strong> | Mobile: {ledgerData.employee.mobileNumber || "N/A"}
+                              Mobile: {ledgerData.employee.mobileNumber || "N/A"}
                             </div>
                           </div>
 

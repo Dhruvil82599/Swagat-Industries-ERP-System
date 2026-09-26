@@ -116,7 +116,7 @@ export default function EmployeeDashboardPage() {
       id: "master",
       step: "01",
       title: "Employee Master",
-      desc: "Directory of workforce profiles, personal data, departments, and base salary rates.",
+      desc: "Directory of workforce profiles, personal data, and base salary rates.",
       icon: <FiUsers />,
       accentColor: "#123B5D",
       badgeColor: "#EFF6FF",
@@ -281,34 +281,6 @@ export default function EmployeeDashboardPage() {
             >
               Welcome back, <b>{user?.fullName || user?.username || "Administrator"}</b>. Manage workforce master data, daily attendance, overtime calculations, advances, monthly payroll, and salary disbursement vouchers cleanly in one unified database environment.
             </p>
-          </div>
-
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-            <button
-              type="button"
-              className="btn-accent-swagat"
-              onClick={() => navigate("/employee/attendance")}
-              style={{ padding: "10px 18px", fontSize: "13.5px" }}
-            >
-              <FiClock /> Mark Attendance
-            </button>
-
-            <button
-              type="button"
-              className="btn-outline-swagat"
-              onClick={() => navigate("/dashboard")}
-              style={{
-                borderColor: "rgba(255, 255, 255, 0.35)",
-                color: "#FFFFFF",
-                padding: "10px 18px",
-                fontSize: "13.5px",
-                backgroundColor: "rgba(255, 255, 255, 0.05)",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.15)")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)")}
-            >
-              <FiRepeat /> Switch to Client ERP <FiArrowRight />
-            </button>
           </div>
         </div>
       </div>

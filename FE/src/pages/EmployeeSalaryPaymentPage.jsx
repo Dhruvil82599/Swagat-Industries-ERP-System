@@ -1216,8 +1216,7 @@ export default function EmployeeSalaryPaymentPage() {
                                     }}
                                   >
                                     {sal.employee?.employeeCode}
-                                  </span>{" "}
-                                  • {sal.employee?.department || "General"}
+                                  </span>
                                 </div>
                               </div>
                             </div>

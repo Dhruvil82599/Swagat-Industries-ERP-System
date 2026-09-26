@@ -157,23 +157,18 @@ function validateAttendanceRecord(rec) {
  */
 async function getDailyAttendance(req, res, next) {
   try {
-    const { date, department, search } = req.query;
+    const { date, search } = req.query;
     const targetDate = parseDateOnly(date);
     const formattedDateStr = formatDateString(targetDate);
 
     // Build filter for employees
     const empWhere = { isActive: true };
 
-    if (department && department.trim() !== "") {
-      empWhere.department = { contains: department.trim(), mode: "insensitive" };
-    }
-
     if (search && search.trim() !== "") {
       const term = search.trim();
       empWhere.OR = [
         { employeeCode: { contains: term, mode: "insensitive" } },
         { fullName: { contains: term, mode: "insensitive" } },
-        { department: { contains: term, mode: "insensitive" } },
       ];
     }
 
@@ -185,7 +180,6 @@ async function getDailyAttendance(req, res, next) {
         id: true,
         employeeCode: true,
         fullName: true,
-        department: true,
         photoUrl: true,
         baseSalary: true,
         salaryType: true,
@@ -243,7 +237,6 @@ async function getDailyAttendance(req, res, next) {
           employeeId: emp.id,
           employeeCode: emp.employeeCode,
           fullName: emp.fullName,
-          department: emp.department,
           photoUrl: emp.photoUrl,
           attendanceId: existing.id,
           status: existing.status,
@@ -271,7 +264,6 @@ async function getDailyAttendance(req, res, next) {
           employeeId: emp.id,
           employeeCode: emp.employeeCode,
           fullName: emp.fullName,
-          department: emp.department,
           photoUrl: emp.photoUrl,
           attendanceId: null,
           status: "",
@@ -478,7 +470,7 @@ async function saveDailyAttendance(req, res, next) {
  */
 async function getAttendanceRegister(req, res, next) {
   try {
-    const { fromDate, toDate, employeeId, department, status, search } = req.query;
+    const { fromDate, toDate, employeeId, status, search } = req.query;
 
     const where = {};
 
@@ -506,17 +498,13 @@ async function getAttendanceRegister(req, res, next) {
       where.status = status.trim().toUpperCase();
     }
 
-    // Search and Department filter through Employee relationship
+    // Search filter through Employee relationship
     const empWhere = {};
-    if (department && department.trim() !== "") {
-      empWhere.department = { contains: department.trim(), mode: "insensitive" };
-    }
     if (search && search.trim() !== "") {
       const term = search.trim();
       empWhere.OR = [
         { employeeCode: { contains: term, mode: "insensitive" } },
         { fullName: { contains: term, mode: "insensitive" } },
-        { department: { contains: term, mode: "insensitive" } },
       ];
     }
 
@@ -532,7 +520,6 @@ async function getAttendanceRegister(req, res, next) {
             id: true,
             employeeCode: true,
             fullName: true,
-            department: true,
             photoUrl: true,
             baseSalary: true,
             salaryType: true,
@@ -577,7 +564,6 @@ async function getAttendanceRegister(req, res, next) {
         employeeId: att.employeeId,
         employeeCode: att.employee?.employeeCode,
         fullName: att.employee?.fullName,
-        department: att.employee?.department,
         photoUrl: att.employee?.photoUrl,
         status: att.status,
         checkIn: att.checkIn,

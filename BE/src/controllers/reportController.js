@@ -41,7 +41,7 @@ function getDaysInMonth(year, month) {
  */
 async function getAttendanceReport(req, res, next) {
   try {
-    const { fromDate, toDate, employeeId, department, status, search } = req.query;
+    const { fromDate, toDate, employeeId, status, search } = req.query;
 
     const where = {};
 
@@ -61,15 +61,11 @@ async function getAttendanceReport(req, res, next) {
     }
 
     const empWhere = {};
-    if (department && department.trim() !== "" && department.trim().toUpperCase() !== "ALL") {
-      empWhere.department = { contains: department.trim(), mode: "insensitive" };
-    }
     if (search && search.trim() !== "") {
       const term = search.trim();
       empWhere.OR = [
         { employeeCode: { contains: term, mode: "insensitive" } },
         { fullName: { contains: term, mode: "insensitive" } },
-        { department: { contains: term, mode: "insensitive" } },
       ];
     }
 
@@ -85,7 +81,6 @@ async function getAttendanceReport(req, res, next) {
             id: true,
             employeeCode: true,
             fullName: true,
-            department: true,
             photoUrl: true,
             baseSalary: true,
             salaryType: true,
@@ -125,7 +120,6 @@ async function getAttendanceReport(req, res, next) {
         employeeId: att.employeeId,
         employeeCode: att.employee?.employeeCode,
         fullName: att.employee?.fullName,
-        department: att.employee?.department || "General",
         status: att.status,
         checkIn: att.checkIn || "-",
         checkOut: att.checkOut || "-",
@@ -167,7 +161,7 @@ async function getMonthlyAttendanceSummary(req, res, next) {
     const now = new Date();
     const month = parseInt(req.query.month, 10) || now.getMonth() + 1;
     const year = parseInt(req.query.year, 10) || now.getFullYear();
-    const { department, employeeId, search } = req.query;
+    const { employeeId, search } = req.query;
 
     const totalWorkingDays = getDaysInMonth(year, month);
     const startDate = new Date(year, month - 1, 1);
@@ -179,15 +173,11 @@ async function getMonthlyAttendanceSummary(req, res, next) {
       const parsedId = parseInt(employeeId, 10);
       if (!isNaN(parsedId)) empWhere.id = parsedId;
     }
-    if (department && department.trim() !== "" && department.trim().toUpperCase() !== "ALL") {
-      empWhere.department = { contains: department.trim(), mode: "insensitive" };
-    }
     if (search && search.trim() !== "") {
       const term = search.trim();
       empWhere.OR = [
         { employeeCode: { contains: term, mode: "insensitive" } },
         { fullName: { contains: term, mode: "insensitive" } },
-        { department: { contains: term, mode: "insensitive" } },
       ];
     }
 
@@ -197,7 +187,6 @@ async function getMonthlyAttendanceSummary(req, res, next) {
         id: true,
         employeeCode: true,
         fullName: true,
-        department: true,
         photoUrl: true,
         salaryType: true,
       },
@@ -251,7 +240,6 @@ async function getMonthlyAttendanceSummary(req, res, next) {
         employeeId: emp.id,
         employeeCode: emp.employeeCode,
         fullName: emp.fullName,
-        department: emp.department || "General",
         photoUrl: emp.photoUrl,
         month,
         year,
@@ -322,7 +310,6 @@ async function getAdvanceReport(req, res, next) {
             OR: [
               { employeeCode: { contains: term, mode: "insensitive" } },
               { fullName: { contains: term, mode: "insensitive" } },
-              { department: { contains: term, mode: "insensitive" } },
             ],
           },
         },
@@ -337,7 +324,6 @@ async function getAdvanceReport(req, res, next) {
             id: true,
             employeeCode: true,
             fullName: true,
-            department: true,
             mobileNumber: true,
           },
         },
@@ -363,7 +349,6 @@ async function getAdvanceReport(req, res, next) {
         employeeId: adv.employeeId,
         employeeCode: adv.employee?.employeeCode,
         fullName: adv.employee?.fullName,
-        department: adv.employee?.department || "General",
         mobileNumber: adv.employee?.mobileNumber,
         amount: amt,
         paymentMode: adv.paymentMode || "CASH",
@@ -400,7 +385,7 @@ async function getOvertimeReport(req, res, next) {
     const now = new Date();
     const month = parseInt(req.query.month, 10) || now.getMonth() + 1;
     const year = parseInt(req.query.year, 10) || now.getFullYear();
-    const { department, employeeId, search } = req.query;
+    const { employeeId, search } = req.query;
 
     const totalDaysInMonth = getDaysInMonth(year, month);
     const startDate = new Date(year, month - 1, 1);
@@ -411,15 +396,11 @@ async function getOvertimeReport(req, res, next) {
       const parsedId = parseInt(employeeId, 10);
       if (!isNaN(parsedId)) empWhere.id = parsedId;
     }
-    if (department && department.trim() !== "" && department.trim().toUpperCase() !== "ALL") {
-      empWhere.department = { contains: department.trim(), mode: "insensitive" };
-    }
     if (search && search.trim() !== "") {
       const term = search.trim();
       empWhere.OR = [
         { employeeCode: { contains: term, mode: "insensitive" } },
         { fullName: { contains: term, mode: "insensitive" } },
-        { department: { contains: term, mode: "insensitive" } },
       ];
     }
 
@@ -429,7 +410,6 @@ async function getOvertimeReport(req, res, next) {
         id: true,
         employeeCode: true,
         fullName: true,
-        department: true,
         baseSalary: true,
         salaryType: true,
         overtimeRate: true,
@@ -484,7 +464,6 @@ async function getOvertimeReport(req, res, next) {
         employeeId: emp.id,
         employeeCode: emp.employeeCode,
         fullName: emp.fullName,
-        department: emp.department || "General",
         salaryType: emp.salaryType,
         baseSalary: baseSal,
         regularHours: Math.round(regularHours * 100) / 100,
@@ -523,7 +502,7 @@ async function getMonthlySalaryReport(req, res, next) {
     const now = new Date();
     const month = parseInt(req.query.month, 10) || now.getMonth() + 1;
     const year = parseInt(req.query.year, 10) || now.getFullYear();
-    const { department, employeeId, status, search } = req.query;
+    const { employeeId, status, search } = req.query;
 
     const where = { month, year };
 
@@ -537,15 +516,11 @@ async function getMonthlySalaryReport(req, res, next) {
     }
 
     const empWhere = {};
-    if (department && department.trim() !== "" && department.trim().toUpperCase() !== "ALL") {
-      empWhere.department = { contains: department.trim(), mode: "insensitive" };
-    }
     if (search && search.trim() !== "") {
       const term = search.trim();
       empWhere.OR = [
         { employeeCode: { contains: term, mode: "insensitive" } },
         { fullName: { contains: term, mode: "insensitive" } },
-        { department: { contains: term, mode: "insensitive" } },
       ];
     }
     if (Object.keys(empWhere).length > 0) {
@@ -560,7 +535,6 @@ async function getMonthlySalaryReport(req, res, next) {
             id: true,
             employeeCode: true,
             fullName: true,
-            department: true,
             mobileNumber: true,
           },
         },
@@ -600,7 +574,6 @@ async function getMonthlySalaryReport(req, res, next) {
         employeeId: sal.employeeId,
         employeeCode: sal.employee?.employeeCode,
         fullName: sal.employee?.fullName,
-        department: sal.employee?.department || "General",
         month: sal.month,
         year: sal.year,
         salaryType: sal.salaryType,
@@ -812,7 +785,6 @@ async function getEmployeeLedger(req, res, next) {
           id: employee.id,
           employeeCode: employee.employeeCode,
           fullName: employee.fullName,
-          department: employee.department || "General",
           mobileNumber: employee.mobileNumber,
           email: employee.email,
           baseSalary: baseSal,

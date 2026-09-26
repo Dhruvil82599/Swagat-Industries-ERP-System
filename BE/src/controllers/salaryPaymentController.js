@@ -94,7 +94,6 @@ async function getSalaryPayments(req, res, next) {
         OR: [
           { employeeCode: { contains: term, mode: "insensitive" } },
           { fullName: { contains: term, mode: "insensitive" } },
-          { department: { contains: term, mode: "insensitive" } },
         ],
       };
     }
@@ -107,7 +106,6 @@ async function getSalaryPayments(req, res, next) {
             id: true,
             employeeCode: true,
             fullName: true,
-            department: true,
             mobileNumber: true,
             photoUrl: true,
           },

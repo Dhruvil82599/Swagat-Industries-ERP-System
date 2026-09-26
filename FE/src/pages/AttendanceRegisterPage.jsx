@@ -62,7 +62,6 @@ export default function AttendanceRegisterPage() {
   const [fromDate, setFromDate] = useState(() => getFirstDayOfMonth());
   const [toDate, setToDate] = useState(() => formatDateToInput(new Date()));
   const [selectedEmployeeId, setSelectedEmployeeId] = useState("all");
-  const [selectedDepartment, setSelectedDepartment] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -121,7 +120,6 @@ export default function AttendanceRegisterPage() {
         fromDate,
         toDate,
         employeeId: selectedEmployeeId !== "all" ? selectedEmployeeId : undefined,
-        department: selectedDepartment !== "all" ? selectedDepartment : undefined,
         status: selectedStatus !== "all" ? selectedStatus : undefined,
         search: searchTerm.trim() || undefined,
       };
@@ -142,7 +140,7 @@ export default function AttendanceRegisterPage() {
 
   useEffect(() => {
     fetchRegister();
-  }, [fromDate, toDate, selectedEmployeeId, selectedDepartment, selectedStatus]);
+  }, [fromDate, toDate, selectedEmployeeId, selectedStatus]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -224,7 +222,6 @@ export default function AttendanceRegisterPage() {
       "Date",
       "Employee Code",
       "Employee Name",
-      "Department",
       "Status",
       "Check In",
       "Check Out",
@@ -238,7 +235,6 @@ export default function AttendanceRegisterPage() {
       r.attendanceDate,
       `"${r.employeeCode || ""}"`,
       `"${r.fullName || ""}"`,
-      `"${r.department || ""}"`,
       r.status,
       r.checkIn || "",
       r.checkOut || "",
@@ -279,8 +275,7 @@ export default function AttendanceRegisterPage() {
 
   return (
     <AppLayout title="Attendance Register">
-      <div className="content-wrapper">
-        {/* Breadcrumb Flow */}
+      {/* Breadcrumb Flow */}
         <div className="breadcrumb-flow">
           <span className="breadcrumb-item">Swagat Employee ERP</span>
           <span className="breadcrumb-separator">/</span>
@@ -656,7 +651,6 @@ export default function AttendanceRegisterPage() {
                                 </div>
                                 <div style={{ fontSize: "11px", color: "#64748B" }}>
                                   <span style={{ fontWeight: 700, color: "var(--accent, #F28C28)" }}>{rec.employeeCode}</span>
-                                  {rec.department ? ` • ${rec.department}` : ""}
                                 </div>
                               </div>
                             </div>
@@ -1050,10 +1044,8 @@ export default function AttendanceRegisterPage() {
                     <h4 style={{ margin: "0 0 2px 0", fontSize: "16px", fontWeight: 800, color: "#0B2239" }}>
                       {viewingRecord.fullName}
                     </h4>
-                    <div style={{ fontSize: "12px", color: "#64748B", display: "flex", gap: "8px" }}>
+                    <div style={{ fontSize: "12px", color: "#64748B" }}>
                       <span style={{ fontWeight: 700, color: "var(--accent, #F28C28)" }}>{viewingRecord.employeeCode}</span>
-                      <span>•</span>
-                      <span>{viewingRecord.department || "Production"}</span>
                     </div>
                   </div>
                 </div>
@@ -1155,7 +1147,6 @@ export default function AttendanceRegisterPage() {
             </div>
           </div>
         )}
-      </div>
     </AppLayout>
   );
 }

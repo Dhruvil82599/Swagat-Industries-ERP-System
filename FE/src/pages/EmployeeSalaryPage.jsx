@@ -714,7 +714,7 @@ export default function EmployeeSalaryPage() {
                             <div>
                               <div style={{ fontWeight: 700, color: "#0F172A" }}>{emp.fullName}</div>
                               <div style={{ fontSize: "11.5px", color: "#64748B" }}>
-                                <span style={{ fontWeight: 600, color: "#123B5D" }}>{emp.employeeCode}</span> • {emp.department || "General"}
+                                <span style={{ fontWeight: 600, color: "#123B5D" }}>{emp.employeeCode}</span>
                               </div>
                             </div>
                           </div>

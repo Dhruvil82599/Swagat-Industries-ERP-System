@@ -113,7 +113,6 @@ export default function DailyAttendancePage() {
 
   const [selectedDate, setSelectedDate] = useState(() => formatDateToInput(new Date()));
   const [searchTerm, setSearchTerm] = useState("");
-  const [departmentFilter, setDepartmentFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
 
   const [employeesData, setEmployeesData] = useState([]);
@@ -161,16 +160,7 @@ export default function DailyAttendancePage() {
     setSelectedDate(formatDateToInput(new Date()));
   };
 
-  // List of unique departments for filter dropdown
-  const departmentsList = useMemo(() => {
-    const depts = new Set();
-    employeesData.forEach((emp) => {
-      if (emp.department) depts.add(emp.department);
-    });
-    return Array.from(depts);
-  }, [employeesData]);
-
-  // Filtered employees list based on search, department, and status filters
+  // Filtered employees list based on search and status filters
   const filteredEmployees = useMemo(() => {
     return employeesData.filter((emp) => {
       const matchesSearch =
@@ -178,15 +168,12 @@ export default function DailyAttendancePage() {
         emp.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         emp.employeeCode?.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesDept =
-        departmentFilter === "all" || emp.department === departmentFilter;
-
       const matchesStatus =
         statusFilter === "all" || emp.status === statusFilter;
 
-      return matchesSearch && matchesDept && matchesStatus;
+      return matchesSearch && matchesStatus;
     });
-  }, [employeesData, searchTerm, departmentFilter, statusFilter]);
+  }, [employeesData, searchTerm, statusFilter]);
 
   // Update a single employee row in local state
   const updateRow = (employeeId, field, value) => {
@@ -351,8 +338,7 @@ export default function DailyAttendancePage() {
 
   return (
     <AppLayout title="Daily Employee Attendance">
-      <div className="content-wrapper">
-        {/* Breadcrumb Flow */}
+      {/* Breadcrumb Flow */}
         <div className="breadcrumb-flow">
           <span className="breadcrumb-item">Swagat Employee ERP</span>
           <span className="breadcrumb-separator">/</span>
@@ -728,32 +714,14 @@ export default function DailyAttendancePage() {
               <input
                 type="text"
                 className="form-control-swagat"
-                placeholder="Search code, name, department..."
+                placeholder="Search code, name..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
-            {/* Department Filter & Status Filter */}
+            {/* Status Filter */}
             <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <FiFilter style={{ color: "#64748B", fontSize: "14px" }} />
-                <span style={{ fontSize: "13px", fontWeight: 600, color: "#475569" }}>Dept:</span>
-                <select
-                  className="form-select-swagat"
-                  value={departmentFilter}
-                  onChange={(e) => setDepartmentFilter(e.target.value)}
-                  style={{ width: "160px", padding: "6px 10px", fontSize: "13px" }}
-                >
-                  <option value="all">All Departments ({employeesData.length})</option>
-                  {departmentsList.map((dept) => (
-                    <option key={dept} value={dept}>
-                      {dept}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                 <span style={{ fontSize: "13px", fontWeight: 600, color: "#475569" }}>Status:</span>
                 <select
@@ -771,12 +739,11 @@ export default function DailyAttendancePage() {
                 </select>
               </div>
 
-              {(searchTerm || departmentFilter !== "all" || statusFilter !== "all") && (
+              {(searchTerm || statusFilter !== "all") && (
                 <button
                   type="button"
                   onClick={() => {
                     setSearchTerm("");
-                    setDepartmentFilter("all");
                     setStatusFilter("all");
                   }}
                   className="btn-outline-swagat"
@@ -826,7 +793,7 @@ export default function DailyAttendancePage() {
                 <FiUserX style={{ fontSize: "36px", color: "#94A3B8", marginBottom: "12px" }} />
                 <h4 style={{ margin: "0 0 6px 0", color: "#172B3A" }}>No Employees Found</h4>
                 <p style={{ margin: 0, fontSize: "13px" }}>
-                  {searchTerm || departmentFilter !== "all" || statusFilter !== "all"
+                  {searchTerm || statusFilter !== "all"
                     ? "No employees match your search or filter parameters."
                     : "No active employees are registered in the system."}
                 </p>
@@ -890,10 +857,8 @@ export default function DailyAttendancePage() {
                                 <div style={{ fontWeight: 700, fontSize: "14px", color: "#172B3A" }}>
                                   {emp.fullName}
                                 </div>
-                                <div style={{ fontSize: "11.5px", color: "#64748B", display: "flex", gap: "6px" }}>
+                                <div style={{ fontSize: "11.5px", color: "#64748B" }}>
                                   <span style={{ fontWeight: 700, color: "var(--accent, #F28C28)" }}>{emp.employeeCode}</span>
-                                  <span>•</span>
-                                  <span>{emp.department || "General"}</span>
                                 </div>
                               </div>
                             </div>
@@ -1183,12 +1148,10 @@ export default function DailyAttendancePage() {
                     <div style={{ fontWeight: 800, fontSize: "15px", color: "#0B2239" }}>
                       {viewingOtEmp.fullName}
                     </div>
-                    <div style={{ fontSize: "12px", color: "#64748B", display: "flex", gap: "6px" }}>
+                    <div style={{ fontSize: "12px", color: "#64748B" }}>
                       <span style={{ fontWeight: 700, color: "var(--accent, #F28C28)" }}>
                         {viewingOtEmp.employeeCode}
                       </span>
-                      <span>•</span>
-                      <span>{viewingOtEmp.department || "General"}</span>
                     </div>
                   </div>
                 </div>
@@ -1354,7 +1317,6 @@ export default function DailyAttendancePage() {
             </div>
           </div>
         )}
-      </div>
     </AppLayout>
   );
 }

@@ -22,13 +22,7 @@ import {
   FiCheckCircle,
 } from "react-icons/fi";
 
-const DEPARTMENT_OPTIONS = [
-  "Production",
-  "Shutter Fabrication",
-  "Welding & Framing",
-  "Assembly & Fitting",
-  "Accounts & Finance",
-];
+
 
 function EmployeePhotoAvatar({
   photoUrl,
@@ -80,7 +74,6 @@ export default function EmployeeMasterPage() {
   const [summary, setSummary] = useState({ total: 0 });
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [departmentFilter, setDepartmentFilter] = useState("all");
 
   // Modals
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -98,11 +91,9 @@ export default function EmployeeMasterPage() {
     fullName: "",
     mobileNumber: "",
     email: "",
-    department: "Production",
     joiningDate: "",
     city: "Ahmedabad",
     address: "",
-    emergencyContact: "",
     baseSalary: "",
     salaryType: "MONTHLY",
     overtimeRate: "",
@@ -121,7 +112,6 @@ export default function EmployeeMasterPage() {
       setLoading(true);
       const res = await api.getEmployees({
         search: search.trim(),
-        department: departmentFilter !== "all" ? departmentFilter : "",
       });
       setEmployees(res.employees || []);
       if (res.summary) {
@@ -139,7 +129,7 @@ export default function EmployeeMasterPage() {
       loadEmployees();
     }, 250);
     return () => clearTimeout(timer);
-  }, [search, departmentFilter]);
+  }, [search]);
 
   const openAddModal = async () => {
     setSelectedEmployee(null);
@@ -161,11 +151,9 @@ export default function EmployeeMasterPage() {
       fullName: "",
       mobileNumber: "",
       email: "",
-      department: "Production",
       joiningDate: new Date().toISOString().split("T")[0],
       city: "Ahmedabad",
       address: "",
-      emergencyContact: "",
       baseSalary: "",
       salaryType: "MONTHLY",
       overtimeRate: "",
@@ -205,13 +193,11 @@ export default function EmployeeMasterPage() {
       fullName: emp.fullName || "",
       mobileNumber: emp.mobileNumber || "",
       email: emp.email || "",
-      department: emp.department || "Production",
       joiningDate: emp.joiningDate
         ? new Date(emp.joiningDate).toISOString().split("T")[0]
         : "",
       city: emp.city || "",
       address: emp.address || "",
-      emergencyContact: emp.emergencyContact || "",
       baseSalary: baseSal,
       salaryType: salType,
       overtimeRate: otRateVal,
@@ -350,12 +336,6 @@ export default function EmployeeMasterPage() {
       }
     }
 
-    if (formData.emergencyContact && formData.emergencyContact.trim()) {
-      if (!/^\d{10}$/.test(formData.emergencyContact.trim())) {
-        errors.emergencyContact = "Emergency contact must be 10 digits";
-      }
-    }
-
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -413,10 +393,9 @@ export default function EmployeeMasterPage() {
 
   const clearFilters = () => {
     setSearch("");
-    setDepartmentFilter("all");
   };
 
-  const hasActiveFilters = search !== "" || departmentFilter !== "all";
+  const hasActiveFilters = search !== "";
 
   return (
     <AppLayout title="Employee Master">
@@ -489,7 +468,7 @@ export default function EmployeeMasterPage() {
               fontSize: "13.5px",
             }}
           >
-            Maintain workforce directory, personal profiles, departments, and
+            Maintain workforce directory, personal profiles, and
             employee photo records
           </p>
         </div>
@@ -565,49 +544,6 @@ export default function EmployeeMasterPage() {
           </div>
         </div>
 
-        <div
-          className="erp-card"
-          style={{
-            padding: "16px 20px",
-            display: "flex",
-            alignItems: "center",
-            gap: "16px",
-            borderLeft: "4px solid var(--accent, #F28C28)",
-          }}
-        >
-          <div
-            style={{
-              width: "44px",
-              height: "44px",
-              borderRadius: "8px",
-              backgroundColor: "#FFF7ED",
-              color: "var(--accent, #F28C28)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "20px",
-            }}
-          >
-            <FiFolder />
-          </div>
-          <div>
-            <div
-              style={{
-                fontSize: "12px",
-                color: "#64748B",
-                fontWeight: 600,
-                textTransform: "uppercase",
-              }}
-            >
-              Active Departments
-            </div>
-            <div
-              style={{ fontSize: "22px", fontWeight: 800, color: "#D96F0B" }}
-            >
-              {DEPARTMENT_OPTIONS.length}
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Filter & Search Bar */}
@@ -638,7 +574,7 @@ export default function EmployeeMasterPage() {
           <input
             type="text"
             className="form-control"
-            placeholder="Search code, name, department, phone..."
+            placeholder="Search code, name, phone..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{
@@ -666,23 +602,6 @@ export default function EmployeeMasterPage() {
               <FiX />
             </button>
           )}
-        </div>
-
-        {/* Department Filter */}
-        <div style={{ flex: "0 1 220px" }}>
-          <select
-            className="form-control"
-            value={departmentFilter}
-            onChange={(e) => setDepartmentFilter(e.target.value)}
-            style={{ height: "40px", fontSize: "13.5px" }}
-          >
-            <option value="all">All Departments</option>
-            {DEPARTMENT_OPTIONS.map((dept) => (
-              <option key={dept} value={dept}>
-                {dept}
-              </option>
-            ))}
-          </select>
         </div>
 
         {/* Reset Button */}
@@ -839,7 +758,6 @@ export default function EmployeeMasterPage() {
                   <th style={{ width: "65px", textAlign: "center" }}>Photo</th>
                   <th style={{ width: "120px" }}>Emp Code</th>
                   <th>Employee Name & Profile</th>
-                  <th>Department</th>
                   <th>Contact Info</th>
                   <th style={{ textAlign: "center", width: "140px" }}>
                     Actions
@@ -933,22 +851,7 @@ export default function EmployeeMasterPage() {
                       </div>
                     </td>
 
-                    {/* Department */}
-                    <td>
-                      <span
-                        style={{
-                          display: "inline-block",
-                          fontSize: "12px",
-                          padding: "3px 8px",
-                          borderRadius: "4px",
-                          backgroundColor: "#EFF6FF",
-                          color: "#1D4ED8",
-                          fontWeight: 600,
-                        }}
-                      >
-                        {emp.department || "Production"}
-                      </span>
-                    </td>
+
 
                     {/* Contact Info */}
                     <td>
@@ -1426,24 +1329,6 @@ export default function EmployeeMasterPage() {
                     )}
                   </div>
 
-                  {/* Department */}
-                  <div>
-                    <label className="form-label-swagat">Department</label>
-                    <select
-                      className="form-control"
-                      value={formData.department}
-                      onChange={(e) =>
-                        setFormData({ ...formData, department: e.target.value })
-                      }
-                    >
-                      {DEPARTMENT_OPTIONS.map((dept) => (
-                        <option key={dept} value={dept}>
-                          {dept}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
                   {/* Joining Date */}
                   <div>
                     <label className="form-label-swagat">Joining Date</label>
@@ -1458,37 +1343,6 @@ export default function EmployeeMasterPage() {
                         })
                       }
                     />
-                  </div>
-
-                  {/* Emergency Contact */}
-                  <div>
-                    <label className="form-label-swagat">
-                      Emergency Contact (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      maxLength={10}
-                      className={`form-control ${formErrors.emergencyContact ? "is-invalid" : ""}`}
-                      placeholder="10-digit phone"
-                      value={formData.emergencyContact}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          emergencyContact: e.target.value.replace(/\D/g, ""),
-                        })
-                      }
-                    />
-                    {formErrors.emergencyContact && (
-                      <div
-                        style={{
-                          color: "#DC2626",
-                          fontSize: "12px",
-                          marginTop: "4px",
-                        }}
-                      >
-                        {formErrors.emergencyContact}
-                      </div>
-                    )}
                   </div>
 
                   {/* City */}
@@ -1929,19 +1783,6 @@ export default function EmployeeMasterPage() {
                 >
                   {selectedEmployee.employeeCode}
                 </span>
-                <span
-                  style={{
-                    fontSize: "12px",
-                    padding: "3px 10px",
-                    borderRadius: "4px",
-                    backgroundColor: "#EFF6FF",
-                    color: "#1D4ED8",
-                    fontWeight: 600,
-                    border: "1px solid #BFDBFE",
-                  }}
-                >
-                  {selectedEmployee.department || "Production"}
-                </span>
               </div>
             </div>
 
@@ -1960,21 +1801,7 @@ export default function EmployeeMasterPage() {
                   border: "1px solid #E2E8F0",
                 }}
               >
-                <div>
-                  <div
-                    style={{
-                      color: "#64748B",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                      marginBottom: "2px",
-                    }}
-                  >
-                    Department
-                  </div>
-                  <div style={{ fontWeight: 700, color: "#1E293B" }}>
-                    {selectedEmployee.department || "Production"}
-                  </div>
-                </div>
+
 
                 <div>
                   <div
@@ -2088,21 +1915,7 @@ export default function EmployeeMasterPage() {
                   </div>
                 </div>
 
-                <div>
-                  <div
-                    style={{
-                      color: "#64748B",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                      marginBottom: "2px",
-                    }}
-                  >
-                    Emergency Contact
-                  </div>
-                  <div style={{ fontWeight: 600, color: "#1E293B" }}>
-                    {selectedEmployee.emergencyContact || "None"}
-                  </div>
-                </div>
+
 
                 <div>
                   <div

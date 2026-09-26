@@ -265,7 +265,6 @@ export default function EmployeeAdvancePage() {
       "Advance Date",
       "Employee Code",
       "Employee Name",
-      "Department",
       "Amount (INR)",
       "Payment Mode",
       "Reason",
@@ -278,7 +277,6 @@ export default function EmployeeAdvancePage() {
       formatDDMMYYYY(a.advanceDate),
       `"${a.employeeCode || ""}"`,
       `"${a.fullName || ""}"`,
-      `"${a.department || ""}"`,
       a.amount,
       a.paymentMode,
       `"${(a.reason || "").replace(/"/g, '""')}"`,
@@ -298,6 +296,113 @@ export default function EmployeeAdvancePage() {
     showSuccess("Exported employee advances CSV successfully");
   };
 
+  const handlePrintVoucherPopup = (adv) => {
+    if (!adv) return;
+    const printWindow = window.open("", "_blank", "width=850,height=900");
+    if (!printWindow) return;
+
+    const formattedDate = formatDDMMYYYY(adv.advanceDate);
+    const amountStr = Number(adv.amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const wordsStr = numberToWords(adv.amount || 0);
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Advance Payment Voucher - ADV-${String(adv.id).padStart(5, "0")}</title>
+          <style>
+            @page { size: A4 portrait; margin: 15mm; }
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 24px; color: #172B3A; background: #ffffff; }
+            .voucher-card { border: 2px solid #123B5D; padding: 28px; border-radius: 8px; max-width: 760px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+            .header-flex { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #123B5D; padding-bottom: 18px; margin-bottom: 22px; }
+            .brand-title { color: #123B5D; font-size: 24px; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+            .sub-title { font-size: 12px; color: #64748B; margin: 4px 0 0 0; line-height: 1.4; }
+            .voucher-badge { background-color: #123B5D; color: #ffffff; padding: 6px 14px; border-radius: 4px; font-size: 11px; font-weight: 800; display: inline-block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+            .voucher-no { font-size: 14px; font-weight: 800; color: #172B3A; }
+            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; background: #F8FAFC; padding: 18px; border-radius: 6px; border: 1px solid #E2E8F0; margin-bottom: 20px; }
+            .info-label { font-size: 11px; color: #64748B; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+            .info-val { font-size: 15px; font-weight: 700; color: #123B5D; }
+            .amount-box { border-top: 1px dashed #CBD5E1; padding-top: 16px; margin-top: 16px; display: flex; justify-content: space-between; align-items: center; }
+            .amount-val { font-size: 24px; font-weight: 900; color: #16A34A; }
+            .words-box { margin-top: 12px; padding: 10px 14px; background: #ffffff; border: 1px solid #E2E8F0; border-radius: 6px; font-style: italic; font-size: 13px; color: #334155; }
+            .sig-flex { display: flex; justify-content: space-between; margin-top: 60px; padding-top: 20px; border-top: 1px solid #E2E8F0; }
+            .sig-block { text-align: center; width: 220px; }
+            .sig-line { border-bottom: 1px solid #64748B; height: 40px; margin-bottom: 8px; }
+            .sig-title { font-size: 12px; font-weight: 700; color: #64748B; text-transform: uppercase; }
+          </style>
+        </head>
+        <body>
+          <div class="voucher-card">
+            <div class="header-flex">
+              <div>
+                <h1 class="brand-title">SWAGAT INDUSTRIES</h1>
+                <p class="sub-title">Rolling Shutter Manufacturers & Industrial Suppliers<br/>Ahmedabad, Gujarat, India</p>
+              </div>
+              <div style="text-align: right;">
+                <div class="voucher-badge">ADVANCE PAYMENT VOUCHER</div>
+                <div class="voucher-no">Voucher #: ADV-${String(adv.id).padStart(5, "0")}</div>
+                <div style="font-size: 12px; color: #64748B; margin-top: 2px;">Date: ${formattedDate}</div>
+              </div>
+            </div>
+
+            <div class="info-grid">
+              <div>
+                <div class="info-label">Employee Name</div>
+                <div class="info-val">${adv.fullName}</div>
+              </div>
+              <div>
+                <div class="info-label">Employee Code</div>
+                <div class="info-val" style="color: #D96F0B;">${adv.employeeCode}</div>
+              </div>
+              <div>
+                <div class="info-label">Payment Mode</div>
+                <div class="info-val">${adv.paymentMode}</div>
+              </div>
+              <div>
+                <div class="info-label">Recorded By</div>
+                <div class="info-val" style="color: #475569;">${adv.createdBy || "Admin"}</div>
+              </div>
+            </div>
+
+            <div class="amount-box">
+              <span style="font-size: 15px; font-weight: 700;">Advance Amount Paid:</span>
+              <span class="amount-val">₹${amountStr}</span>
+            </div>
+
+            <div class="words-box">
+              <strong>Amount in Words:</strong> ${wordsStr}
+            </div>
+
+            ${(adv.reason || adv.remarks) ? `
+              <div style="margin-top: 14px; font-size: 13px; color: #475569; background: #F8FAFC; padding: 12px; border-radius: 6px; border: 1px solid #E2E8F0;">
+                ${adv.reason ? `<div><strong>Reason / Purpose:</strong> ${adv.reason}</div>` : ""}
+                ${adv.remarks ? `<div style="margin-top: 4px;"><strong>Remarks:</strong> ${adv.remarks}</div>` : ""}
+              </div>
+            ` : ""}
+
+            <div class="sig-flex">
+              <div class="sig-block">
+                <div class="sig-line"></div>
+                <div class="sig-title">Employee Signature</div>
+              </div>
+              <div class="sig-block">
+                <div class="sig-line"></div>
+                <div class="sig-title">Authorized Signatory</div>
+              </div>
+            </div>
+          </div>
+          <script>
+            window.onload = function() {
+              window.print();
+            };
+          </script>
+        </body>
+      </html>
+    `;
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  };
+
   const getPaymentModeBadge = (mode) => {
     switch ((mode || "").toUpperCase()) {
       case "CASH":
@@ -315,8 +420,7 @@ export default function EmployeeAdvancePage() {
 
   return (
     <AppLayout title="Employee Advance Management">
-      <div className="content-wrapper">
-        {/* Breadcrumb Flow */}
+      {/* Breadcrumb Flow */}
         <div className="breadcrumb-flow">
           <span className="breadcrumb-item">
             <FiGrid /> Swagat ERP
@@ -713,7 +817,6 @@ export default function EmployeeAdvancePage() {
                                 </div>
                                 <div style={{ fontSize: "11px", color: "#64748B" }}>
                                   <span style={{ fontWeight: 700, color: "var(--accent, #F28C28)" }}>{adv.employeeCode}</span>
-                                  {adv.department ? ` • ${adv.department}` : ""}
                                 </div>
                               </div>
                             </div>
@@ -830,7 +933,7 @@ export default function EmployeeAdvancePage() {
                         <option value="">-- Choose Employee --</option>
                         {allEmployeesList.map((emp) => (
                           <option key={emp.id} value={emp.id}>
-                            {emp.employeeCode} - {emp.fullName} ({emp.department || "No Dept"})
+                            {emp.employeeCode} - {emp.fullName}
                           </option>
                         ))}
                       </select>
@@ -1088,11 +1191,6 @@ export default function EmployeeAdvancePage() {
                     </div>
 
                     <div>
-                      <span style={{ color: "#64748B", fontWeight: 600, display: "block" }}>Department</span>
-                      <span style={{ fontWeight: 600, color: "#172B3A" }}>{printingAdvance.department || "General"}</span>
-                    </div>
-
-                    <div>
                       <span style={{ color: "#64748B", fontWeight: 600, display: "block" }}>Payment Mode</span>
                       <span style={{ fontWeight: 800, color: "#123B5D" }}>{printingAdvance.paymentMode}</span>
                     </div>
@@ -1147,7 +1245,7 @@ export default function EmployeeAdvancePage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => window.print()}
+                  onClick={() => handlePrintVoucherPopup(printingAdvance)}
                   className="btn-accent-swagat"
                   style={{ padding: "8px 20px" }}
                 >
@@ -1157,7 +1255,6 @@ export default function EmployeeAdvancePage() {
             </div>
           </div>
         )}
-      </div>
     </AppLayout>
   );
 }

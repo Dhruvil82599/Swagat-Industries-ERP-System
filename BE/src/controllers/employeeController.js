@@ -82,7 +82,6 @@ function validateEmployeeData(data, isUpdate = false) {
   const employeeCode = data.employeeCode !== undefined ? data.employeeCode : data.employee_code;
   const mobileNumber = data.mobileNumber !== undefined ? data.mobileNumber : data.mobile_number;
   const email = data.email;
-  const emergencyContact = data.emergencyContact !== undefined ? data.emergencyContact : data.emergency_contact;
   const joiningDate = data.joiningDate !== undefined ? data.joiningDate : data.joining_date;
 
   // Full Name validation
@@ -124,17 +123,6 @@ function validateEmployeeData(data, isUpdate = false) {
     }
   }
 
-  // Emergency Contact validation (optional, 10 digits if provided)
-  if (emergencyContact !== undefined && emergencyContact !== null && String(emergencyContact).trim() !== "") {
-    const ecClean = String(emergencyContact).trim();
-    if (!/^\d{10}$/.test(ecClean)) {
-      errors.push({
-        field: "emergencyContact",
-        message: "Emergency contact number must be exactly 10 digits",
-      });
-    }
-  }
-
   // Base Salary validation (mandatory & > 0)
   const baseSalary = data.baseSalary !== undefined ? data.baseSalary : data.base_salary;
   if (!isUpdate || baseSalary !== undefined) {
@@ -162,7 +150,7 @@ function validateEmployeeData(data, isUpdate = false) {
  */
 async function getEmployees(req, res, next) {
   try {
-    const { search, status, department } = req.query;
+    const { search, status } = req.query;
 
     const where = {};
 
@@ -173,19 +161,13 @@ async function getEmployees(req, res, next) {
       where.isActive = false;
     }
 
-    // Department filter
-    if (department && department.trim() !== "") {
-      where.department = { contains: department.trim(), mode: "insensitive" };
-    }
-
-    // Text search on code, name, mobile, city, department
+    // Text search on code, name, mobile, city
     if (search && search.trim() !== "") {
       const term = search.trim();
       where.OR = [
         { employeeCode: { contains: term, mode: "insensitive" } },
         { fullName: { contains: term, mode: "insensitive" } },
         { mobileNumber: { contains: term, mode: "insensitive" } },
-        { department: { contains: term, mode: "insensitive" } },
         { city: { contains: term, mode: "insensitive" } },
       ];
     }
@@ -307,10 +289,8 @@ async function createEmployee(req, res, next) {
     const fullName = (req.body.fullName || req.body.full_name).trim();
     const mobileNumber = (req.body.mobileNumber || req.body.mobile_number).trim();
     const email = req.body.email ? req.body.email.trim() : null;
-    const department = req.body.department ? req.body.department.trim() : null;
     const address = req.body.address ? req.body.address.trim() : null;
     const city = req.body.city ? req.body.city.trim() : null;
-    const emergencyContact = (req.body.emergencyContact || req.body.emergency_contact || "").trim() || null;
     const remark = req.body.remark ? req.body.remark.trim() : null;
     const isActive = req.body.isActive !== undefined ? Boolean(req.body.isActive) : true;
 
@@ -364,11 +344,9 @@ async function createEmployee(req, res, next) {
         fullName,
         mobileNumber,
         email,
-        department,
         joiningDate,
         address,
         city,
-        emergencyContact,
         photoUrl,
         baseSalary,
         salaryType,
@@ -437,21 +415,12 @@ async function updateEmployee(req, res, next) {
       updateData.email = req.body.email ? req.body.email.trim() : null;
     }
 
-    if (req.body.department !== undefined) {
-      updateData.department = req.body.department ? req.body.department.trim() : null;
-    }
-
     if (req.body.address !== undefined) {
       updateData.address = req.body.address ? req.body.address.trim() : null;
     }
 
     if (req.body.city !== undefined) {
       updateData.city = req.body.city ? req.body.city.trim() : null;
-    }
-
-    if (req.body.emergencyContact !== undefined || req.body.emergency_contact !== undefined) {
-      const ec = (req.body.emergencyContact || req.body.emergency_contact || "").trim();
-      updateData.emergencyContact = ec || null;
     }
 
     if (req.body.joiningDate !== undefined || req.body.joining_date !== undefined) {
