@@ -168,14 +168,13 @@ async function getEmployees(req, res, next) {
       where.department = { contains: department.trim(), mode: "insensitive" };
     }
 
-    // Text search on code, name, mobile, designation, city, department
+    // Text search on code, name, mobile, city, department
     if (search && search.trim() !== "") {
       const term = search.trim();
       where.OR = [
         { employeeCode: { contains: term, mode: "insensitive" } },
         { fullName: { contains: term, mode: "insensitive" } },
         { mobileNumber: { contains: term, mode: "insensitive" } },
-        { designation: { contains: term, mode: "insensitive" } },
         { department: { contains: term, mode: "insensitive" } },
         { city: { contains: term, mode: "insensitive" } },
       ];
@@ -298,7 +297,6 @@ async function createEmployee(req, res, next) {
     const fullName = (req.body.fullName || req.body.full_name).trim();
     const mobileNumber = (req.body.mobileNumber || req.body.mobile_number).trim();
     const email = req.body.email ? req.body.email.trim() : null;
-    const designation = req.body.designation ? req.body.designation.trim() : null;
     const department = req.body.department ? req.body.department.trim() : null;
     const address = req.body.address ? req.body.address.trim() : null;
     const city = req.body.city ? req.body.city.trim() : null;
@@ -344,8 +342,11 @@ async function createEmployee(req, res, next) {
 
     const baseSalary = req.body.baseSalary !== undefined ? Math.max(0, parseFloat(req.body.baseSalary) || 0) : 0;
     const salaryType = (req.body.salaryType || "MONTHLY").trim().toUpperCase();
-    const overtimeRate = req.body.overtimeRate !== undefined ? Math.max(0, parseFloat(req.body.overtimeRate) || 0) : 0;
-    const allowance = req.body.allowance !== undefined ? Math.max(0, parseFloat(req.body.allowance) || 0) : 0;
+    let overtimeRate = req.body.overtimeRate !== undefined && req.body.overtimeRate !== "" ? Math.max(0, parseFloat(req.body.overtimeRate) || 0) : 0;
+    if (overtimeRate <= 0 && baseSalary > 0) {
+      overtimeRate = salaryType === "DAILY" ? baseSalary / 8 : baseSalary / 240;
+    }
+    overtimeRate = Math.round(overtimeRate * 100) / 100;
 
     const employee = await prisma.employee.create({
       data: {
@@ -353,7 +354,6 @@ async function createEmployee(req, res, next) {
         fullName,
         mobileNumber,
         email,
-        designation,
         department,
         joiningDate,
         address,
@@ -363,7 +363,6 @@ async function createEmployee(req, res, next) {
         baseSalary,
         salaryType,
         overtimeRate,
-        allowance,
         isActive,
         remark,
       },
@@ -428,10 +427,6 @@ async function updateEmployee(req, res, next) {
       updateData.email = req.body.email ? req.body.email.trim() : null;
     }
 
-    if (req.body.designation !== undefined) {
-      updateData.designation = req.body.designation ? req.body.designation.trim() : null;
-    }
-
     if (req.body.department !== undefined) {
       updateData.department = req.body.department ? req.body.department.trim() : null;
     }
@@ -462,12 +457,23 @@ async function updateEmployee(req, res, next) {
       updateData.salaryType = String(req.body.salaryType).trim().toUpperCase();
     }
 
-    if (req.body.overtimeRate !== undefined) {
-      updateData.overtimeRate = Math.max(0, parseFloat(req.body.overtimeRate) || 0);
-    }
+    const effSalary = updateData.baseSalary !== undefined ? updateData.baseSalary : parseFloat(existing.baseSalary || 0);
+    const effType = updateData.salaryType !== undefined ? updateData.salaryType : (existing.salaryType || "MONTHLY");
 
-    if (req.body.allowance !== undefined) {
-      updateData.allowance = Math.max(0, parseFloat(req.body.allowance) || 0);
+    if (req.body.overtimeRate !== undefined && req.body.overtimeRate !== "" && req.body.overtimeRate !== null) {
+      const parsedOt = Math.max(0, parseFloat(req.body.overtimeRate) || 0);
+      if (parsedOt > 0) {
+        updateData.overtimeRate = Math.round(parsedOt * 100) / 100;
+      } else if (effSalary > 0) {
+        updateData.overtimeRate = Math.round((effType === "DAILY" ? effSalary / 8 : effSalary / 240) * 100) / 100;
+      } else {
+        updateData.overtimeRate = 0;
+      }
+    } else if (req.body.baseSalary !== undefined || req.body.salaryType !== undefined) {
+      const currentOt = parseFloat(existing.overtimeRate || 0);
+      if (currentOt <= 0 && effSalary > 0) {
+        updateData.overtimeRate = Math.round((effType === "DAILY" ? effSalary / 8 : effSalary / 240) * 100) / 100;
+      }
     }
 
     if (req.body.isActive !== undefined) {

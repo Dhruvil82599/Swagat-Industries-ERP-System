@@ -59,17 +59,13 @@ export default function EmployeeSalaryPage() {
   const [calcEmployeeId, setCalcEmployeeId] = useState("");
   const [calcMonth, setCalcMonth] = useState(now.getMonth() + 1);
   const [calcYear, setCalcYear] = useState(now.getFullYear());
-  const [calcAllowances, setCalcAllowances] = useState(0);
-  const [calcOtherDeductions, setCalcOtherDeductions] = useState(0);
   const [calcRemarks, setCalcRemarks] = useState("");
   const [calcPreview, setCalcPreview] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [savingCalc, setSavingCalc] = useState(false);
 
   // Edit Modal state
-  const [editAllowances, setEditAllowances] = useState(0);
   const [editAdvanceDeduction, setEditAdvanceDeduction] = useState(0);
-  const [editOtherDeductions, setEditOtherDeductions] = useState(0);
   const [editStatus, setEditStatus] = useState("GENERATED");
   const [editRemarks, setEditRemarks] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
@@ -138,9 +134,6 @@ export default function EmployeeSalaryPage() {
           year: calcYear,
         });
         setCalcPreview(data);
-        if (data.allowances !== undefined && calcAllowances === 0) {
-          setCalcAllowances(data.allowances);
-        }
       } catch (err) {
         console.error("Preview calculation failed:", err);
         setCalcPreview(null);
@@ -178,8 +171,6 @@ export default function EmployeeSalaryPage() {
     setCalcEmployeeId(employeesList.length > 0 ? employeesList[0].id : "");
     setCalcMonth(selectedMonth);
     setCalcYear(selectedYear);
-    setCalcAllowances(0);
-    setCalcOtherDeductions(0);
     setCalcRemarks("");
     setCalcPreview(null);
     setShowCalculateModal(true);
@@ -198,8 +189,6 @@ export default function EmployeeSalaryPage() {
         employeeId: calcEmployeeId,
         month: calcMonth,
         year: calcYear,
-        allowances: calcAllowances,
-        otherDeductions: calcOtherDeductions,
         remarks: calcRemarks,
         status: "GENERATED",
       });
@@ -216,9 +205,7 @@ export default function EmployeeSalaryPage() {
   // Open Edit Modal
   const openEditModal = (rec) => {
     setEditingRecord(rec);
-    setEditAllowances(parseFloat(rec.allowances) || 0);
     setEditAdvanceDeduction(parseFloat(rec.advanceDeduction) || 0);
-    setEditOtherDeductions(parseFloat(rec.otherDeductions) || 0);
     setEditStatus(rec.status || "GENERATED");
     setEditRemarks(rec.remarks || "");
     setShowEditModal(true);
@@ -231,9 +218,7 @@ export default function EmployeeSalaryPage() {
     try {
       setSavingEdit(true);
       await api.updateSalary(editingRecord.id, {
-        allowances: editAllowances,
         advanceDeduction: editAdvanceDeduction,
-        otherDeductions: editOtherDeductions,
         status: editStatus,
         remarks: editRemarks,
       });
@@ -972,31 +957,6 @@ export default function EmployeeSalaryPage() {
                     </div>
                   ) : null}
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                    <div>
-                      <label className="form-label">Allowances (₹)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        className="form-control"
-                        value={calcAllowances}
-                        onChange={(e) => setCalcAllowances(parseFloat(e.target.value) || 0)}
-                        placeholder="0.00"
-                      />
-                    </div>
-                    <div>
-                      <label className="form-label">Other Deductions (₹)</label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        className="form-control"
-                        value={calcOtherDeductions}
-                        onChange={(e) => setCalcOtherDeductions(parseFloat(e.target.value) || 0)}
-                        placeholder="0.00"
-                      />
-                    </div>
-                  </div>
-
                   <div>
                     <label className="form-label">Remarks / Notes</label>
                     <textarea
@@ -1041,17 +1001,6 @@ export default function EmployeeSalaryPage() {
                   </div>
 
                   <div>
-                    <label className="form-label">Allowances (₹)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      className="form-control"
-                      value={editAllowances}
-                      onChange={(e) => setEditAllowances(parseFloat(e.target.value) || 0)}
-                    />
-                  </div>
-
-                  <div>
                     <label className="form-label">Advance / Upad Deduction (₹)</label>
                     <input
                       type="number"
@@ -1059,17 +1008,6 @@ export default function EmployeeSalaryPage() {
                       className="form-control"
                       value={editAdvanceDeduction}
                       onChange={(e) => setEditAdvanceDeduction(parseFloat(e.target.value) || 0)}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="form-label">Other Deductions (₹)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      className="form-control"
-                      value={editOtherDeductions}
-                      onChange={(e) => setEditOtherDeductions(parseFloat(e.target.value) || 0)}
                     />
                   </div>
 

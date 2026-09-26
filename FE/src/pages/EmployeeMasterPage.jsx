@@ -28,13 +28,15 @@ const DEPARTMENT_OPTIONS = [
   "Welding & Framing",
   "Assembly & Fitting",
   "Accounts & Finance",
-  "Sales & Marketing",
-  "Administration",
-  "Quality Control",
-  "General Staff",
 ];
 
-function EmployeePhotoAvatar({ photoUrl, name, fontSize = "14px", backgroundColor = "rgba(18, 59, 93, 0.1)", textColor = "#123B5D" }) {
+function EmployeePhotoAvatar({
+  photoUrl,
+  name,
+  fontSize = "14px",
+  backgroundColor = "rgba(18, 59, 93, 0.1)",
+  textColor = "#123B5D",
+}) {
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
@@ -97,7 +99,6 @@ export default function EmployeeMasterPage() {
     mobileNumber: "",
     email: "",
     department: "Production",
-    designation: "",
     joiningDate: "",
     city: "Ahmedabad",
     address: "",
@@ -105,7 +106,6 @@ export default function EmployeeMasterPage() {
     baseSalary: "",
     salaryType: "MONTHLY",
     overtimeRate: "",
-    allowance: "",
     photo: null,
     photoUrl: null,
     removePhoto: false,
@@ -162,7 +162,6 @@ export default function EmployeeMasterPage() {
       mobileNumber: "",
       email: "",
       department: "Production",
-      designation: "",
       joiningDate: new Date().toISOString().split("T")[0],
       city: "Ahmedabad",
       address: "",
@@ -170,7 +169,6 @@ export default function EmployeeMasterPage() {
       baseSalary: "",
       salaryType: "MONTHLY",
       overtimeRate: "",
-      allowance: "",
       photo: null,
       photoUrl: null,
       removePhoto: false,
@@ -183,21 +181,40 @@ export default function EmployeeMasterPage() {
     setFormErrors({});
     setPhotoPreview(emp.photoUrl || null);
 
+    const baseSal =
+      emp.baseSalary !== undefined && emp.baseSalary !== null
+        ? emp.baseSalary
+        : "";
+    const salType = emp.salaryType || "MONTHLY";
+    const salNum = parseFloat(baseSal) || 0;
+    const autoOtRate =
+      salNum > 0
+        ? salType === "DAILY"
+          ? (salNum / 8).toFixed(2)
+          : (salNum / 240).toFixed(2)
+        : "";
+    const otRateVal =
+      emp.overtimeRate !== undefined &&
+      emp.overtimeRate !== null &&
+      parseFloat(emp.overtimeRate) > 0
+        ? emp.overtimeRate
+        : autoOtRate;
+
     setFormData({
       employeeCode: emp.employeeCode || "",
       fullName: emp.fullName || "",
       mobileNumber: emp.mobileNumber || "",
       email: emp.email || "",
       department: emp.department || "Production",
-      designation: emp.designation || "",
-      joiningDate: emp.joiningDate ? new Date(emp.joiningDate).toISOString().split("T")[0] : "",
+      joiningDate: emp.joiningDate
+        ? new Date(emp.joiningDate).toISOString().split("T")[0]
+        : "",
       city: emp.city || "",
       address: emp.address || "",
       emergencyContact: emp.emergencyContact || "",
-      baseSalary: emp.baseSalary !== undefined && emp.baseSalary !== null ? emp.baseSalary : "",
-      salaryType: emp.salaryType || "MONTHLY",
-      overtimeRate: emp.overtimeRate !== undefined && emp.overtimeRate !== null ? emp.overtimeRate : "",
-      allowance: emp.allowance !== undefined && emp.allowance !== null ? emp.allowance : "",
+      baseSalary: baseSal,
+      salaryType: salType,
+      overtimeRate: otRateVal,
       photo: null,
       photoUrl: emp.photoUrl || null,
       removePhoto: false,
@@ -215,6 +232,16 @@ export default function EmployeeMasterPage() {
     setIsDeleteOpen(true);
   };
 
+  // Helper to dynamically calculate auto OT rate on frontend based on entered salary
+  const getAutoOvertimeRate = () => {
+    const sal = parseFloat(formData.baseSalary) || 0;
+    if (sal <= 0) return "0.00";
+    if (formData.salaryType === "DAILY") {
+      return (sal / 8).toFixed(2);
+    }
+    return (sal / 240).toFixed(2);
+  };
+
   // Photo file selection & validation handler
   const handlePhotoFileChange = (e) => {
     const file = e.target.files && e.target.files[0];
@@ -223,7 +250,10 @@ export default function EmployeeMasterPage() {
     // File type validation (JPG, JPEG, PNG, WEBP)
     const validTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
     if (!validTypes.includes(file.type.toLowerCase())) {
-      addToast("Invalid photo format. Supported formats are JPG, JPEG, PNG, and WEBP.", "error");
+      addToast(
+        "Invalid photo format. Supported formats are JPG, JPEG, PNG, and WEBP.",
+        "error",
+      );
       setFormErrors((prev) => ({
         ...prev,
         photo: "Supported formats: JPG, JPEG, PNG, WEBP",
@@ -290,7 +320,8 @@ export default function EmployeeMasterPage() {
     if (!formData.employeeCode || formData.employeeCode.trim() === "") {
       errors.employeeCode = "Employee Code is required";
     } else if (!/^[A-Za-z0-9_-]+$/.test(formData.employeeCode.trim())) {
-      errors.employeeCode = "Code can only contain letters, numbers, hyphens, and underscores";
+      errors.employeeCode =
+        "Code can only contain letters, numbers, hyphens, and underscores";
     }
 
     if (!formData.mobileNumber || !formData.mobileNumber.trim()) {
@@ -322,11 +353,21 @@ export default function EmployeeMasterPage() {
 
     try {
       setSubmitting(true);
+      const payload = { ...formData };
+      if (!payload.overtimeRate || parseFloat(payload.overtimeRate) <= 0) {
+        const sal = parseFloat(payload.baseSalary) || 0;
+        if (sal > 0) {
+          payload.overtimeRate = (
+            payload.salaryType === "DAILY" ? sal / 8 : sal / 240
+          ).toFixed(2);
+        }
+      }
+
       if (selectedEmployee) {
-        await api.updateEmployee(selectedEmployee.id, formData);
+        await api.updateEmployee(selectedEmployee.id, payload);
         addToast("Employee updated successfully", "success");
       } else {
-        await api.createEmployee(formData);
+        await api.createEmployee(payload);
         addToast("Employee added successfully", "success");
       }
       setIsFormOpen(false);
@@ -428,8 +469,15 @@ export default function EmployeeMasterPage() {
             </span>
             Employee Master
           </h1>
-          <p style={{ margin: 0, color: "var(--text-secondary, #64748B)", fontSize: "13.5px" }}>
-            Maintain workforce directory, personal profiles, departments, designations, and employee photo records
+          <p
+            style={{
+              margin: 0,
+              color: "var(--text-secondary, #64748B)",
+              fontSize: "13.5px",
+            }}
+          >
+            Maintain workforce directory, personal profiles, departments, and
+            employee photo records
           </p>
         </div>
 
@@ -486,10 +534,19 @@ export default function EmployeeMasterPage() {
             <FiUsers />
           </div>
           <div>
-            <div style={{ fontSize: "12px", color: "#64748B", fontWeight: 600, textTransform: "uppercase" }}>
+            <div
+              style={{
+                fontSize: "12px",
+                color: "#64748B",
+                fontWeight: 600,
+                textTransform: "uppercase",
+              }}
+            >
               Total Workforce
             </div>
-            <div style={{ fontSize: "22px", fontWeight: 800, color: "#123B5D" }}>
+            <div
+              style={{ fontSize: "22px", fontWeight: 800, color: "#123B5D" }}
+            >
               {summary.total}
             </div>
           </div>
@@ -521,10 +578,19 @@ export default function EmployeeMasterPage() {
             <FiFolder />
           </div>
           <div>
-            <div style={{ fontSize: "12px", color: "#64748B", fontWeight: 600, textTransform: "uppercase" }}>
+            <div
+              style={{
+                fontSize: "12px",
+                color: "#64748B",
+                fontWeight: 600,
+                textTransform: "uppercase",
+              }}
+            >
               Active Departments
             </div>
-            <div style={{ fontSize: "22px", fontWeight: 800, color: "#D96F0B" }}>
+            <div
+              style={{ fontSize: "22px", fontWeight: 800, color: "#D96F0B" }}
+            >
               {DEPARTMENT_OPTIONS.length}
             </div>
           </div>
@@ -559,7 +625,7 @@ export default function EmployeeMasterPage() {
           <input
             type="text"
             className="form-control"
-            placeholder="Search code, name, designation, department, phone..."
+            placeholder="Search code, name, department, phone..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{
@@ -639,7 +705,9 @@ export default function EmployeeMasterPage() {
         >
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <FiUsers style={{ color: "var(--primary)" }} />
-            <span style={{ fontWeight: 700, color: "#123B5D", fontSize: "15px" }}>
+            <span
+              style={{ fontWeight: 700, color: "#123B5D", fontSize: "15px" }}
+            >
               Employee Directory
             </span>
             <span
@@ -669,7 +737,9 @@ export default function EmployeeMasterPage() {
 
         <div className="table-responsive" style={{ margin: 0 }}>
           {loading ? (
-            <div style={{ padding: "50px", textAlign: "center", color: "#64748B" }}>
+            <div
+              style={{ padding: "50px", textAlign: "center", color: "#64748B" }}
+            >
               <div
                 className="spinner"
                 style={{
@@ -682,7 +752,9 @@ export default function EmployeeMasterPage() {
                   animation: "spin 0.8s linear infinite",
                 }}
               />
-              <div style={{ fontSize: "14px", fontWeight: 600 }}>Loading Employee Directory...</div>
+              <div style={{ fontSize: "14px", fontWeight: 600 }}>
+                Loading Employee Directory...
+              </div>
             </div>
           ) : employees.length === 0 ? (
             <div style={{ padding: "60px 20px", textAlign: "center" }}>
@@ -703,10 +775,25 @@ export default function EmployeeMasterPage() {
               >
                 <FiUsers />
               </div>
-              <h3 style={{ fontSize: "16px", fontWeight: 700, color: "#1E293B", margin: "0 0 6px" }}>
-                {hasActiveFilters ? "No employees match your search" : "No employees registered yet"}
+              <h3
+                style={{
+                  fontSize: "16px",
+                  fontWeight: 700,
+                  color: "#1E293B",
+                  margin: "0 0 6px",
+                }}
+              >
+                {hasActiveFilters
+                  ? "No employees match your search"
+                  : "No employees registered yet"}
               </h3>
-              <p style={{ color: "#64748B", fontSize: "13.5px", margin: "0 0 16px" }}>
+              <p
+                style={{
+                  color: "#64748B",
+                  fontSize: "13.5px",
+                  margin: "0 0 16px",
+                }}
+              >
                 {hasActiveFilters
                   ? "Try resetting your search criteria or filtering options"
                   : "Start creating your workforce roster by clicking 'Add Employee'"}
@@ -739,15 +826,23 @@ export default function EmployeeMasterPage() {
                   <th style={{ width: "65px", textAlign: "center" }}>Photo</th>
                   <th style={{ width: "120px" }}>Emp Code</th>
                   <th>Employee Name & Profile</th>
-                  <th>Department & Designation</th>
+                  <th>Department</th>
                   <th>Contact Info</th>
-                  <th style={{ textAlign: "center", width: "140px" }}>Actions</th>
+                  <th style={{ textAlign: "center", width: "140px" }}>
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {employees.map((emp, idx) => (
                   <tr key={emp.id}>
-                    <td style={{ textAlign: "center", fontWeight: 600, color: "#64748B" }}>
+                    <td
+                      style={{
+                        textAlign: "center",
+                        fontWeight: 600,
+                        color: "#64748B",
+                      }}
+                    >
                       {idx + 1}
                     </td>
 
@@ -771,7 +866,11 @@ export default function EmployeeMasterPage() {
                         }}
                         title={`View profile of ${emp.fullName}`}
                       >
-                        <EmployeePhotoAvatar photoUrl={emp.photoUrl} name={emp.fullName} fontSize="14px" />
+                        <EmployeePhotoAvatar
+                          photoUrl={emp.photoUrl}
+                          name={emp.fullName}
+                          fontSize="14px"
+                        />
                       </div>
                     </td>
 
@@ -810,43 +909,68 @@ export default function EmployeeMasterPage() {
                           {emp.fullName}
                         </div>
                         <div style={{ fontSize: "12px", color: "#64748B" }}>
-                          Joined: {emp.joiningDate ? new Date(emp.joiningDate).toLocaleDateString("en-IN", { month: "short", year: "numeric" }) : "N/A"}
+                          Joined:{" "}
+                          {emp.joiningDate
+                            ? new Date(emp.joiningDate).toLocaleDateString(
+                                "en-IN",
+                                { month: "short", year: "numeric" },
+                              )
+                            : "N/A"}
                         </div>
                       </div>
                     </td>
 
-                    {/* Department & Designation */}
+                    {/* Department */}
                     <td>
-                      <div>
-                        <div style={{ fontWeight: 600, color: "#1E293B", fontSize: "13px" }}>
-                          {emp.designation || "General Staff"}
-                        </div>
-                        <span
-                          style={{
-                            display: "inline-block",
-                            fontSize: "11px",
-                            padding: "1px 6px",
-                            borderRadius: "4px",
-                            backgroundColor: "#EFF6FF",
-                            color: "#1D4ED8",
-                            fontWeight: 600,
-                            marginTop: "2px",
-                          }}
-                        >
-                          {emp.department || "Production"}
-                        </span>
-                      </div>
+                      <span
+                        style={{
+                          display: "inline-block",
+                          fontSize: "12px",
+                          padding: "3px 8px",
+                          borderRadius: "4px",
+                          backgroundColor: "#EFF6FF",
+                          color: "#1D4ED8",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {emp.department || "Production"}
+                      </span>
                     </td>
 
                     {/* Contact Info */}
                     <td>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px" }}>
-                          <FiPhone style={{ color: "#0284C7", fontSize: "12px" }} />
-                          <span style={{ fontWeight: 600, color: "#334155" }}>{emp.mobileNumber}</span>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "2px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            fontSize: "13px",
+                          }}
+                        >
+                          <FiPhone
+                            style={{ color: "#0284C7", fontSize: "12px" }}
+                          />
+                          <span style={{ fontWeight: 600, color: "#334155" }}>
+                            {emp.mobileNumber}
+                          </span>
                         </div>
                         {emp.email && (
-                          <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11.5px", color: "#64748B" }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "6px",
+                              fontSize: "11.5px",
+                              color: "#64748B",
+                            }}
+                          >
                             <FiMail style={{ fontSize: "11px" }} />
                             <span>{emp.email}</span>
                           </div>
@@ -856,7 +980,13 @@ export default function EmployeeMasterPage() {
 
                     {/* Actions */}
                     <td style={{ textAlign: "center" }}>
-                      <div style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                      <div
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
                         <button
                           type="button"
                           className="btn-action-icon"
@@ -924,7 +1054,9 @@ export default function EmployeeMasterPage() {
             <div className="modal-header-swagat">
               <h3 style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <FiUsers style={{ color: "var(--accent, #F28C28)" }} />
-                {selectedEmployee ? `Edit Employee: ${selectedEmployee.fullName}` : "Add New Employee"}
+                {selectedEmployee
+                  ? `Edit Employee: ${selectedEmployee.fullName}`
+                  : "Add New Employee"}
               </h3>
               <button
                 type="button"
@@ -971,15 +1103,23 @@ export default function EmployeeMasterPage() {
                         <img
                           src={photoPreview}
                           alt="Employee Preview"
-                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
                         />
                       ) : (
-                        <FiUser style={{ fontSize: "36px", color: "#94A3B8" }} />
+                        <FiUser
+                          style={{ fontSize: "36px", color: "#94A3B8" }}
+                        />
                       )}
                     </div>
                     <button
                       type="button"
-                      onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                      onClick={() =>
+                        fileInputRef.current && fileInputRef.current.click()
+                      }
                       style={{
                         position: "absolute",
                         bottom: "-2px",
@@ -1004,11 +1144,25 @@ export default function EmployeeMasterPage() {
                   </div>
 
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 700, color: "#1E293B", fontSize: "14px", marginBottom: "4px" }}>
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        color: "#1E293B",
+                        fontSize: "14px",
+                        marginBottom: "4px",
+                      }}
+                    >
                       Employee Profile Photo
                     </div>
-                    <div style={{ fontSize: "12px", color: "#64748B", marginBottom: "8px" }}>
-                      Supported formats: <strong>JPG, JPEG, PNG, WEBP</strong> (Max 5MB)
+                    <div
+                      style={{
+                        fontSize: "12px",
+                        color: "#64748B",
+                        marginBottom: "8px",
+                      }}
+                    >
+                      Supported formats: <strong>JPG, JPEG, PNG, WEBP</strong>{" "}
+                      (Max 5MB)
                     </div>
 
                     <input
@@ -1019,14 +1173,26 @@ export default function EmployeeMasterPage() {
                       style={{ display: "none" }}
                     />
 
-                    <div className="photo-upload-actions" style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+                    <div
+                      className="photo-upload-actions"
+                      style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}
+                    >
                       <button
                         type="button"
                         className="btn-outline-swagat"
-                        onClick={() => fileInputRef.current && fileInputRef.current.click()}
-                        style={{ padding: "5px 12px", fontSize: "12px", display: "inline-flex", alignItems: "center", gap: "5px" }}
+                        onClick={() =>
+                          fileInputRef.current && fileInputRef.current.click()
+                        }
+                        style={{
+                          padding: "5px 12px",
+                          fontSize: "12px",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "5px",
+                        }}
                       >
-                        <FiUpload /> {photoPreview ? "Change Photo" : "Upload Photo"}
+                        <FiUpload />{" "}
+                        {photoPreview ? "Change Photo" : "Upload Photo"}
                       </button>
 
                       {photoPreview && (
@@ -1052,7 +1218,13 @@ export default function EmployeeMasterPage() {
                       )}
                     </div>
                     {formErrors.photo && (
-                      <div style={{ color: "#DC2626", fontSize: "12px", marginTop: "6px" }}>
+                      <div
+                        style={{
+                          color: "#DC2626",
+                          fontSize: "12px",
+                          marginTop: "6px",
+                        }}
+                      >
                         {formErrors.photo}
                       </div>
                     )}
@@ -1060,11 +1232,27 @@ export default function EmployeeMasterPage() {
                 </div>
 
                 {/* Form Fields Grid */}
-                <div className="grid-responsive-2col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                <div
+                  className="grid-responsive-2col"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "16px",
+                  }}
+                >
                   {/* Employee Code (Auto-Generated) */}
                   <div>
                     <label className="form-label-swagat">
-                      Employee Code <span style={{ fontSize: "11px", color: "var(--accent, #F28C28)", fontWeight: 700 }}>(Auto-Generated)</span>
+                      Employee Code{" "}
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          color: "var(--accent, #F28C28)",
+                          fontWeight: 700,
+                        }}
+                      >
+                        (Auto-Generated)
+                      </span>
                     </label>
                     <input
                       type="text"
@@ -1092,10 +1280,18 @@ export default function EmployeeMasterPage() {
                       className={`form-control ${formErrors.fullName ? "is-invalid" : ""}`}
                       placeholder="e.g. Rajesh Sharma"
                       value={formData.fullName}
-                      onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, fullName: e.target.value })
+                      }
                     />
                     {formErrors.fullName && (
-                      <div style={{ color: "#DC2626", fontSize: "12px", marginTop: "4px" }}>
+                      <div
+                        style={{
+                          color: "#DC2626",
+                          fontSize: "12px",
+                          marginTop: "4px",
+                        }}
+                      >
                         {formErrors.fullName}
                       </div>
                     )}
@@ -1104,7 +1300,8 @@ export default function EmployeeMasterPage() {
                   {/* Mobile Number */}
                   <div>
                     <label className="form-label-swagat">
-                      Mobile Number (10 digits) <span style={{ color: "#DC2626" }}>*</span>
+                      Mobile Number (10 digits){" "}
+                      <span style={{ color: "#DC2626" }}>*</span>
                     </label>
                     <input
                       type="text"
@@ -1120,7 +1317,13 @@ export default function EmployeeMasterPage() {
                       }
                     />
                     {formErrors.mobileNumber && (
-                      <div style={{ color: "#DC2626", fontSize: "12px", marginTop: "4px" }}>
+                      <div
+                        style={{
+                          color: "#DC2626",
+                          fontSize: "12px",
+                          marginTop: "4px",
+                        }}
+                      >
                         {formErrors.mobileNumber}
                       </div>
                     )}
@@ -1136,10 +1339,18 @@ export default function EmployeeMasterPage() {
                       className={`form-control ${formErrors.email ? "is-invalid" : ""}`}
                       placeholder="e.g. employee@swagat.com"
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
                     />
                     {formErrors.email && (
-                      <div style={{ color: "#DC2626", fontSize: "12px", marginTop: "4px" }}>
+                      <div
+                        style={{
+                          color: "#DC2626",
+                          fontSize: "12px",
+                          marginTop: "4px",
+                        }}
+                      >
                         {formErrors.email}
                       </div>
                     )}
@@ -1147,13 +1358,13 @@ export default function EmployeeMasterPage() {
 
                   {/* Department */}
                   <div>
-                    <label className="form-label-swagat">
-                      Department
-                    </label>
+                    <label className="form-label-swagat">Department</label>
                     <select
                       className="form-control"
                       value={formData.department}
-                      onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, department: e.target.value })
+                      }
                     >
                       {DEPARTMENT_OPTIONS.map((dept) => (
                         <option key={dept} value={dept}>
@@ -1163,30 +1374,19 @@ export default function EmployeeMasterPage() {
                     </select>
                   </div>
 
-                  {/* Designation */}
-                  <div>
-                    <label className="form-label-swagat">
-                      Designation
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="e.g. Fabricator, Welder, Helper, Supervisor"
-                      value={formData.designation}
-                      onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
-                    />
-                  </div>
-
                   {/* Joining Date */}
                   <div>
-                    <label className="form-label-swagat">
-                      Joining Date
-                    </label>
+                    <label className="form-label-swagat">Joining Date</label>
                     <input
                       type="date"
                       className="form-control"
                       value={formData.joiningDate}
-                      onChange={(e) => setFormData({ ...formData, joiningDate: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          joiningDate: e.target.value,
+                        })
+                      }
                     />
                   </div>
 
@@ -1209,7 +1409,13 @@ export default function EmployeeMasterPage() {
                       }
                     />
                     {formErrors.emergencyContact && (
-                      <div style={{ color: "#DC2626", fontSize: "12px", marginTop: "4px" }}>
+                      <div
+                        style={{
+                          color: "#DC2626",
+                          fontSize: "12px",
+                          marginTop: "4px",
+                        }}
+                      >
                         {formErrors.emergencyContact}
                       </div>
                     )}
@@ -1217,15 +1423,15 @@ export default function EmployeeMasterPage() {
 
                   {/* City */}
                   <div>
-                    <label className="form-label-swagat">
-                      City / Location
-                    </label>
+                    <label className="form-label-swagat">City / Location</label>
                     <input
                       type="text"
                       className="form-control"
                       placeholder="e.g. Ahmedabad, Gujarat"
                       value={formData.city}
-                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, city: e.target.value })
+                      }
                     />
                   </div>
 
@@ -1239,13 +1445,31 @@ export default function EmployeeMasterPage() {
                       className="form-control"
                       placeholder="Detailed residential address..."
                       value={formData.address}
-                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
+                      }
                     />
                   </div>
 
                   {/* Salary Structure Header Divider */}
-                  <div style={{ gridColumn: "span 2", marginTop: "10px", borderTop: "1px dashed #CBD5E1", paddingTop: "14px" }}>
-                    <div style={{ fontWeight: 700, color: "#123B5D", fontSize: "14px", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <div
+                    style={{
+                      gridColumn: "span 2",
+                      marginTop: "10px",
+                      borderTop: "1px dashed #CBD5E1",
+                      paddingTop: "14px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontWeight: 700,
+                        color: "#123B5D",
+                        fontSize: "14px",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                      }}
+                    >
                       <span>💰 Salary & Pay Structure (Master Settings)</span>
                     </div>
                   </div>
@@ -1253,7 +1477,7 @@ export default function EmployeeMasterPage() {
                   {/* Base Salary (₹) */}
                   <div>
                     <label className="form-label-swagat">
-                      Base Salary (₹)
+                      Employee Salary (₹)
                     </label>
                     <input
                       type="number"
@@ -1262,7 +1486,21 @@ export default function EmployeeMasterPage() {
                       className="form-control"
                       placeholder="e.g. 25000"
                       value={formData.baseSalary}
-                      onChange={(e) => setFormData({ ...formData, baseSalary: e.target.value })}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const sal = parseFloat(val) || 0;
+                        const autoOt =
+                          sal > 0
+                            ? formData.salaryType === "DAILY"
+                              ? (sal / 8).toFixed(2)
+                              : (sal / 240).toFixed(2)
+                            : "";
+                        setFormData({
+                          ...formData,
+                          baseSalary: val,
+                          overtimeRate: autoOt,
+                        });
+                      }}
                     />
                   </div>
 
@@ -1274,7 +1512,21 @@ export default function EmployeeMasterPage() {
                     <select
                       className="form-control"
                       value={formData.salaryType}
-                      onChange={(e) => setFormData({ ...formData, salaryType: e.target.value })}
+                      onChange={(e) => {
+                        const type = e.target.value;
+                        const sal = parseFloat(formData.baseSalary) || 0;
+                        const autoOt =
+                          sal > 0
+                            ? type === "DAILY"
+                              ? (sal / 8).toFixed(2)
+                              : (sal / 240).toFixed(2)
+                            : "";
+                        setFormData({
+                          ...formData,
+                          salaryType: type,
+                          overtimeRate: autoOt,
+                        });
+                      }}
                     >
                       <option value="MONTHLY">Monthly Fixed Salary</option>
                       <option value="DAILY">Daily Wages</option>
@@ -1291,26 +1543,57 @@ export default function EmployeeMasterPage() {
                       step="0.01"
                       min="0"
                       className="form-control"
-                      placeholder="e.g. 150 (Leave blank for auto)"
+                      placeholder={
+                        parseFloat(formData.baseSalary) > 0
+                          ? `Auto: ₹${getAutoOvertimeRate()} / hr`
+                          : "e.g. 150 (Leave blank for auto)"
+                      }
                       value={formData.overtimeRate}
-                      onChange={(e) => setFormData({ ...formData, overtimeRate: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          overtimeRate: e.target.value,
+                        })
+                      }
                     />
-                  </div>
-
-                  {/* Monthly Fixed Allowance (₹) */}
-                  <div>
-                    <label className="form-label-swagat">
-                      Fixed Monthly Allowance (₹)
-                    </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      className="form-control"
-                      placeholder="e.g. 2000"
-                      value={formData.allowance}
-                      onChange={(e) => setFormData({ ...formData, allowance: e.target.value })}
-                    />
+                    <div style={{ marginTop: "6px", fontSize: "11.5px" }}>
+                      {formData.overtimeRate !== "" &&
+                      formData.overtimeRate !== null ? (
+                        <span style={{ color: "#D96F0B", fontWeight: 600 }}>
+                          ✏️ Custom rate active: ₹
+                          {parseFloat(formData.overtimeRate || 0).toFixed(2)} /
+                          hour (overrides auto-calc)
+                        </span>
+                      ) : parseFloat(formData.baseSalary) > 0 ? (
+                        <span
+                          style={{
+                            color: "#16A34A",
+                            fontWeight: 600,
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px",
+                            backgroundColor: "#F0FDF4",
+                            padding: "2px 8px",
+                            borderRadius: "4px",
+                            border: "1px solid #DCFCE7",
+                          }}
+                        >
+                          ⚡ Auto-generated Rate:{" "}
+                          <strong>₹{getAutoOvertimeRate()} / hr</strong>
+                          <span style={{ color: "#64748B", fontWeight: 400 }}>
+                            (
+                            {formData.salaryType === "DAILY"
+                              ? "Salary ÷ 8 hrs"
+                              : "Salary ÷ 30 days ÷ 8 hrs"}
+                            )
+                          </span>
+                        </span>
+                      ) : (
+                        <span style={{ color: "#64748B" }}>
+                          Leave blank to auto-calculate rate based on salary
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </form>
@@ -1408,11 +1691,27 @@ export default function EmployeeMasterPage() {
               </div>
 
               {/* Centered Employee Name & Information Badges */}
-              <h2 style={{ fontSize: "20px", fontWeight: 800, color: "#0B2239", margin: "0 0 6px", textAlign: "center" }}>
+              <h2
+                style={{
+                  fontSize: "20px",
+                  fontWeight: 800,
+                  color: "#0B2239",
+                  margin: "0 0 6px",
+                  textAlign: "center",
+                }}
+              >
                 {selectedEmployee.fullName}
               </h2>
 
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flexWrap: "wrap", gap: "8px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexWrap: "wrap",
+                  gap: "8px",
+                }}
+              >
                 <span
                   style={{
                     padding: "3px 10px",
@@ -1458,16 +1757,14 @@ export default function EmployeeMasterPage() {
                 }}
               >
                 <div>
-                  <div style={{ color: "#64748B", fontSize: "12px", fontWeight: 600, marginBottom: "2px" }}>
-                    Designation
-                  </div>
-                  <div style={{ fontWeight: 700, color: "#1E293B" }}>
-                    {selectedEmployee.designation || "Not specified"}
-                  </div>
-                </div>
-
-                <div>
-                  <div style={{ color: "#64748B", fontSize: "12px", fontWeight: 600, marginBottom: "2px" }}>
+                  <div
+                    style={{
+                      color: "#64748B",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      marginBottom: "2px",
+                    }}
+                  >
                     Department
                   </div>
                   <div style={{ fontWeight: 700, color: "#1E293B" }}>
@@ -1476,22 +1773,46 @@ export default function EmployeeMasterPage() {
                 </div>
 
                 <div>
-                  <div style={{ color: "#64748B", fontSize: "12px", fontWeight: 600, marginBottom: "2px" }}>
+                  <div
+                    style={{
+                      color: "#64748B",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      marginBottom: "2px",
+                    }}
+                  >
                     Mobile Number
                   </div>
-                  <div style={{ fontWeight: 700, color: "#1E293B", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <div
+                    style={{
+                      fontWeight: 700,
+                      color: "#1E293B",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
                     <FiPhone style={{ color: "#0284C7" }} />
                     {selectedEmployee.mobileNumber}
                   </div>
                 </div>
 
                 <div>
-                  <div style={{ color: "#64748B", fontSize: "12px", fontWeight: 600, marginBottom: "2px" }}>
+                  <div
+                    style={{
+                      color: "#64748B",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      marginBottom: "2px",
+                    }}
+                  >
                     Joining Date
                   </div>
                   <div style={{ fontWeight: 600, color: "#1E293B" }}>
                     {selectedEmployee.joiningDate
-                      ? new Date(selectedEmployee.joiningDate).toLocaleDateString("en-IN", {
+                      ? new Date(
+                          selectedEmployee.joiningDate,
+                        ).toLocaleDateString("en-IN", {
                           day: "numeric",
                           month: "long",
                           year: "numeric",
@@ -1501,7 +1822,14 @@ export default function EmployeeMasterPage() {
                 </div>
 
                 <div>
-                  <div style={{ color: "#64748B", fontSize: "12px", fontWeight: 600, marginBottom: "2px" }}>
+                  <div
+                    style={{
+                      color: "#64748B",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      marginBottom: "2px",
+                    }}
+                  >
                     Email Address
                   </div>
                   <div style={{ fontWeight: 600, color: "#1E293B" }}>
@@ -1510,16 +1838,61 @@ export default function EmployeeMasterPage() {
                 </div>
 
                 <div>
-                  <div style={{ color: "#64748B", fontSize: "12px", fontWeight: 600, marginBottom: "2px" }}>
+                  <div
+                    style={{
+                      color: "#64748B",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      marginBottom: "2px",
+                    }}
+                  >
                     Base Salary (Master Rate)
                   </div>
                   <div style={{ fontWeight: 800, color: "#16A34A" }}>
-                    ₹{parseFloat(selectedEmployee.baseSalary || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / {selectedEmployee.salaryType === "DAILY" ? "Day" : "Month"}
+                    ₹
+                    {parseFloat(
+                      selectedEmployee.baseSalary || 0,
+                    ).toLocaleString("en-IN", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}{" "}
+                    /{" "}
+                    {selectedEmployee.salaryType === "DAILY" ? "Day" : "Month"}
                   </div>
                 </div>
 
                 <div>
-                  <div style={{ color: "#64748B", fontSize: "12px", fontWeight: 600, marginBottom: "2px" }}>
+                  <div
+                    style={{
+                      color: "#64748B",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      marginBottom: "2px",
+                    }}
+                  >
+                    Overtime Rate (₹ / Hour)
+                  </div>
+                  <div style={{ fontWeight: 700, color: "#123B5D" }}>
+                    {parseFloat(selectedEmployee.overtimeRate || 0) > 0
+                      ? `₹${parseFloat(selectedEmployee.overtimeRate).toFixed(2)} / hr (Custom)`
+                      : parseFloat(selectedEmployee.baseSalary || 0) > 0
+                        ? `₹${(selectedEmployee.salaryType === "DAILY"
+                            ? parseFloat(selectedEmployee.baseSalary) / 8
+                            : parseFloat(selectedEmployee.baseSalary) / 240
+                          ).toFixed(2)} / hr (Auto-calculated)`
+                        : "Auto-calculated"}
+                  </div>
+                </div>
+
+                <div>
+                  <div
+                    style={{
+                      color: "#64748B",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      marginBottom: "2px",
+                    }}
+                  >
                     Emergency Contact
                   </div>
                   <div style={{ fontWeight: 600, color: "#1E293B" }}>
@@ -1528,7 +1901,14 @@ export default function EmployeeMasterPage() {
                 </div>
 
                 <div>
-                  <div style={{ color: "#64748B", fontSize: "12px", fontWeight: 600, marginBottom: "2px" }}>
+                  <div
+                    style={{
+                      color: "#64748B",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      marginBottom: "2px",
+                    }}
+                  >
                     City / Location
                   </div>
                   <div style={{ fontWeight: 600, color: "#1E293B" }}>
@@ -1537,7 +1917,14 @@ export default function EmployeeMasterPage() {
                 </div>
 
                 <div style={{ gridColumn: "span 2" }}>
-                  <div style={{ color: "#64748B", fontSize: "12px", fontWeight: 600, marginBottom: "2px" }}>
+                  <div
+                    style={{
+                      color: "#64748B",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      marginBottom: "2px",
+                    }}
+                  >
                     Residential Address
                   </div>
                   <div style={{ color: "#334155", lineHeight: "1.5" }}>
@@ -1548,7 +1935,10 @@ export default function EmployeeMasterPage() {
             </div>
 
             {/* Sticky View Modal Footer Actions */}
-            <div className="modal-footer-swagat" style={{ justifyContent: "space-between" }}>
+            <div
+              className="modal-footer-swagat"
+              style={{ justifyContent: "space-between" }}
+            >
               <button
                 type="button"
                 className="btn-outline-swagat"

@@ -582,7 +582,136 @@ export const api = {
       headers: getAuthHeaders(),
     }).then(handleResponse),
 
+  // Salary Payments (Phase 7)
+  getSalaryPayments: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.month) query.append("month", params.month);
+    if (params.year) query.append("year", params.year);
+    if (params.employeeId) query.append("employeeId", params.employeeId);
+    if (params.salaryId) query.append("salaryId", params.salaryId);
+    if (params.paymentMode) query.append("paymentMode", params.paymentMode);
+    if (params.status) query.append("status", params.status);
+    if (params.fromDate) query.append("fromDate", params.fromDate);
+    if (params.toDate) query.append("toDate", params.toDate);
+    if (params.search) query.append("search", params.search);
+    const queryString = query.toString() ? `?${query.toString()}` : "";
+    return fetch(`${BASE_URL}/salary-payments${queryString}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse);
+  },
+  getSalaryPaymentDashboardSummary: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.month) query.append("month", params.month);
+    if (params.year) query.append("year", params.year);
+    if (params.employeeId) query.append("employeeId", params.employeeId);
+    const queryString = query.toString() ? `?${query.toString()}` : "";
+    return fetch(`${BASE_URL}/salary-payments/dashboard-summary${queryString}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse);
+  },
+  getSalaryPaymentById: (id) =>
+    fetch(`${BASE_URL}/salary-payments/${id}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+  createSalaryPayment: (data) =>
+    fetch(`${BASE_URL}/salary-payments`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+  updateSalaryPayment: (id, data) =>
+    fetch(`${BASE_URL}/salary-payments/${id}`, {
+      method: "PUT",
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data),
+    }).then(handleResponse),
+  deleteSalaryPayment: (id) =>
+    fetch(`${BASE_URL}/salary-payments/${id}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    }).then(handleResponse),
+
+  // Reports (Phase 8)
+  getAttendanceReport: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.fromDate) query.append("fromDate", params.fromDate);
+    if (params.toDate) query.append("toDate", params.toDate);
+    if (params.employeeId) query.append("employeeId", params.employeeId);
+    if (params.department) query.append("department", params.department);
+    if (params.status) query.append("status", params.status);
+    if (params.search) query.append("search", params.search);
+    const queryString = query.toString() ? `?${query.toString()}` : "";
+    return fetch(`${BASE_URL}/reports/attendance${queryString}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse);
+  },
+
+  getMonthlyAttendanceSummaryReport: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.month) query.append("month", params.month);
+    if (params.year) query.append("year", params.year);
+    if (params.employeeId) query.append("employeeId", params.employeeId);
+    if (params.department) query.append("department", params.department);
+    if (params.search) query.append("search", params.search);
+    const queryString = query.toString() ? `?${query.toString()}` : "";
+    return fetch(`${BASE_URL}/reports/attendance-summary${queryString}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse);
+  },
+
+  getAdvanceReport: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.fromDate) query.append("fromDate", params.fromDate);
+    if (params.toDate) query.append("toDate", params.toDate);
+    if (params.employeeId) query.append("employeeId", params.employeeId);
+    if (params.paymentMode) query.append("paymentMode", params.paymentMode);
+    if (params.search) query.append("search", params.search);
+    const queryString = query.toString() ? `?${query.toString()}` : "";
+    return fetch(`${BASE_URL}/reports/advance${queryString}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse);
+  },
+
+  getOvertimeReport: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.month) query.append("month", params.month);
+    if (params.year) query.append("year", params.year);
+    if (params.employeeId) query.append("employeeId", params.employeeId);
+    if (params.department) query.append("department", params.department);
+    if (params.search) query.append("search", params.search);
+    const queryString = query.toString() ? `?${query.toString()}` : "";
+    return fetch(`${BASE_URL}/reports/overtime${queryString}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse);
+  },
+
+  getMonthlySalaryReport: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.month) query.append("month", params.month);
+    if (params.year) query.append("year", params.year);
+    if (params.employeeId) query.append("employeeId", params.employeeId);
+    if (params.department) query.append("department", params.department);
+    if (params.status) query.append("status", params.status);
+    if (params.search) query.append("search", params.search);
+    const queryString = query.toString() ? `?${query.toString()}` : "";
+    return fetch(`${BASE_URL}/reports/monthly-salary${queryString}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse);
+  },
+
+  getEmployeeSalaryLedgerReport: (params = {}) => {
+    const query = new URLSearchParams();
+    if (params.employeeId) query.append("employeeId", params.employeeId);
+    if (params.month) query.append("month", params.month);
+    if (params.year) query.append("year", params.year);
+    const queryString = query.toString() ? `?${query.toString()}` : "";
+    return fetch(`${BASE_URL}/reports/employee-ledger${queryString}`, {
+      headers: getAuthHeaders(),
+    }).then(handleResponse);
+  },
+
   // Health Check (Public)
   checkHealth: () => fetch(`${BASE_URL}/health`).then(handleResponse),
 };
+
 

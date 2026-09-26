@@ -165,63 +165,26 @@ export default function Sidebar() {
               <span>5. Salary Calculation</span>
             </NavLink>
 
-            <div
-              className="sidebar-link"
-              style={{
-                opacity: 0.6,
-                cursor: "not-allowed",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-              title="Available in Phase 7"
+            <NavLink
+              to="/employee/salary-payment"
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? "active" : ""}`
+              }
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <FiCreditCard className="link-icon" />
-                <span>6. Salary Payment</span>
-              </div>
-              <span
-                style={{
-                  fontSize: "9.5px",
-                  fontWeight: 700,
-                  background: "rgba(255, 255, 255, 0.12)",
-                  color: "#FDE68A",
-                  padding: "2px 6px",
-                  borderRadius: "4px",
-                }}
-              >
-                Phase 7
-              </span>
-            </div>
+              <FiCreditCard className="link-icon" />
+              <span>6. Salary Payment</span>
+            </NavLink>
 
-            <div
-              className="sidebar-link"
-              style={{
-                opacity: 0.6,
-                cursor: "not-allowed",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-              title="Available in Phase 8"
+            <NavLink
+              to="/employee/reports"
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? "active" : ""}`
+              }
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <FiLayers className="link-icon" />
-                <span>7. Salary Reports</span>
-              </div>
-              <span
-                style={{
-                  fontSize: "9.5px",
-                  fontWeight: 700,
-                  background: "rgba(255, 255, 255, 0.12)",
-                  color: "#FDE68A",
-                  padding: "2px 6px",
-                  borderRadius: "4px",
-                }}
-              >
-                Phase 8
-              </span>
-            </div>
+              <FiLayers className="link-icon" />
+              <span>7. Salary Reports</span>
+            </NavLink>
+
 
           </>
         ) : (

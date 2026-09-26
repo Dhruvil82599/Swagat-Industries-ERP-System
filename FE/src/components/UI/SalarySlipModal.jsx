@@ -439,9 +439,6 @@ export default function SalarySlipModal({ salaryId, onClose }) {
                     {emp.fullName} ({emp.employeeCode})
                   </div>
                   <div className="info-text">
-                    <strong>Designation:</strong> {emp.designation || "N/A"}
-                  </div>
-                  <div className="info-text">
                     <strong>Department:</strong> {emp.department || "General"}
                   </div>
                   <div className="info-text">
@@ -503,12 +500,6 @@ export default function SalarySlipModal({ salaryId, onClose }) {
                           <span>₹{Number(salary.overtimeAmount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
                         </div>
                       )}
-                      {parseFloat(salary.allowances) > 0 && (
-                        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "4px" }}>
-                          <span>Allowances:</span>
-                          <span>₹{Number(salary.allowances).toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
-                        </div>
-                      )}
                     </td>
                     <td>
                       <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -517,14 +508,6 @@ export default function SalarySlipModal({ salaryId, onClose }) {
                           ₹{Number(salary.advanceDeduction).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                         </strong>
                       </div>
-                      {parseFloat(salary.otherDeductions) > 0 && (
-                        <div style={{ display: "flex", justifyContent: "space-between", marginTop: "4px" }}>
-                          <span>Other Deductions:</span>
-                          <span style={{ color: "#DC2626" }}>
-                            ₹{Number(salary.otherDeductions).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                          </span>
-                        </div>
-                      )}
                     </td>
                   </tr>
                   <tr className="total-row">

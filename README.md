@@ -519,7 +519,54 @@ node test_phase13.js
 
 ---
 
+## 💼 Swagat Employee ERP Module — Phase 7: Employee Salary Payment Management
+
+The **Swagat Employee ERP** module adds comprehensive workforce salary payment management seamlessly integrated into the unified `swagat_erp` database.
+
+### Key Capabilities
+- **Multiple Installments & Partial Payments**: Allows paying an employee's monthly net salary in multiple partial installments (e.g. ₹5,000 + ₹10,000 + ₹15,000 = ₹30,000 total).
+- **Dynamic Salary Status**: Automatically updates salary payment status across `UNPAID`, `PARTIALLY PAID`, and `FULLY PAID`.
+- **Overpayment Validation**: Server and client-side validation preventing total payments from exceeding the employee's Net Salary balance.
+- **Multiple Payment Modes**: Full support for `CASH`, `BANK` (NEFT/RTGS), `UPI` (GPay/PhonePe), `CHEQUE`, and `OTHER`.
+- **Payment History Ledger**: Detailed audit trail displaying payment date, employee details, salary month/year, payment mode, reference/transaction number, and remarks.
+- **Salary Dashboard Metrics**: Real-time KPI summaries for Total Net Salary, Total Paid, Total Pending Balance, Total Advance Deductions, Total Overtime, Number of Paid Employees, and Pending Employees.
+
+### API Endpoints
+- `GET /api/salary-payments`: Fetch salary payments list & ledger history with month, year, employee, status, and search filters.
+- `GET /api/salary-payments/dashboard-summary`: Retrieve summary KPI metrics for salary payments.
+- `POST /api/salary-payments`: Record a new salary payment installment (with overpayment checks).
+- `GET /api/salary-payments/:id`: View single payment record details.
+- `PUT /api/salary-payments/:id`: Edit payment transaction record and update parent salary status.
+- `DELETE /api/salary-payments/:id`: Delete payment transaction record and update parent salary status.
+
+---
+
+## 💼 Swagat Employee ERP Module — Phase 8: Employee Attendance & Salary Reports
+
+The **Swagat Employee ERP** module incorporates comprehensive analytical reporting for workforce attendance, advance upad statements, overtime earnings, monthly payroll totals, and individual employee salary ledgers.
+
+### 📊 Report Modules & Capabilities
+1. **Attendance Log Report**: Detailed daily attendance logs filtered by date range, employee, department, and status (PRESENT, ABSENT, HALF DAY, LEAVE, HOLIDAY) with KPI counters for total present/absent days, regular hours, overtime hours, and advance disbursements.
+2. **Monthly Attendance Summary**: Aggregation per employee displaying total working days in month, present days, half days, absent days, leave days, holiday days, total payable days, and regular/overtime hours.
+3. **Advance Statement Report**: Complete Upad / Advance disbursement statement filtered by employee, date range, and payment mode with total advance calculation and payment mode breakdown.
+4. **Overtime Earnings Report**: Overtime pay audit statement displaying employee regular hours, overtime hours, hourly OT rate, OT multiplier (1.0x), and calculated overtime payout amount.
+5. **Monthly Salary Report**: Complete monthly payroll register showing base salary, attendance days breakdown, overtime earnings, gross salary, advance deductions, total deductions, net salary, paid amount, remaining balance, and payment status (DRAFT, GENERATED, APPROVED, PAID, PARTIAL).
+6. **Employee Salary Ledger (Audit View)**: Transparent transaction view per employee detailing master salary structure, attendance breakdown, advance history, overtime calculations, salary slip math, payment voucher history, and outstanding balance status.
+7. **Export & Print**: One-click Excel / CSV data export and styled `@media print` printing / PDF saving capabilities.
+
+### 🔌 Phase 8 API Endpoints
+- `GET /api/reports/attendance`: Retrieve detailed attendance log report with date range & status filters.
+- `GET /api/reports/attendance-summary`: Retrieve monthly attendance aggregation metrics per employee.
+- `GET /api/reports/advance`: Retrieve advance statement report with payment mode aggregations.
+- `GET /api/reports/overtime`: Retrieve overtime hours & payout rate breakdown report.
+- `GET /api/reports/monthly-salary`: Retrieve monthly salary payroll register report.
+- `GET /api/reports/employee-ledger`: Retrieve complete transaction ledger for a selected employee.
+
+---
+
 ## 📝 License
 
 This software is proprietary and confidential. Developed specifically for **Swagat Industries**.  
 All rights reserved.
+
+

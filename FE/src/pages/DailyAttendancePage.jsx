@@ -39,12 +39,29 @@ function formatDateToInput(d) {
  */
 function formatDisplayDate(dateStr) {
   if (!dateStr) return "";
-  const [year, month, day] = dateStr.split("-");
-  const months = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-  ];
-  return `${day} ${months[parseInt(month, 10) - 1]} ${year}`;
+  const parts = String(dateStr).split("T")[0].split("-");
+  if (parts.length < 3) return dateStr;
+  const [yearStr, monthStr, dayStr] = parts;
+  const year = parseInt(yearStr, 10);
+  const month = parseInt(monthStr, 10) - 1;
+  const day = parseInt(dayStr, 10);
+  const d = new Date(year, month, day);
+
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  const dayName = days[d.getDay()];
+  const monthName = months[month];
+  return `${dayName}, ${String(day).padStart(2, "0")} ${monthName} ${year}`;
+}
+
+function getDayName(dateStr) {
+  if (!dateStr) return "";
+  const parts = String(dateStr).split("T")[0].split("-");
+  if (parts.length < 3) return "";
+  const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  return days[d.getDay()];
 }
 
 /**
@@ -156,8 +173,7 @@ export default function DailyAttendancePage() {
       const matchesSearch =
         !searchTerm.trim() ||
         emp.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        emp.employeeCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        emp.designation?.toLowerCase().includes(searchTerm.toLowerCase());
+        emp.employeeCode?.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesDept =
         departmentFilter === "all" || emp.department === departmentFilter;
@@ -177,12 +193,22 @@ export default function DailyAttendancePage() {
 
         const updated = { ...emp, [field]: value };
 
+        if (field === "status") {
+          if (value === "PRESENT" || value === "HALF DAY") {
+            updated.checkIn = updated.checkIn || DEFAULT_START_TIME;
+            updated.checkOut = updated.checkOut || DEFAULT_END_TIME;
+          } else if (value === "") {
+            updated.checkIn = "";
+            updated.checkOut = "";
+          }
+        }
+
         // Recalculate hours when status, checkIn, or checkOut changes
         if (field === "status" || field === "checkIn" || field === "checkOut") {
           const { regularHours, overtimeHours } = computeHours(
-            field === "status" ? value : updated.status,
-            field === "checkIn" ? value : updated.checkIn,
-            field === "checkOut" ? value : updated.checkOut
+            updated.status,
+            updated.checkIn,
+            updated.checkOut
           );
           updated.regularHours = regularHours;
           updated.overtimeHours = overtimeHours;
@@ -225,8 +251,12 @@ export default function DailyAttendancePage() {
   const handleSaveAttendance = async () => {
     if (employeesData.length === 0) return;
 
-    // Validate Check Out time >= Check In time for PRESENT employees
+    // Validate that status is selected and Check Out >= Check In for PRESENT employees
     for (const emp of employeesData) {
+      if (!emp.status) {
+        showError(`Please select attendance status for ${emp.fullName}`);
+        return;
+      }
       if (emp.status === "PRESENT") {
         if (!emp.checkIn || !emp.checkOut) {
           showError(`Check In and Check Out times are required for ${emp.fullName}`);
@@ -389,6 +419,23 @@ export default function DailyAttendancePage() {
                       padding: "6px 12px",
                     }}
                   />
+
+                  <span
+                    style={{
+                      fontWeight: 800,
+                      fontSize: "13.5px",
+                      color: selectedDate && getDayName(selectedDate) === "Sunday" ? "#DC2626" : "#123B5D",
+                      backgroundColor: selectedDate && getDayName(selectedDate) === "Sunday" ? "#FEF2F2" : "#F1F5F9",
+                      padding: "6px 14px",
+                      borderRadius: "6px",
+                      border: selectedDate && getDayName(selectedDate) === "Sunday" ? "1px solid #FECACA" : "1px solid #CBD5E1",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    📅 {getDayName(selectedDate)}
+                  </span>
 
                   <button
                     type="button"
@@ -678,7 +725,7 @@ export default function DailyAttendancePage() {
               <input
                 type="text"
                 className="form-control-swagat"
-                placeholder="Search code, name, designation..."
+                placeholder="Search code, name, department..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -852,7 +899,7 @@ export default function DailyAttendancePage() {
                           <td>
                             <select
                               className="form-select-swagat"
-                              value={emp.status || "PRESENT"}
+                              value={emp.status || ""}
                               onChange={(e) => updateRow(emp.employeeId, "status", e.target.value)}
                               style={{
                                 padding: "6px 10px",
@@ -863,6 +910,7 @@ export default function DailyAttendancePage() {
                                 borderColor: badge.border,
                               }}
                             >
+                              <option value="">-- Select Status --</option>
                               <option value="PRESENT">PRESENT</option>
                               <option value="ABSENT">ABSENT</option>
                               <option value="HALF DAY">HALF DAY</option>
@@ -876,7 +924,7 @@ export default function DailyAttendancePage() {
                             <input
                               type="time"
                               className="form-control-swagat"
-                              value={emp.checkIn || DEFAULT_START_TIME}
+                              value={emp.checkIn || ""}
                               onChange={(e) => updateRow(emp.employeeId, "checkIn", e.target.value)}
                               disabled={isDisabledTime}
                               style={{
@@ -892,7 +940,7 @@ export default function DailyAttendancePage() {
                             <input
                               type="time"
                               className="form-control-swagat"
-                              value={emp.checkOut || DEFAULT_END_TIME}
+                              value={emp.checkOut || ""}
                               onChange={(e) => updateRow(emp.employeeId, "checkOut", e.target.value)}
                               disabled={!isPresent}
                               style={{

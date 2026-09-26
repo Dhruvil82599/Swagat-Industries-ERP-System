@@ -22,3 +22,20 @@
 - **Root Cause**: Missing required time fields for Present status.
 - **Fix Applied**: Enforced strict validation requiring both `checkIn` and `checkOut` when status is `PRESENT`.
 - **Testing Result**: Rejects submission with 400 validation error specifying required fields.
+
+## Phase 7: Employee Salary Payment Module
+
+### 1. Overpayment Validation (Payment Amount > Remaining Balance)
+- **Error Description**: User attempts to record a salary payment amount greater than the remaining net salary balance.
+- **Reproduction**: Net Salary = ₹30,000, Already Paid = ₹15,000; submit new payment of ₹20,000.
+- **Root Cause**: Input payment amount exceeds remaining net salary balance.
+- **Fix Applied**: Implemented overpayment calculation check in `salaryPaymentController.js` and real-time client-side validation in `EmployeeSalaryPaymentPage.jsx`.
+- **Testing Result**: Request rejected with HTTP 400 Bad Request: `"Payment amount (₹20,000) cannot exceed remaining net salary balance of ₹15,000. Net Salary: ₹30,000, Already Paid: ₹15,000"`.
+
+### 2. Status Recalculation after Payment Deletion / Modification
+- **Error Description**: Salary status might remain `FULLY PAID` even if a payment is deleted or reduced.
+- **Reproduction**: Record full payment, then delete one payment installment.
+- **Root Cause**: Stale status string if not recalculated across remaining transaction history.
+- **Fix Applied**: Created database helper `updateSalaryStatusAfterPayment` that recalculates total payments and updates `EmployeeSalary` status automatically to `UNPAID`, `PARTIALLY PAID`, or `FULLY PAID`.
+- **Testing Result**: Status dynamically transitions from `FULLY PAID` -> `PARTIALLY PAID` -> `UNPAID` accurately.
+

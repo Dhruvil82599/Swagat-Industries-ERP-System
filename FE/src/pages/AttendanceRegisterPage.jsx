@@ -19,6 +19,7 @@ import {
   FiX,
   FiSave,
   FiAlertTriangle,
+  FiEye,
 } from "react-icons/fi";
 
 const DEFAULT_START_TIME = "09:00";
@@ -39,11 +40,20 @@ function getFirstDayOfMonth() {
 
 function formatDisplayDate(dateStr) {
   if (!dateStr) return "";
-  const parts = dateStr.split("T")[0].split("-");
+  const parts = String(dateStr).split("T")[0].split("-");
   if (parts.length < 3) return dateStr;
-  const [year, month, day] = parts;
+  const [yearStr, monthStr, dayStr] = parts;
+  const year = parseInt(yearStr, 10);
+  const month = parseInt(monthStr, 10) - 1;
+  const day = parseInt(dayStr, 10);
+  const d = new Date(year, month, day);
+
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  return `${day} ${months[parseInt(month, 10) - 1]} ${year}`;
+
+  const dayName = days[d.getDay()];
+  const monthName = months[month];
+  return `${dayName}, ${String(day).padStart(2, "0")} ${monthName} ${year}`;
 }
 
 export default function AttendanceRegisterPage() {
@@ -71,6 +81,7 @@ export default function AttendanceRegisterPage() {
   const [loading, setLoading] = useState(true);
 
   // Edit Modal State
+  const [viewingRecord, setViewingRecord] = useState(null);
   const [editingRecord, setEditingRecord] = useState(null);
   const [editFormData, setEditFormData] = useState({
     status: "PRESENT",
@@ -214,7 +225,6 @@ export default function AttendanceRegisterPage() {
       "Employee Code",
       "Employee Name",
       "Department",
-      "Designation",
       "Status",
       "Check In",
       "Check Out",
@@ -229,7 +239,6 @@ export default function AttendanceRegisterPage() {
       `"${r.employeeCode || ""}"`,
       `"${r.fullName || ""}"`,
       `"${r.department || ""}"`,
-      `"${r.designation || ""}"`,
       r.status,
       r.checkIn || "",
       r.checkOut || "",
@@ -684,21 +693,31 @@ export default function AttendanceRegisterPage() {
                             {rec.regularHours} hrs
                           </td>
 
-                          {/* Overtime Hours */}
+                          {/* Overtime Hours & Rate Calculation */}
                           <td style={{ textAlign: "center" }}>
                             {rec.overtimeHours > 0 ? (
-                              <span
-                                style={{
-                                  fontSize: "11.5px",
-                                  fontWeight: 800,
-                                  backgroundColor: "#F3E8FF",
-                                  color: "#7E22CE",
-                                  padding: "2px 8px",
-                                  borderRadius: "10px",
-                                }}
-                              >
-                                +{rec.overtimeHours} hrs
-                              </span>
+                              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+                                <span
+                                  style={{
+                                    fontSize: "11.5px",
+                                    fontWeight: 800,
+                                    backgroundColor: "#F3E8FF",
+                                    color: "#7E22CE",
+                                    padding: "2px 8px",
+                                    borderRadius: "10px",
+                                    display: "inline-block",
+                                  }}
+                                >
+                                  +{rec.overtimeHours} hrs
+                                </span>
+                                {rec.overtimeRate > 0 ? (
+                                  <span style={{ fontSize: "11px", color: "#6B21A8", fontWeight: 700, whiteSpace: "nowrap" }}>
+                                    {rec.overtimeHours}h × ₹{rec.overtimeRate}/hr = <strong style={{ color: "#16A34A" }}>₹{rec.overtimeAmount}</strong>
+                                  </span>
+                                ) : (
+                                  <span style={{ fontSize: "11px", color: "#94A3B8" }}>+{rec.overtimeHours} hrs</span>
+                                )}
+                              </div>
                             ) : (
                               <span style={{ fontSize: "12.5px", color: "#94A3B8" }}>0 hrs</span>
                             )}
@@ -717,6 +736,19 @@ export default function AttendanceRegisterPage() {
                           {/* Actions */}
                           <td style={{ textAlign: "center" }}>
                             <div className="table-actions-container" style={{ justifyContent: "center" }}>
+                              <button
+                                type="button"
+                                onClick={() => setViewingRecord(rec)}
+                                className="btn-icon-action"
+                                style={{
+                                  color: "#123B5D",
+                                  backgroundColor: "rgba(18, 59, 93, 0.08)",
+                                  border: "1px solid #CBD5E1",
+                                }}
+                                title="View Attendance Details"
+                              >
+                                <FiEye />
+                              </button>
                               <button
                                 type="button"
                                 onClick={() => handleOpenEdit(rec)}
@@ -967,6 +999,157 @@ export default function AttendanceRegisterPage() {
                       <span>Delete Attendance</span>
                     </>
                   )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* View Attendance Details Modal */}
+        {viewingRecord && (
+          <div className="modal-overlay">
+            <div className="modal-content-swagat" style={{ maxWidth: "600px", backgroundColor: "#FFFFFF" }}>
+              <div className="modal-header-swagat" style={{ backgroundColor: "#F8FAFC" }}>
+                <h3 style={{ fontSize: "17px", fontWeight: 800, color: "#0B2239", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <FiClock style={{ color: "var(--accent, #F28C28)" }} />
+                  <span>Attendance Details — {formatDisplayDate(viewingRecord.attendanceDate)}</span>
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setViewingRecord(null)}
+                  className="modal-close-btn"
+                >
+                  <FiX />
+                </button>
+              </div>
+
+              <div className="modal-body-swagat">
+                {/* Employee Info Header */}
+                <div style={{ display: "flex", alignItems: "center", gap: "14px", padding: "14px", backgroundColor: "#F1F5F9", borderRadius: "8px", marginBottom: "16px" }}>
+                  <div
+                    style={{
+                      width: "48px",
+                      height: "48px",
+                      borderRadius: "50%",
+                      backgroundColor: "#123B5D",
+                      color: "#FFFFFF",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontWeight: 800,
+                      fontSize: "18px",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {viewingRecord.photoUrl ? (
+                      <img src={viewingRecord.photoUrl} alt={viewingRecord.fullName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      viewingRecord.fullName?.charAt(0).toUpperCase() || "E"
+                    )}
+                  </div>
+                  <div>
+                    <h4 style={{ margin: "0 0 2px 0", fontSize: "16px", fontWeight: 800, color: "#0B2239" }}>
+                      {viewingRecord.fullName}
+                    </h4>
+                    <div style={{ fontSize: "12px", color: "#64748B", display: "flex", gap: "8px" }}>
+                      <span style={{ fontWeight: 700, color: "var(--accent, #F28C28)" }}>{viewingRecord.employeeCode}</span>
+                      <span>•</span>
+                      <span>{viewingRecord.department || "Production"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Details Grid */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", fontSize: "13px" }}>
+                  <div>
+                    <span style={{ color: "#64748B", fontWeight: 600, display: "block", fontSize: "12px" }}>Attendance Status</span>
+                    <span
+                      className="badge-swagat"
+                      style={{
+                        backgroundColor: getStatusBadgeStyle(viewingRecord.status).bg,
+                        color: getStatusBadgeStyle(viewingRecord.status).color,
+                        padding: "4px 10px",
+                        fontSize: "12px",
+                        fontWeight: 700,
+                        marginTop: "4px",
+                        display: "inline-block",
+                      }}
+                    >
+                      {viewingRecord.status}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span style={{ color: "#64748B", fontWeight: 600, display: "block", fontSize: "12px" }}>Working Hours</span>
+                    <strong style={{ color: "#172B3A" }}>{viewingRecord.regularHours} hrs (Regular)</strong>
+                  </div>
+
+                  <div>
+                    <span style={{ color: "#64748B", fontWeight: 600, display: "block", fontSize: "12px" }}>Check In Time</span>
+                    <span style={{ fontWeight: 600, color: "#172B3A" }}>{viewingRecord.checkIn || "—"}</span>
+                  </div>
+
+                  <div>
+                    <span style={{ color: "#64748B", fontWeight: 600, display: "block", fontSize: "12px" }}>Check Out Time</span>
+                    <span style={{ fontWeight: 600, color: "#172B3A" }}>{viewingRecord.checkOut || "—"}</span>
+                  </div>
+
+                  {/* Overtime Section */}
+                  <div style={{ gridColumn: "1 / -1", backgroundColor: "#F3E8FF", padding: "12px 16px", borderRadius: "8px", border: "1px solid #E9D5FF" }}>
+                    <div style={{ fontSize: "12px", color: "#6B21A8", fontWeight: 700, marginBottom: "4px", textTransform: "uppercase" }}>
+                      ⏰ Overtime Breakdown
+                    </div>
+                    {viewingRecord.overtimeHours > 0 ? (
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13.5px" }}>
+                        <span>
+                          Overtime: <strong>+{viewingRecord.overtimeHours} hrs</strong> @ <strong>₹{viewingRecord.overtimeRate || 0}/hr</strong>
+                        </span>
+                        <span style={{ fontSize: "16px", fontWeight: 900, color: "#16A34A" }}>
+                          = ₹{viewingRecord.overtimeAmount || 0}
+                        </span>
+                      </div>
+                    ) : (
+                      <span style={{ fontSize: "13px", color: "#7E22CE" }}>No Overtime logged for this shift (0 hrs)</span>
+                    )}
+                  </div>
+
+                  <div>
+                    <span style={{ color: "#64748B", fontWeight: 600, display: "block", fontSize: "12px" }}>Daily Advance Paid</span>
+                    <strong style={{ fontSize: "15px", color: viewingRecord.advanceAmount > 0 ? "#D96F0B" : "#64748B" }}>
+                      {viewingRecord.advanceAmount > 0 ? `₹${viewingRecord.advanceAmount.toLocaleString()}` : "None (₹0)"}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span style={{ color: "#64748B", fontWeight: 600, display: "block", fontSize: "12px" }}>Recorded By</span>
+                    <span style={{ fontWeight: 600, color: "#172B3A" }}>{viewingRecord.createdBy || "System Admin"}</span>
+                  </div>
+
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <span style={{ color: "#64748B", fontWeight: 600, display: "block", fontSize: "12px" }}>Remarks / Notes</span>
+                    <span style={{ color: "#334155" }}>{viewingRecord.remarks || "No remarks entered"}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="modal-footer-swagat" style={{ justifyContent: "space-between" }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const rec = viewingRecord;
+                    setViewingRecord(null);
+                    handleOpenEdit(rec);
+                  }}
+                  className="btn-outline-swagat"
+                >
+                  <FiEdit /> Edit Record
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setViewingRecord(null)}
+                  className="btn-primary-swagat"
+                >
+                  Close
                 </button>
               </div>
             </div>

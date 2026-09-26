@@ -79,21 +79,20 @@ async function computeEmployeeSalaryData(employeeId, month, year, overrides = {}
   // Overtime rate computation
   const masterOtRate = parseFloat(employee.overtimeRate) || 0;
   let otRate = overrides.overtimeRate !== undefined ? parseFloat(overrides.overtimeRate) : masterOtRate;
-  if (otRate <= 0 && salaryType === "MONTHLY" && totalDaysInMonth > 0) {
-    // Default hourly OT rate: daily rate / 8 working hours
-    otRate = (dailyRate / 8);
+  if (otRate <= 0 && baseSalary > 0) {
+    if (salaryType === "DAILY") {
+      otRate = baseSalary / 8;
+    } else if (totalDaysInMonth > 0) {
+      otRate = dailyRate / 8;
+    }
   }
   otRate = Math.round(otRate * 100) / 100;
 
   const overtimeHours = Math.round(totalOtHours * 100) / 100;
   const overtimeAmount = Math.round(overtimeHours * otRate * 100) / 100;
 
-  // Allowances
-  const masterAllowance = parseFloat(employee.allowance) || 0;
-  const allowances = overrides.allowances !== undefined ? parseFloat(overrides.allowances) : masterAllowance;
-
   // Gross Salary
-  const grossSalary = Math.round((earnedBasic + overtimeAmount + allowances) * 100) / 100;
+  const grossSalary = Math.round((earnedBasic + overtimeAmount) * 100) / 100;
 
   // Advances / Upad Deductions for the target month
   let advanceDeduction = 0;
@@ -113,9 +112,8 @@ async function computeEmployeeSalaryData(employeeId, month, year, overrides = {}
   }
   advanceDeduction = Math.round(advanceDeduction * 100) / 100;
 
-  // Other deductions & total deductions
-  const otherDeductions = overrides.otherDeductions !== undefined ? parseFloat(overrides.otherDeductions) || 0 : 0;
-  const totalDeductions = Math.round((advanceDeduction + otherDeductions) * 100) / 100;
+  // Total deductions
+  const totalDeductions = advanceDeduction;
 
   // Net Salary
   const netSalary = Math.max(0, Math.round((grossSalary - totalDeductions) * 100) / 100);
@@ -139,10 +137,8 @@ async function computeEmployeeSalaryData(employeeId, month, year, overrides = {}
     overtimeHours,
     overtimeRate: otRate,
     overtimeAmount,
-    allowances: Math.round(allowances * 100) / 100,
     grossSalary,
     advanceDeduction,
-    otherDeductions,
     totalDeductions,
     netSalary,
   };
@@ -178,7 +174,6 @@ async function getSalaries(req, res, next) {
           { employeeCode: { contains: term, mode: "insensitive" } },
           { fullName: { contains: term, mode: "insensitive" } },
           { department: { contains: term, mode: "insensitive" } },
-          { designation: { contains: term, mode: "insensitive" } },
         ],
       };
     }
@@ -191,36 +186,53 @@ async function getSalaries(req, res, next) {
             id: true,
             employeeCode: true,
             fullName: true,
-            designation: true,
             department: true,
             mobileNumber: true,
             photoUrl: true,
           },
         },
+        payments: true,
       },
       orderBy: [{ year: "desc" }, { month: "desc" }, { employeeId: "asc" }],
     });
 
-    // Compute KPI Aggregations
+    // Compute KPI Aggregations & formatting
     let totalGrossPayroll = 0;
     let totalAdvanceDeductions = 0;
     let totalNetSalary = 0;
+    let totalPaidSalary = 0;
 
-    salaries.forEach((sal) => {
+    const formattedSalaries = salaries.map((sal) => {
+      const net = parseFloat(sal.netSalary) || 0;
+      const paid = sal.payments.reduce(
+        (sum, p) => sum + (parseFloat(p.amount) || 0),
+        0
+      );
+      const remaining = Math.max(0, Math.round((net - paid) * 100) / 100);
+
       totalGrossPayroll += parseFloat(sal.grossSalary) || 0;
       totalAdvanceDeductions += parseFloat(sal.advanceDeduction) || 0;
-      totalNetSalary += parseFloat(sal.netSalary) || 0;
+      totalNetSalary += net;
+      totalPaidSalary += paid;
+
+      return {
+        ...sal,
+        paidAmount: Math.round(paid * 100) / 100,
+        remainingAmount: remaining,
+      };
     });
 
     return successResponse(
       res,
       {
-        salaries,
+        salaries: formattedSalaries,
         summary: {
-          totalRecords: salaries.length,
+          totalRecords: formattedSalaries.length,
           totalGrossPayroll: Math.round(totalGrossPayroll * 100) / 100,
           totalAdvanceDeductions: Math.round(totalAdvanceDeductions * 100) / 100,
           totalNetSalary: Math.round(totalNetSalary * 100) / 100,
+          totalPaidSalary: Math.round(totalPaidSalary * 100) / 100,
+          totalPendingSalary: Math.max(0, Math.round((totalNetSalary - totalPaidSalary) * 100) / 100),
         },
       },
       "Salary records retrieved successfully"
@@ -319,10 +331,8 @@ async function generateOrSaveSalary(req, res, next) {
         overtimeHours: computed.overtimeHours,
         overtimeRate: computed.overtimeRate,
         overtimeAmount: computed.overtimeAmount,
-        allowances: computed.allowances,
         grossSalary: computed.grossSalary,
         advanceDeduction: computed.advanceDeduction,
-        otherDeductions: computed.otherDeductions,
         totalDeductions: computed.totalDeductions,
         netSalary: computed.netSalary,
         status,
@@ -347,10 +357,8 @@ async function generateOrSaveSalary(req, res, next) {
         overtimeHours: computed.overtimeHours,
         overtimeRate: computed.overtimeRate,
         overtimeAmount: computed.overtimeAmount,
-        allowances: computed.allowances,
         grossSalary: computed.grossSalary,
         advanceDeduction: computed.advanceDeduction,
-        otherDeductions: computed.otherDeductions,
         totalDeductions: computed.totalDeductions,
         netSalary: computed.netSalary,
         status,
@@ -363,7 +371,6 @@ async function generateOrSaveSalary(req, res, next) {
             id: true,
             employeeCode: true,
             fullName: true,
-            designation: true,
             department: true,
             mobileNumber: true,
           },
@@ -439,10 +446,8 @@ async function generateMonthlyPayroll(req, res, next) {
             overtimeHours: computed.overtimeHours,
             overtimeRate: computed.overtimeRate,
             overtimeAmount: computed.overtimeAmount,
-            allowances: computed.allowances,
             grossSalary: computed.grossSalary,
             advanceDeduction: computed.advanceDeduction,
-            otherDeductions: computed.otherDeductions,
             totalDeductions: computed.totalDeductions,
             netSalary: computed.netSalary,
             status: "GENERATED",
@@ -466,10 +471,8 @@ async function generateMonthlyPayroll(req, res, next) {
             overtimeHours: computed.overtimeHours,
             overtimeRate: computed.overtimeRate,
             overtimeAmount: computed.overtimeAmount,
-            allowances: computed.allowances,
             grossSalary: computed.grossSalary,
             advanceDeduction: computed.advanceDeduction,
-            otherDeductions: computed.otherDeductions,
             totalDeductions: computed.totalDeductions,
             netSalary: computed.netSalary,
             status: "GENERATED",
@@ -515,6 +518,9 @@ async function getSalaryById(req, res, next) {
       where: { id },
       include: {
         employee: true,
+        payments: {
+          orderBy: { paymentDate: "desc" },
+        },
       },
     });
 
@@ -522,7 +528,22 @@ async function getSalaryById(req, res, next) {
       return errorResponse(res, "Salary record not found", 404);
     }
 
-    return successResponse(res, salary, "Salary record retrieved successfully");
+    const net = parseFloat(salary.netSalary) || 0;
+    const paid = salary.payments.reduce(
+      (sum, p) => sum + (parseFloat(p.amount) || 0),
+      0
+    );
+    const remaining = Math.max(0, Math.round((net - paid) * 100) / 100);
+
+    return successResponse(
+      res,
+      {
+        ...salary,
+        paidAmount: Math.round(paid * 100) / 100,
+        remainingAmount: remaining,
+      },
+      "Salary record retrieved successfully"
+    );
   } catch (err) {
     next(err);
   }
@@ -544,15 +565,13 @@ async function updateSalary(req, res, next) {
       return errorResponse(res, "Salary record not found", 404);
     }
 
-    const allowances = req.body.allowances !== undefined ? Math.max(0, parseFloat(req.body.allowances) || 0) : parseFloat(existing.allowances);
     const advanceDeduction = req.body.advanceDeduction !== undefined ? Math.max(0, parseFloat(req.body.advanceDeduction) || 0) : parseFloat(existing.advanceDeduction);
-    const otherDeductions = req.body.otherDeductions !== undefined ? Math.max(0, parseFloat(req.body.otherDeductions) || 0) : parseFloat(existing.otherDeductions);
 
     const earnedBasic = parseFloat(existing.earnedBasic);
     const overtimeAmount = parseFloat(existing.overtimeAmount);
 
-    const grossSalary = Math.round((earnedBasic + overtimeAmount + allowances) * 100) / 100;
-    const totalDeductions = Math.round((advanceDeduction + otherDeductions) * 100) / 100;
+    const grossSalary = Math.round((earnedBasic + overtimeAmount) * 100) / 100;
+    const totalDeductions = Math.round(advanceDeduction * 100) / 100;
     const netSalary = Math.max(0, Math.round((grossSalary - totalDeductions) * 100) / 100);
 
     const status = req.body.status ? String(req.body.status).toUpperCase() : existing.status;
@@ -562,10 +581,8 @@ async function updateSalary(req, res, next) {
     const updated = await prisma.employeeSalary.update({
       where: { id },
       data: {
-        allowances,
         grossSalary,
         advanceDeduction,
-        otherDeductions,
         totalDeductions,
         netSalary,
         status,
@@ -578,7 +595,6 @@ async function updateSalary(req, res, next) {
             id: true,
             employeeCode: true,
             fullName: true,
-            designation: true,
             department: true,
             mobileNumber: true,
           },

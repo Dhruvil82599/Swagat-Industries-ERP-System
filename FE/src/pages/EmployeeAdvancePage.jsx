@@ -40,11 +40,20 @@ function getFirstDayOfMonth() {
 
 function formatDisplayDate(dateStr) {
   if (!dateStr) return "";
-  const parts = dateStr.split("T")[0].split("-");
+  const parts = String(dateStr).split("T")[0].split("-");
   if (parts.length < 3) return dateStr;
-  const [year, month, day] = parts;
+  const [yearStr, monthStr, dayStr] = parts;
+  const year = parseInt(yearStr, 10);
+  const month = parseInt(monthStr, 10) - 1;
+  const day = parseInt(dayStr, 10);
+  const d = new Date(year, month, day);
+
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  return `${day} ${months[parseInt(month, 10) - 1]} ${year}`;
+
+  const dayName = days[d.getDay()];
+  const monthName = months[month];
+  return `${dayName}, ${String(day).padStart(2, "0")} ${monthName} ${year}`;
 }
 
 function formatDDMMYYYY(dateStr) {
@@ -257,7 +266,6 @@ export default function EmployeeAdvancePage() {
       "Employee Code",
       "Employee Name",
       "Department",
-      "Designation",
       "Amount (INR)",
       "Payment Mode",
       "Reason",
@@ -271,7 +279,6 @@ export default function EmployeeAdvancePage() {
       `"${a.employeeCode || ""}"`,
       `"${a.fullName || ""}"`,
       `"${a.department || ""}"`,
-      `"${a.designation || ""}"`,
       a.amount,
       a.paymentMode,
       `"${(a.reason || "").replace(/"/g, '""')}"`,
@@ -1081,8 +1088,8 @@ export default function EmployeeAdvancePage() {
                     </div>
 
                     <div>
-                      <span style={{ color: "#64748B", fontWeight: 600, display: "block" }}>Department / Designation</span>
-                      <span style={{ fontWeight: 600, color: "#172B3A" }}>{printingAdvance.department || "General"} ({printingAdvance.designation || "Staff"})</span>
+                      <span style={{ color: "#64748B", fontWeight: 600, display: "block" }}>Department</span>
+                      <span style={{ fontWeight: 600, color: "#172B3A" }}>{printingAdvance.department || "General"}</span>
                     </div>
 
                     <div>

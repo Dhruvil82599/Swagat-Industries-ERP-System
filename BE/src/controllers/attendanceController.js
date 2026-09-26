@@ -119,7 +119,9 @@ function validateAttendanceRecord(rec) {
 
   const validStatuses = ["PRESENT", "ABSENT", "HALF DAY", "LEAVE", "HOLIDAY"];
   const status = (rec.status || "").toUpperCase();
-  if (!validStatuses.includes(status)) {
+  if (!status) {
+    errors.push({ field: "status", message: "Attendance status is required. Please select a status." });
+  } else if (!validStatuses.includes(status)) {
     errors.push({ field: "status", message: `Status must be one of: ${validStatuses.join(", ")}` });
   }
 
@@ -171,7 +173,6 @@ async function getDailyAttendance(req, res, next) {
       empWhere.OR = [
         { employeeCode: { contains: term, mode: "insensitive" } },
         { fullName: { contains: term, mode: "insensitive" } },
-        { designation: { contains: term, mode: "insensitive" } },
         { department: { contains: term, mode: "insensitive" } },
       ];
     }
@@ -185,8 +186,10 @@ async function getDailyAttendance(req, res, next) {
         employeeCode: true,
         fullName: true,
         department: true,
-        designation: true,
         photoUrl: true,
+        baseSalary: true,
+        salaryType: true,
+        overtimeRate: true,
       },
     });
 
@@ -227,12 +230,20 @@ async function getDailyAttendance(req, res, next) {
         totalOvertimeHours += ot;
         totalAdvanceAmount += adv;
 
+        const baseSal = Number(emp.baseSalary || 0);
+        const salType = emp.salaryType || "MONTHLY";
+        let otRate = Number(emp.overtimeRate || 0);
+        if (otRate <= 0 && baseSal > 0) {
+          otRate = salType === "DAILY" ? baseSal / 8 : baseSal / 240;
+        }
+        otRate = Math.round(otRate * 100) / 100;
+        const otAmount = Math.round(ot * otRate * 100) / 100;
+
         return {
           employeeId: emp.id,
           employeeCode: emp.employeeCode,
           fullName: emp.fullName,
           department: emp.department,
-          designation: emp.designation,
           photoUrl: emp.photoUrl,
           attendanceId: existing.id,
           status: existing.status,
@@ -240,25 +251,36 @@ async function getDailyAttendance(req, res, next) {
           checkOut: existing.checkOut || COMPANY_CONFIG.endTime,
           regularHours: Number(existing.regularHours),
           overtimeHours: ot,
+          overtimeRate: otRate,
+          overtimeAmount: otAmount,
           advanceAmount: adv,
           remarks: existing.remarks || "",
           isSaved: true,
         };
       } else {
-        // Default record for unsaved employee
+        // Default record for unsaved employee (unselected status by default)
+        const baseSal = Number(emp.baseSalary || 0);
+        const salType = emp.salaryType || "MONTHLY";
+        let otRate = Number(emp.overtimeRate || 0);
+        if (otRate <= 0 && baseSal > 0) {
+          otRate = salType === "DAILY" ? baseSal / 8 : baseSal / 240;
+        }
+        otRate = Math.round(otRate * 100) / 100;
+
         return {
           employeeId: emp.id,
           employeeCode: emp.employeeCode,
           fullName: emp.fullName,
           department: emp.department,
-          designation: emp.designation,
           photoUrl: emp.photoUrl,
           attendanceId: null,
-          status: "PRESENT",
-          checkIn: COMPANY_CONFIG.startTime,
-          checkOut: COMPANY_CONFIG.endTime,
-          regularHours: COMPANY_CONFIG.regularHours,
+          status: "",
+          checkIn: "",
+          checkOut: "",
+          regularHours: 0,
           overtimeHours: 0,
+          overtimeRate: otRate,
+          overtimeAmount: 0,
           advanceAmount: 0,
           remarks: "",
           isSaved: false,
@@ -494,7 +516,6 @@ async function getAttendanceRegister(req, res, next) {
       empWhere.OR = [
         { employeeCode: { contains: term, mode: "insensitive" } },
         { fullName: { contains: term, mode: "insensitive" } },
-        { designation: { contains: term, mode: "insensitive" } },
         { department: { contains: term, mode: "insensitive" } },
       ];
     }
@@ -512,8 +533,10 @@ async function getAttendanceRegister(req, res, next) {
             employeeCode: true,
             fullName: true,
             department: true,
-            designation: true,
             photoUrl: true,
+            baseSalary: true,
+            salaryType: true,
+            overtimeRate: true,
           },
         },
       },
@@ -539,6 +562,15 @@ async function getAttendanceRegister(req, res, next) {
       totalOvertimeHours += ot;
       totalAdvanceAmount += adv;
 
+      const baseSal = Number(att.employee?.baseSalary || 0);
+      const salType = att.employee?.salaryType || "MONTHLY";
+      let otRate = Number(att.employee?.overtimeRate || 0);
+      if (otRate <= 0 && baseSal > 0) {
+        otRate = salType === "DAILY" ? baseSal / 8 : baseSal / 240;
+      }
+      otRate = Math.round(otRate * 100) / 100;
+      const otAmount = Math.round(ot * otRate * 100) / 100;
+
       return {
         id: att.id,
         attendanceDate: formatDateString(att.attendanceDate),
@@ -546,13 +578,14 @@ async function getAttendanceRegister(req, res, next) {
         employeeCode: att.employee?.employeeCode,
         fullName: att.employee?.fullName,
         department: att.employee?.department,
-        designation: att.employee?.designation,
         photoUrl: att.employee?.photoUrl,
         status: att.status,
         checkIn: att.checkIn,
         checkOut: att.checkOut,
         regularHours: Number(att.regularHours),
         overtimeHours: ot,
+        overtimeRate: otRate,
+        overtimeAmount: otAmount,
         advanceAmount: adv,
         remarks: att.remarks || "",
         createdBy: att.createdBy,

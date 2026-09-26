@@ -25,7 +25,7 @@ export default function EmployeeDashboardPage() {
       id: "master",
       phase: "Phase 3",
       title: "Employee Master",
-      desc: "Comprehensive employee records, personal details, designations, and base salary rates.",
+      desc: "Comprehensive employee records, personal details, and base salary rates.",
       icon: <FiUsers />,
       accentColor: "#123B5D",
       status: "Operational",
@@ -68,7 +68,8 @@ export default function EmployeeDashboardPage() {
       desc: "Multi-mode salary disbursement vouchers, cash/bank transfers, and payment audit tracking.",
       icon: <FiDollarSign />,
       accentColor: "#059669",
-      status: "Upcoming",
+      status: "Operational",
+      route: "/employee/salary-payment",
     },
     {
       id: "reports",
@@ -77,7 +78,8 @@ export default function EmployeeDashboardPage() {
       desc: "Comprehensive audit trails, monthly salary summaries, payment histories, and exportable statements.",
       icon: <FiLayers />,
       accentColor: "#0284C7",
-      status: "Upcoming",
+      status: "Operational",
+      route: "/employee/reports",
     },
   ];
 

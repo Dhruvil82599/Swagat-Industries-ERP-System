@@ -25,6 +25,8 @@ import DailyAttendancePage from "./pages/DailyAttendancePage";
 import AttendanceRegisterPage from "./pages/AttendanceRegisterPage";
 import EmployeeAdvancePage from "./pages/EmployeeAdvancePage";
 import EmployeeSalaryPage from "./pages/EmployeeSalaryPage";
+import EmployeeSalaryPaymentPage from "./pages/EmployeeSalaryPaymentPage";
+import EmployeeReportsPage from "./pages/EmployeeReportsPage";
 
 export default function App() {
   return (
@@ -140,7 +142,7 @@ export default function App() {
             />
 
             {/* ================================================= */}
-            {/* SWAGAT EMPLOYEE ERP ROUTES (PHASE 2 ENTRY POINT)  */}
+            {/* SWAGAT EMPLOYEE ERP ROUTES                        */}
             {/* ================================================= */}
             <Route
               path="/employee"
@@ -198,6 +200,23 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/employee/salary-payment"
+              element={
+                <ProtectedRoute>
+                  <EmployeeSalaryPaymentPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/employee/reports"
+              element={
+                <ProtectedRoute>
+                  <EmployeeReportsPage />
+                </ProtectedRoute>
+              }
+            />
+
 
             {/* Catch-all fallback redirects to Module Selection */}
             <Route path="*" element={<Navigate to="/modules" replace />} />

@@ -92,7 +92,6 @@ async function runPhase6Tests() {
           baseSalary: 30000.00,
           salaryType: "MONTHLY",
           overtimeRate: 150.00,
-          allowance: 2000.00,
         }
       );
       assert(updateEmp.status === 200, "Updated target employee with base salary master details (₹30,000/mo)");
@@ -110,11 +109,9 @@ async function runPhase6Tests() {
           fullName: "Ramesh Sharma",
           mobileNumber: "9876500099",
           department: "Production",
-          designation: "Shutter Operator",
           baseSalary: 30000.00,
           salaryType: "MONTHLY",
           overtimeRate: 150.00,
-          allowance: 2000.00,
         }
       );
       assert(createEmp.status === 201, "Registered new test employee with salary master configuration");
@@ -228,8 +225,6 @@ async function runPhase6Tests() {
         employeeId: targetEmployee.id,
         month: targetMonth,
         year: targetYear,
-        allowances: 1500.00,
-        otherDeductions: 200.00,
         remarks: "Phase 6 automated salary generation test",
         status: "GENERATED",
       }
@@ -295,13 +290,12 @@ async function runPhase6Tests() {
         headers: authHeaders,
       },
       {
-        allowances: 3000.00,
         status: "APPROVED",
         remarks: "Approved by Admin for Disbursement",
       }
     );
 
-    assert(updateRes.status === 200 && updateRes.data.success, "Updated allowances to ₹3,000 and status to APPROVED");
+    assert(updateRes.status === 200 && updateRes.data.success, "Updated status to APPROVED");
     assert(updateRes.data.data.status === "APPROVED", "Verified status is APPROVED");
 
     // 10. Test DELETE /api/salaries/:id

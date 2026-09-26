@@ -20,6 +20,8 @@ const employeeRoutes = require("./employeeRoutes");
 const attendanceRoutes = require("./attendanceRoutes");
 const advanceRoutes = require("./advanceRoutes");
 const salaryRoutes = require("./salaryRoutes");
+const salaryPaymentRoutes = require("./salaryPaymentRoutes");
+const reportRoutes = require("./reportRoutes");
 
 // Public authentication routes
 router.use("/auth", authRoutes);
@@ -39,6 +41,9 @@ router.use("/employees", authMiddleware, employeeRoutes);
 router.use("/attendance", authMiddleware, attendanceRoutes);
 router.use("/advances", authMiddleware, advanceRoutes);
 router.use("/salaries", authMiddleware, salaryRoutes);
+router.use("/salary-payments", authMiddleware, salaryPaymentRoutes);
+router.use("/reports", authMiddleware, reportRoutes);
+
 
 
 
