@@ -392,7 +392,26 @@ export default function EmployeeReportsPage() {
         }
       `}</style>
 
-      <div className="page-container" style={{ padding: "24px", maxWidth: "1400px", margin: "0 auto" }}>
+      {/* Breadcrumb Flow */}
+      <div className="breadcrumb-flow no-print">
+        <span
+          className="breadcrumb-item"
+          style={{ cursor: "pointer" }}
+          onClick={() => navigate("/modules")}
+        >
+          <FiGrid /> Swagat ERP
+        </span>
+        <span className="breadcrumb-separator">/</span>
+        <span
+          className="breadcrumb-item"
+          style={{ cursor: "pointer" }}
+          onClick={() => navigate("/employee/dashboard")}
+        >
+          <FiUsers /> Swagat Employee
+        </span>
+        <span className="breadcrumb-separator">/</span>
+        <span className="breadcrumb-item active">Salary Reports</span>
+      </div>
         
         {/* Page Title & Operational Header */}
         <div
@@ -1997,7 +2016,6 @@ export default function EmployeeReportsPage() {
             </>
           )}
         </div>
-      </div>
     </AppLayout>
   );
 }

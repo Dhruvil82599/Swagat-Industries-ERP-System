@@ -420,6 +420,44 @@ export default function EmployeeAdvancePage() {
 
   return (
     <AppLayout title="Employee Advance Management">
+      <style>{`
+        @media print {
+          body * {
+            visibility: hidden !important;
+          }
+          #printable-advance-voucher, #printable-advance-voucher * {
+            visibility: visible !important;
+          }
+          #printable-advance-voucher {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          .modal-overlay {
+            background: transparent !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+          }
+          .modal-content-swagat {
+            box-shadow: none !important;
+            border: none !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          .modal-header-swagat, .modal-footer-swagat, .modal-close-btn {
+            display: none !important;
+          }
+        }
+      `}</style>
       {/* Breadcrumb Flow */}
         <div className="breadcrumb-flow">
           <span className="breadcrumb-item">

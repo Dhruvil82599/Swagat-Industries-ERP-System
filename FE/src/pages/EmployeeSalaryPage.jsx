@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import AppLayout from "../components/Layout/AppLayout";
 import {
   FiDollarSign,
@@ -15,6 +16,8 @@ import {
   FiUser,
   FiAlertCircle,
   FiZap,
+  FiGrid,
+  FiUsers,
 } from "react-icons/fi";
 import { api } from "../services/api";
 import { useToast } from "../context/ToastContext";
@@ -27,6 +30,7 @@ const MONTH_NAMES = [
 ];
 
 export default function EmployeeSalaryPage() {
+  const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
 
   const now = new Date();
@@ -247,7 +251,18 @@ export default function EmployeeSalaryPage() {
 
   return (
     <AppLayout title="Salary Calculation & Payslips">
-      <div className="page-container" style={{ padding: "24px", maxWidth: "1400px", margin: "0 auto" }}>
+      {/* Breadcrumb Flow */}
+      <div className="breadcrumb-flow">
+        <span className="breadcrumb-item" style={{ cursor: "pointer" }} onClick={() => navigate("/modules")}>
+          <FiGrid /> Swagat ERP
+        </span>
+        <span className="breadcrumb-separator">/</span>
+        <span className="breadcrumb-item" style={{ cursor: "pointer" }} onClick={() => navigate("/employee/dashboard")}>
+          <FiUsers /> Swagat Employee
+        </span>
+        <span className="breadcrumb-separator">/</span>
+        <span className="breadcrumb-item active">Salary Calculation</span>
+      </div>
         {/* Page Title & Operational Header */}
         <div
           style={{
@@ -1067,7 +1082,6 @@ export default function EmployeeSalaryPage() {
             onCancel={() => setDeleteTargetId(null)}
           />
         )}
-      </div>
     </AppLayout>
   );
 }
