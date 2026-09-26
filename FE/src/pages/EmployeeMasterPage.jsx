@@ -330,6 +330,19 @@ export default function EmployeeMasterPage() {
       errors.mobileNumber = "Mobile number must be exactly 10 digits";
     }
 
+    if (
+      formData.baseSalary === "" ||
+      formData.baseSalary === null ||
+      formData.baseSalary === undefined
+    ) {
+      errors.baseSalary = "Employee Salary is required";
+    } else if (
+      isNaN(parseFloat(formData.baseSalary)) ||
+      parseFloat(formData.baseSalary) <= 0
+    ) {
+      errors.baseSalary = "Employee Salary must be greater than 0";
+    }
+
     if (formData.email && formData.email.trim()) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.email.trim())) {
@@ -1306,17 +1319,74 @@ export default function EmployeeMasterPage() {
                     <input
                       type="text"
                       maxLength={10}
-                      className={`form-control ${formErrors.mobileNumber ? "is-invalid" : ""}`}
+                      className={`form-control ${
+                        formData.mobileNumber
+                          ? formData.mobileNumber.length === 10
+                            ? "is-valid"
+                            : "is-invalid"
+                          : formErrors.mobileNumber
+                          ? "is-invalid"
+                          : ""
+                      }`}
+                      style={{
+                        borderColor: formData.mobileNumber
+                          ? formData.mobileNumber.length === 10
+                            ? "#16A34A"
+                            : "#DC2626"
+                          : formErrors.mobileNumber
+                          ? "#DC2626"
+                          : undefined,
+                        borderWidth: formData.mobileNumber ? "2px" : undefined,
+                        boxShadow: formData.mobileNumber
+                          ? formData.mobileNumber.length === 10
+                            ? "0 0 0 3px rgba(22, 163, 74, 0.15)"
+                            : "0 0 0 3px rgba(220, 38, 38, 0.15)"
+                          : undefined,
+                      }}
                       placeholder="10-digit mobile"
                       value={formData.mobileNumber}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "");
                         setFormData({
                           ...formData,
-                          mobileNumber: e.target.value.replace(/\D/g, ""),
-                        })
-                      }
+                          mobileNumber: val,
+                        });
+                        if (formErrors.mobileNumber) {
+                          setFormErrors((prev) => ({ ...prev, mobileNumber: null }));
+                        }
+                      }}
                     />
-                    {formErrors.mobileNumber && (
+                    {formData.mobileNumber ? (
+                      formData.mobileNumber.length === 10 ? (
+                        <div
+                          style={{
+                            color: "#16A34A",
+                            fontSize: "12px",
+                            marginTop: "4px",
+                            fontWeight: 600,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "4px",
+                          }}
+                        >
+                          ✓ Valid 10-digit mobile number
+                        </div>
+                      ) : (
+                        <div
+                          style={{
+                            color: "#DC2626",
+                            fontSize: "12px",
+                            marginTop: "4px",
+                            fontWeight: 600,
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "4px",
+                          }}
+                        >
+                          ❌ Mobile number must be 10 digits ({formData.mobileNumber.length}/10)
+                        </div>
+                      )
+                    ) : formErrors.mobileNumber ? (
                       <div
                         style={{
                           color: "#DC2626",
@@ -1326,7 +1396,7 @@ export default function EmployeeMasterPage() {
                       >
                         {formErrors.mobileNumber}
                       </div>
-                    )}
+                    ) : null}
                   </div>
 
                   {/* Email Address */}
@@ -1477,13 +1547,16 @@ export default function EmployeeMasterPage() {
                   {/* Base Salary (₹) */}
                   <div>
                     <label className="form-label-swagat">
-                      Employee Salary (₹)
+                      Employee Salary (₹){" "}
+                      <span style={{ color: "#DC2626" }}>*</span>
                     </label>
                     <input
                       type="number"
                       step="0.01"
                       min="0"
-                      className="form-control"
+                      className={`form-control ${
+                        formErrors.baseSalary ? "is-invalid" : ""
+                      }`}
                       placeholder="e.g. 25000"
                       value={formData.baseSalary}
                       onChange={(e) => {
@@ -1500,8 +1573,25 @@ export default function EmployeeMasterPage() {
                           baseSalary: val,
                           overtimeRate: autoOt,
                         });
+                        if (formErrors.baseSalary) {
+                          setFormErrors((prev) => ({
+                            ...prev,
+                            baseSalary: null,
+                          }));
+                        }
                       }}
                     />
+                    {formErrors.baseSalary && (
+                      <div
+                        style={{
+                          color: "#DC2626",
+                          fontSize: "12px",
+                          marginTop: "4px",
+                        }}
+                      >
+                        {formErrors.baseSalary}
+                      </div>
+                    )}
                   </div>
 
                   {/* Salary Type */}
@@ -1534,7 +1624,7 @@ export default function EmployeeMasterPage() {
                   </div>
 
                   {/* Overtime Rate (₹/hr) */}
-                  <div>
+                  <div style={{ gridColumn: "span 2" }}>
                     <label className="form-label-swagat">
                       Overtime Rate (₹ / Hour)
                     </label>
@@ -1556,43 +1646,157 @@ export default function EmployeeMasterPage() {
                         })
                       }
                     />
-                    <div style={{ marginTop: "6px", fontSize: "11.5px" }}>
-                      {formData.overtimeRate !== "" &&
-                      formData.overtimeRate !== null ? (
-                        <span style={{ color: "#D96F0B", fontWeight: 600 }}>
-                          ✏️ Custom rate active: ₹
-                          {parseFloat(formData.overtimeRate || 0).toFixed(2)} /
-                          hour (overrides auto-calc)
+
+                    {/* OVERTIME FORMULA WATCH CARD */}
+                    <div
+                      style={{
+                        marginTop: "10px",
+                        padding: "12px 14px",
+                        backgroundColor: "#F8FAFC",
+                        border: "1px solid #CBD5E1",
+                        borderRadius: "8px",
+                        fontSize: "12px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontWeight: 700,
+                          color: "#123B5D",
+                          marginBottom: "8px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          flexWrap: "wrap",
+                          gap: "6px",
+                        }}
+                      >
+                        <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <span>📐</span> Overtime Calculation Formula Watch
                         </span>
-                      ) : parseFloat(formData.baseSalary) > 0 ? (
                         <span
                           style={{
-                            color: "#16A34A",
+                            fontSize: "11px",
                             fontWeight: 600,
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "4px",
-                            backgroundColor: "#F0FDF4",
+                            color: "#2563EB",
+                            backgroundColor: "#EFF6FF",
                             padding: "2px 8px",
                             borderRadius: "4px",
-                            border: "1px solid #DCFCE7",
+                            border: "1px solid #BFDBFE",
                           }}
                         >
-                          ⚡ Auto-generated Rate:{" "}
-                          <strong>₹{getAutoOvertimeRate()} / hr</strong>
-                          <span style={{ color: "#64748B", fontWeight: 400 }}>
-                            (
-                            {formData.salaryType === "DAILY"
-                              ? "Salary ÷ 8 hrs"
-                              : "Salary ÷ 30 days ÷ 8 hrs"}
-                            )
+                          System Formula Rule
+                        </span>
+                      </div>
+
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+                          gap: "8px",
+                          color: "#334155",
+                        }}
+                      >
+                        <div
+                          style={{
+                            backgroundColor: "#FFFFFF",
+                            padding: "8px 10px",
+                            borderRadius: "6px",
+                            border: "1px solid #E2E8F0",
+                          }}
+                        >
+                          <strong style={{ color: "#0F172A", fontSize: "11.5px" }}>
+                            1️⃣ Monthly Fixed Salary:
+                          </strong>
+                          <div
+                            style={{
+                              fontFamily: "monospace",
+                              color: "#123B5D",
+                              marginTop: "4px",
+                              fontWeight: 700,
+                              fontSize: "12.5px",
+                              backgroundColor: "#F1F5F9",
+                              padding: "4px 8px",
+                              borderRadius: "4px",
+                            }}
+                          >
+                            Employee Salary / 30 / 8
+                          </div>
+                          <div style={{ fontSize: "11px", color: "#64748B", marginTop: "4px" }}>
+                            (30 days in month ÷ 8 hours per day)
+                          </div>
+                        </div>
+
+                        <div
+                          style={{
+                            backgroundColor: "#FFFFFF",
+                            padding: "8px 10px",
+                            borderRadius: "6px",
+                            border: "1px solid #E2E8F0",
+                          }}
+                        >
+                          <strong style={{ color: "#0F172A", fontSize: "11.5px" }}>
+                            2️⃣ Daily Wages:
+                          </strong>
+                          <div
+                            style={{
+                              fontFamily: "monospace",
+                              color: "#123B5D",
+                              marginTop: "4px",
+                              fontWeight: 700,
+                              fontSize: "12.5px",
+                              backgroundColor: "#F1F5F9",
+                              padding: "4px 8px",
+                              borderRadius: "4px",
+                            }}
+                          >
+                            Daily Wage / 8
+                          </div>
+                          <div style={{ fontSize: "11px", color: "#64748B", marginTop: "4px" }}>
+                            (Standard 8-hour daily shift)
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Live Calculation breakdown for current input */}
+                      <div
+                        style={{
+                          marginTop: "10px",
+                          paddingTop: "8px",
+                          borderTop: "1px dashed #CBD5E1",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          flexWrap: "wrap",
+                          gap: "6px",
+                        }}
+                      >
+                        <div>
+                          {parseFloat(formData.baseSalary) > 0 ? (
+                            <span style={{ color: "#16A34A", fontWeight: 600 }}>
+                              ⚡ Auto Calculated Rate:{" "}
+                              <strong>₹{getAutoOvertimeRate()} / hr</strong>
+                              <span style={{ color: "#64748B", fontWeight: 400, marginLeft: "6px" }}>
+                                (
+                                {formData.salaryType === "DAILY"
+                                  ? `₹${formData.baseSalary} ÷ 8 hrs`
+                                  : `₹${formData.baseSalary} ÷ 30 ÷ 8`}
+                                )
+                              </span>
+                            </span>
+                          ) : (
+                            <span style={{ color: "#64748B" }}>
+                              Enter employee salary above to see auto-calculated rate
+                            </span>
+                          )}
+                        </div>
+
+                        {formData.overtimeRate !== "" && formData.overtimeRate !== null ? (
+                          <span style={{ color: "#D96F0B", fontWeight: 600, fontSize: "11.5px" }}>
+                            ✏️ Custom rate active: ₹
+                            {parseFloat(formData.overtimeRate || 0).toFixed(2)} / hour (overrides auto)
                           </span>
-                        </span>
-                      ) : (
-                        <span style={{ color: "#64748B" }}>
-                          Leave blank to auto-calculate rate based on salary
-                        </span>
-                      )}
+                        ) : null}
+                      </div>
                     </div>
                   </div>
                 </div>

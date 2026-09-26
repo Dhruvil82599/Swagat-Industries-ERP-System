@@ -281,7 +281,8 @@ export default function LoginPage() {
       <style>{`
         .login-container {
           min-height: 100vh;
-          width: 100vw;
+          width: 100%;
+          max-width: 100%;
           display: flex;
           align-items: center;
           justify-content: flex-start;

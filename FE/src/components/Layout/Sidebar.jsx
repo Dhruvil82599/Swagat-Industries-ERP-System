@@ -14,13 +14,19 @@ import {
   FiArrowRight,
 } from "react-icons/fi";
 
-export default function Sidebar() {
+export default function Sidebar({ mobileOpen = false, setMobileOpen }) {
   const location = useLocation();
   const navigate = useNavigate();
   const isEmployeeModule = location.pathname.startsWith("/employee");
 
+  const handleLinkClick = () => {
+    if (setMobileOpen) {
+      setMobileOpen(false);
+    }
+  };
+
   return (
-    <aside className="app-sidebar">
+    <aside className={`app-sidebar ${mobileOpen ? "mobile-open" : ""}`}>
       <div className="sidebar-brand" style={{ padding: "16px 18px" }}>
         <div
           style={{

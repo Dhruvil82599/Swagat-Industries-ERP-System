@@ -18,6 +18,8 @@ import {
   FiCheckCircle,
   FiAlertCircle,
   FiInfo,
+  FiEye,
+  FiX,
 } from "react-icons/fi";
 
 const DEFAULT_START_TIME = "09:00";
@@ -118,6 +120,7 @@ export default function DailyAttendancePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
+  const [viewingOtEmp, setViewingOtEmp] = useState(null);
 
   // Fetch daily attendance sheet from backend
   const fetchAttendanceSheet = async (dateStr) => {
@@ -838,9 +841,10 @@ export default function DailyAttendancePage() {
                       <th style={{ width: "115px" }}>Check In</th>
                       <th style={{ width: "115px" }}>Check Out</th>
                       <th style={{ width: "100px", textAlign: "center" }}>Regular Hrs</th>
-                      <th style={{ width: "100px", textAlign: "center" }}>Overtime</th>
+                      <th style={{ width: "110px", textAlign: "center" }}>Overtime</th>
                       <th style={{ width: "130px" }}>Advance / Upad (₹)</th>
                       <th>Remarks</th>
+                      <th style={{ width: "95px", textAlign: "center" }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -967,19 +971,24 @@ export default function DailyAttendancePage() {
                           {/* Overtime Hours (Display with Highlight) */}
                           <td style={{ textAlign: "center" }}>
                             {emp.overtimeHours > 0 ? (
-                              <span
+                              <button
+                                type="button"
+                                onClick={() => setViewingOtEmp(emp)}
                                 style={{
                                   fontSize: "12px",
                                   fontWeight: 800,
                                   backgroundColor: "#F3E8FF",
                                   color: "#7E22CE",
-                                  padding: "3px 8px",
+                                  padding: "3px 10px",
                                   borderRadius: "10px",
                                   border: "1px solid #D8B4FE",
+                                  cursor: "pointer",
+                                  transition: "all 0.2s",
                                 }}
+                                title="Click to view Overtime Salary Breakdown"
                               >
                                 +{emp.overtimeHours} hrs
-                              </span>
+                              </button>
                             ) : (
                               <span style={{ fontSize: "13px", color: "#94A3B8" }}>0 hrs</span>
                             )}
@@ -1035,6 +1044,26 @@ export default function DailyAttendancePage() {
                               style={{ padding: "5px 10px", fontSize: "13px" }}
                             />
                           </td>
+
+                          {/* Actions (View Overtime) */}
+                          <td style={{ textAlign: "center" }}>
+                            <button
+                              type="button"
+                              onClick={() => setViewingOtEmp(emp)}
+                              className="btn-outline-swagat"
+                              style={{
+                                padding: "4px 10px",
+                                fontSize: "12px",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "4px",
+                                backgroundColor: "rgba(18, 59, 93, 0.05)",
+                              }}
+                              title="View Overtime & Rate Breakdown"
+                            >
+                              <FiEye /> View
+                            </button>
+                          </td>
                         </tr>
                       );
                     })}
@@ -1071,6 +1100,260 @@ export default function DailyAttendancePage() {
             </button>
           </div>
         </div>
+
+        {/* OVERTIME & HOURLY RATE BREAKDOWN MODAL */}
+        {viewingOtEmp && (
+          <div className="modal-overlay">
+            <div
+              className="modal-content-swagat"
+              style={{ maxWidth: "540px", backgroundColor: "#FFFFFF", padding: 0 }}
+            >
+              <div
+                className="modal-header-swagat"
+                style={{
+                  backgroundColor: "#F8FAFC",
+                  borderBottom: "1px solid #E2E8F0",
+                  padding: "16px 20px",
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: "16px",
+                    fontWeight: 800,
+                    color: "#0B2239",
+                    margin: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  <FiClock style={{ color: "#7E22CE", fontSize: "18px" }} />
+                  <span>Overtime & Salary Rate Breakdown</span>
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setViewingOtEmp(null)}
+                  className="modal-close-btn"
+                >
+                  <FiX />
+                </button>
+              </div>
+
+              <div className="modal-body-swagat" style={{ padding: "20px" }}>
+                {/* Employee Profile Header Card */}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    marginBottom: "18px",
+                    padding: "12px 16px",
+                    backgroundColor: "#F1F5F9",
+                    borderRadius: "8px",
+                    border: "1px solid #E2E8F0",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "42px",
+                      height: "42px",
+                      borderRadius: "50%",
+                      backgroundColor: "var(--primary, #123B5D)",
+                      color: "#FFFFFF",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontWeight: 700,
+                      fontSize: "16px",
+                      overflow: "hidden",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {viewingOtEmp.photoUrl ? (
+                      <img
+                        src={viewingOtEmp.photoUrl}
+                        alt={viewingOtEmp.fullName}
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    ) : (
+                      viewingOtEmp.fullName?.charAt(0).toUpperCase() || "E"
+                    )}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 800, fontSize: "15px", color: "#0B2239" }}>
+                      {viewingOtEmp.fullName}
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#64748B", display: "flex", gap: "6px" }}>
+                      <span style={{ fontWeight: 700, color: "var(--accent, #F28C28)" }}>
+                        {viewingOtEmp.employeeCode}
+                      </span>
+                      <span>•</span>
+                      <span>{viewingOtEmp.department || "General"}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Overtime & Hourly Rate 2-Column Cards */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "12px",
+                    marginBottom: "16px",
+                  }}
+                >
+                  <div
+                    style={{
+                      backgroundColor: "#F3E8FF",
+                      padding: "14px",
+                      borderRadius: "8px",
+                      border: "1px solid #E9D5FF",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        color: "#6B21A8",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        display: "block",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Overtime Hours Worked
+                    </span>
+                    <span style={{ fontSize: "22px", fontWeight: 900, color: "#7E22CE" }}>
+                      +{viewingOtEmp.overtimeHours || 0} hrs
+                    </span>
+                  </div>
+
+                  <div
+                    style={{
+                      backgroundColor: "#EFF6FF",
+                      padding: "14px",
+                      borderRadius: "8px",
+                      border: "1px solid #BFDBFE",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        color: "#1E40AF",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        display: "block",
+                        marginBottom: "4px",
+                      }}
+                    >
+                      Hourly Rate
+                    </span>
+                    <span style={{ fontSize: "22px", fontWeight: 900, color: "#1D4ED8" }}>
+                      ₹{parseFloat(viewingOtEmp.overtimeRate || 0).toFixed(2)} / hr
+                    </span>
+                  </div>
+                </div>
+
+                {/* Calculated Overtime Salary Box */}
+                <div
+                  style={{
+                    backgroundColor: "#F0FDF4",
+                    border: "1.5px solid #86EFAC",
+                    borderRadius: "10px",
+                    padding: "16px",
+                    marginBottom: "16px",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "#15803D",
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    💰 Overtime Salary Payable
+                  </div>
+                  <div style={{ fontSize: "26px", fontWeight: 900, color: "#16A34A" }}>
+                    ₹
+                    {(
+                      (Number(viewingOtEmp.overtimeHours) || 0) *
+                      (Number(viewingOtEmp.overtimeRate) || 0)
+                    ).toFixed(2)}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "12.5px",
+                      color: "#166534",
+                      marginTop: "6px",
+                      fontWeight: 600,
+                      backgroundColor: "#DCFCE7",
+                      padding: "6px 10px",
+                      borderRadius: "6px",
+                      display: "inline-block",
+                    }}
+                  >
+                    Calculation: <strong>{viewingOtEmp.overtimeHours || 0} hrs</strong> ×{" "}
+                    <strong>₹{parseFloat(viewingOtEmp.overtimeRate || 0).toFixed(2)}/hr</strong> ={" "}
+                    <strong>
+                      ₹
+                      {(
+                        (Number(viewingOtEmp.overtimeHours) || 0) *
+                        (Number(viewingOtEmp.overtimeRate) || 0)
+                      ).toFixed(2)}
+                    </strong>
+                  </div>
+                </div>
+
+                {/* System Formula Watch Explanation */}
+                <div
+                  style={{
+                    backgroundColor: "#F8FAFC",
+                    border: "1px solid #CBD5E1",
+                    borderRadius: "8px",
+                    padding: "12px 14px",
+                    fontSize: "12px",
+                  }}
+                >
+                  <strong style={{ color: "#123B5D", display: "block", marginBottom: "6px" }}>
+                    📐 Overtime Salary Formula:
+                  </strong>
+                  <div
+                    style={{
+                      fontFamily: "monospace",
+                      color: "#0F172A",
+                      fontWeight: 700,
+                      fontSize: "12.5px",
+                      backgroundColor: "#FFFFFF",
+                      padding: "6px 10px",
+                      borderRadius: "4px",
+                      border: "1px solid #E2E8F0",
+                    }}
+                  >
+                    Overtime Salary = Overtime Hours × Hourly Rate
+                  </div>
+                  <div style={{ fontSize: "11px", color: "#64748B", marginTop: "6px" }}>
+                    Hourly Rate rule: Employee Salary / 30 / 8
+                  </div>
+                </div>
+              </div>
+
+              <div
+                className="modal-footer-swagat"
+                style={{ padding: "12px 20px", backgroundColor: "#F8FAFC", borderTop: "1px solid #E2E8F0" }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setViewingOtEmp(null)}
+                  className="btn-accent-swagat"
+                  style={{ padding: "8px 24px" }}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </AppLayout>
   );

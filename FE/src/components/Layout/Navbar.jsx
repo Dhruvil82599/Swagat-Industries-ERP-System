@@ -16,10 +16,11 @@ import {
   FiX,
   FiUsers,
   FiGrid,
+  FiMenu,
 } from "react-icons/fi";
 
 
-export default function Navbar({ title = "Master Data" }) {
+export default function Navbar({ title = "Master Data", onToggleSidebar }) {
   const navigate = useNavigate();
   const location = useLocation();
   const isEmployeeModule = location.pathname.startsWith("/employee");
@@ -175,13 +176,25 @@ export default function Navbar({ title = "Master Data" }) {
         }
       `}</style>
 
-      <div className="nav-title">
-        <h1>{title}</h1>
+      <div className="nav-left-group">
+        <button
+          type="button"
+          className="mobile-menu-toggle-btn"
+          onClick={onToggleSidebar}
+          aria-label="Toggle navigation menu"
+          title="Toggle Navigation Menu"
+        >
+          <FiMenu />
+        </button>
+        <div className="nav-title">
+          <h1>{title}</h1>
+        </div>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      <div className="nav-right-group" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
         {/* Active Module Indicator Badge */}
         <div
+          className="nav-module-badge"
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -193,6 +206,7 @@ export default function Navbar({ title = "Master Data" }) {
             backgroundColor: isEmployeeModule ? "#FFF7ED" : "#EFF6FF",
             color: isEmployeeModule ? "#C2410C" : "#1E40AF",
             border: `1px solid ${isEmployeeModule ? "#FED7AA" : "#BFDBFE"}`,
+            whiteSpace: "nowrap",
           }}
         >
           <span
@@ -201,13 +215,16 @@ export default function Navbar({ title = "Master Data" }) {
               height: "6px",
               borderRadius: "50%",
               backgroundColor: isEmployeeModule ? "#F28C28" : "#2563EB",
+              flexShrink: 0,
             }}
           />
-          <span>{isEmployeeModule ? "Employee ERP" : "Client ERP"}</span>
+          <span className="nav-badge-text-full">{isEmployeeModule ? "Employee ERP" : "Client ERP"}</span>
+          <span className="nav-badge-text-short" style={{ display: "none" }}>{isEmployeeModule ? "Emp" : "Client"}</span>
         </div>
 
         {/* Database Status Badge */}
         <div
+          className="nav-db-badge"
           style={{
             display: "flex",
             alignItems: "center",
@@ -218,16 +235,18 @@ export default function Navbar({ title = "Master Data" }) {
             borderRadius: "20px",
             backgroundColor: dbStatus.connected ? "#DCFCE7" : "#FEE2E2",
             color: dbStatus.connected ? "#15803D" : "#B91C1C",
+            whiteSpace: "nowrap",
           }}
         >
           {dbStatus.connected ? (
             <>
-              <FiCheckCircle />
-              <span>PostgreSQL Connected</span>
+              <FiCheckCircle style={{ flexShrink: 0 }} />
+              <span className="nav-db-text-full">PostgreSQL Connected</span>
+              <span className="nav-db-text-short" style={{ display: "none" }}>DB Online</span>
             </>
           ) : (
             <>
-              <FiAlertCircle />
+              <FiAlertCircle style={{ flexShrink: 0 }} />
               <span>{dbStatus.loading ? "Checking DB..." : "DB Offline"}</span>
             </>
           )}
@@ -238,12 +257,13 @@ export default function Navbar({ title = "Master Data" }) {
           <div ref={profileRef} style={{ position: "relative" }}>
             <button
               type="button"
+              className="nav-profile-btn"
               onClick={() => setIsProfileOpen(!isProfileOpen)}
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "10px",
-                padding: "5px 14px 5px 8px",
+                gap: "8px",
+                padding: "4px 12px 4px 6px",
                 backgroundColor: isProfileOpen ? "#F1F5F9" : "#FFFFFF",
                 border: "1px solid #CBD5E1",
                 borderRadius: "24px",
@@ -267,24 +287,26 @@ export default function Navbar({ title = "Master Data" }) {
                   justifyContent: "center",
                   fontSize: "13px",
                   fontWeight: "700",
+                  flexShrink: 0,
                 }}
               >
                 {user?.fullName ? user.fullName.charAt(0).toUpperCase() : (user?.username ? user.username.charAt(0).toUpperCase() : <FiUser />)}
               </div>
-              <div style={{ textAlign: "left", display: "flex", flexDirection: "column" }}>
-                <span style={{ fontSize: "13.5px", fontWeight: "700", color: "#172B3A", lineHeight: 1.2 }}>
+              <div className="nav-profile-user-text" style={{ textAlign: "left", display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: "13px", fontWeight: "700", color: "#172B3A", lineHeight: 1.2 }}>
                   {user?.fullName || user?.username || "Administrator"}
                 </span>
-                <span style={{ fontSize: "11px", color: "#64748B", fontWeight: "500" }}>
+                <span className="nav-profile-role-sub" style={{ fontSize: "10.5px", color: "#64748B", fontWeight: "500" }}>
                   {user?.username ? `@${user.username}` : (user?.role || "ADMIN")}
                 </span>
               </div>
               <FiChevronDown
                 style={{
-                  fontSize: "16px",
+                  fontSize: "15px",
                   color: "#64748B",
                   transition: "transform 0.2s ease",
                   transform: isProfileOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  flexShrink: 0,
                 }}
               />
             </button>

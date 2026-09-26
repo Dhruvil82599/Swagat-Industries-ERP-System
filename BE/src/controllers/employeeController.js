@@ -135,6 +135,16 @@ function validateEmployeeData(data, isUpdate = false) {
     }
   }
 
+  // Base Salary validation (mandatory & > 0)
+  const baseSalary = data.baseSalary !== undefined ? data.baseSalary : data.base_salary;
+  if (!isUpdate || baseSalary !== undefined) {
+    if (baseSalary === undefined || baseSalary === null || String(baseSalary).trim() === "") {
+      errors.push({ field: "baseSalary", message: "Employee Salary is required" });
+    } else if (isNaN(parseFloat(baseSalary)) || parseFloat(baseSalary) <= 0) {
+      errors.push({ field: "baseSalary", message: "Employee Salary must be greater than 0" });
+    }
+  }
+
   // Joining Date validation (optional)
   if (joiningDate !== undefined && joiningDate !== null && String(joiningDate).trim() !== "") {
     const parsedDate = new Date(joiningDate);

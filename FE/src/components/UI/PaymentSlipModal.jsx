@@ -505,20 +505,199 @@ Thank you for your payment! Swagat Industries.`;
             alignItems: "center",
           }}
         >
+          <style>{`
+            .slip-card {
+              border: 2px solid #0f172a !important;
+              border-radius: 8px !important;
+              padding: 28px 32px !important;
+              margin-bottom: 20px !important;
+              box-sizing: border-box !important;
+              background: #ffffff !important;
+              color: #1e293b !important;
+              font-family: 'Segoe UI', Arial, sans-serif !important;
+              font-size: 11px !important;
+              line-height: 1.4 !important;
+              box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
+            }
+            .header-banner {
+              display: flex !important;
+              justify-content: space-between !important;
+              align-items: center !important;
+              border-bottom: 2px solid #1e3a8a !important;
+              padding-bottom: 12px !important;
+              margin-bottom: 14px !important;
+            }
+            .company-logo {
+              max-height: 55px !important;
+              max-width: 180px !important;
+              object-fit: contain !important;
+            }
+            .company-info {
+              text-align: right !important;
+              font-size: 10px !important;
+              color: #334155 !important;
+            }
+            .company-name {
+              font-size: 20px !important;
+              font-weight: 800 !important;
+              color: #1e3a8a !important;
+              margin-bottom: 2px !important;
+              letter-spacing: 0.5px !important;
+            }
+            .doc-title-bar {
+              background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+              color: #ffffff !important;
+              text-align: center !important;
+              padding: 8px 14px !important;
+              border-radius: 6px !important;
+              font-weight: 800 !important;
+              font-size: 15px !important;
+              letter-spacing: 1.5px !important;
+              margin-bottom: 16px !important;
+              display: flex !important;
+              justify-content: space-between !important;
+              align-items: center !important;
+            }
+            .grid-2 {
+              display: grid !important;
+              grid-template-columns: 1fr 1fr !important;
+              gap: 12px !important;
+              margin-bottom: 14px !important;
+            }
+            .info-box {
+              border: 1px solid #cbd5e1 !important;
+              border-radius: 6px !important;
+              padding: 10px 12px !important;
+              background-color: #f8fafc !important;
+            }
+            .info-box-title {
+              font-size: 9.5px !important;
+              font-weight: 800 !important;
+              color: #1e3a8a !important;
+              text-transform: uppercase !important;
+              border-bottom: 1px solid #e2e8f0 !important;
+              padding-bottom: 4px !important;
+              margin-bottom: 6px !important;
+              letter-spacing: 0.5px !important;
+            }
+            .info-text-bold {
+              font-weight: 700 !important;
+              color: #0f172a !important;
+              font-size: 11.5px !important;
+            }
+            .info-text {
+              color: #334155 !important;
+              font-size: 10.5px !important;
+              margin-top: 2px !important;
+            }
+            .amount-card {
+              background: #f0fdf4 !important;
+              border: 2px dashed #10b981 !important;
+              border-radius: 8px !important;
+              padding: 14px 18px !important;
+              margin-bottom: 16px !important;
+              display: flex !important;
+              justify-content: space-between !important;
+              align-items: center !important;
+            }
+            .amount-title {
+              font-size: 11px !important;
+              font-weight: 700 !important;
+              color: #047857 !important;
+              text-transform: uppercase !important;
+              letter-spacing: 0.5px !important;
+            }
+            .amount-val {
+              font-size: 24px !important;
+              font-weight: 900 !important;
+              color: #047857 !important;
+            }
+            .words-box {
+              background-color: #f1f5f9 !important;
+              border-left: 4px solid #059669 !important;
+              padding: 8px 12px !important;
+              font-size: 11px !important;
+              font-weight: 600 !important;
+              color: #0f172a !important;
+              margin-bottom: 16px !important;
+              border-radius: 0 6px 6px 0 !important;
+            }
+            table.summary-table {
+              width: 100% !important;
+              border-collapse: collapse !important;
+              margin-bottom: 16px !important;
+              font-size: 10.5px !important;
+            }
+            table.summary-table th {
+              background-color: #1e3a8a !important;
+              color: #ffffff !important;
+              font-weight: 700 !important;
+              text-align: left !important;
+              padding: 7px 10px !important;
+              border: 1px solid #1e3a8a !important;
+            }
+            table.summary-table td {
+              padding: 7px 10px !important;
+              border: 1px solid #cbd5e1 !important;
+            }
+            table.summary-table tr.total-row td {
+              background-color: #f1f5f9 !important;
+              font-weight: 700 !important;
+            }
+            table.summary-table tr.highlight-row td {
+              background-color: #ecfdf5 !important;
+              font-weight: 800 !important;
+              color: #047857 !important;
+            }
+            .badge {
+              display: inline-block !important;
+              padding: 3px 10px !important;
+              border-radius: 12px !important;
+              font-size: 10px !important;
+              font-weight: 700 !important;
+            }
+            .badge-success {
+              background-color: #d1fae5 !important;
+              color: #065f46 !important;
+              border: 1px solid #a7f3d0 !important;
+            }
+            .badge-warning {
+              background-color: #fef3c7 !important;
+              color: #92400e !important;
+              border: 1px solid #fde68a !important;
+            }
+            .signatures-grid {
+              display: grid !important;
+              grid-template-columns: 1fr 1fr !important;
+              gap: 40px !important;
+              margin-top: 35px !important;
+              padding-top: 10px !important;
+            }
+            .sig-box {
+              border: 1px solid #cbd5e1 !important;
+              border-radius: 6px !important;
+              padding: 12px !important;
+              text-align: center !important;
+              min-height: 80px !important;
+              display: flex !important;
+              flex-direction: column !important;
+              justify-content: space-between !important;
+              background-color: #fafafa !important;
+            }
+            .sig-line {
+              border-top: 1px solid #64748b !important;
+              margin-top: 40px !important;
+              padding-top: 4px !important;
+              font-weight: 700 !important;
+              font-size: 11px !important;
+              color: #1e293b !important;
+            }
+          `}</style>
           <div
             ref={printAreaRef}
             style={{ width: "100%", maxWidth: "750px" }}
           >
-            <div
-              className="slip-card"
-              style={{
-                backgroundColor: "#FFFFFF",
-                padding: "28px 32px",
-                boxShadow: "0 10px 25px rgba(0,0,0,0.3)",
-                borderRadius: "6px",
-                boxSizing: "border-box",
-              }}
-            >
+            <div className="slip-card">
               {/* Header: Company Details */}
               <div className="header-banner">
                 <div>
